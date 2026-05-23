@@ -1,8 +1,8 @@
 # WORKFLOW — Mi Proceso de Desarrollo de Software con IA
 
-> **Versión:** 20260520-v3
+> **Versión:** 20260522-v4
 > **Autor:** Martin Bortagaray
-> **Estado:** Approved
+> **Estado:** Review (pendiente aprobación final)
 
 ---
 
@@ -75,6 +75,22 @@ La seguridad no es una fase ni una capa. Es una preocupación transversal que se
 
 La verificación de cumplimiento ocurre en el checklist entre capas (sección 6.4) contra `PRINCIPLES.md` directamente, más cualquier extensión específica declarada en la spec.
 
+### 2.6 Riesgo de validación circular
+
+**Riesgo identificado:** la IA genera la spec (en Modo B con mis respuestas), genera el código a partir de la spec, y verifica el código contra la misma spec. Si la spec capturó mal el requisito del negocio, el código y los tests serán **consistentes entre sí pero incorrectos respecto al problema real**. La pasada adversaria del código pasará porque el código cumple la spec — aunque la spec no captura bien la realidad.
+
+**Por qué este riesgo es mayor en mi caso:**
+Trabajo solo. Soy a la vez PM, autor de la spec, y verificador. No hay otro humano que cuestione si el criterio de aceptación capturó la necesidad real.
+
+**Mitigaciones existentes en mi proceso:**
+1. Modo B: yo defino los criterios, no la IA. Reduce el riesgo en origen.
+2. Pasada adversaria de la spec (Regla 4): cuestiona la spec antes de aprobar.
+3. Principio personal de consultar a experto de dominio cuando dudo dos veces (sección 2.3).
+4. Pasada adversaria del código tiene límites declarados (sección 6.4.1).
+
+**Lo que estas mitigaciones NO cubren completamente:**
+Que el criterio de aceptación, aunque verificable y completo, **capture mal la necesidad real del negocio**. Eso solo lo detectaría un usuario real del producto, no la IA. Por eso ningún proceso SDD reemplaza el contacto con el usuario.
+
 ---
 
 ## 3. Roles de la IA en mi proceso
@@ -116,7 +132,7 @@ No necesito que los seis artefactos estén completos para empezar a escribir spe
 - `ARCHITECTURE.md`: stack + patrón arquitectónico base.
 - `DOMAIN_MODEL.md`: 4-6 entidades core con sus relaciones principales.
 
-**Los otros tres** (`CONVENTIONS.md`, `GLOSSARY.md`, `PRINCIPLES.md`) pueden empezar como esqueleto vacío (o template base) y se llenan reactivamente:
+**Los otros tres** (`CONVENTIONS.md`, `GLOSSARY.md`, `PRINCIPLES.md`) pueden empezar como esqueleto vacío y se llenan reactivamente:
 - Agrego al `GLOSSARY.md` cuando aparece un término que necesita definición.
 - Agrego a `CONVENTIONS.md` cuando tomo una decisión técnica que aplica a más de una feature.
 - Agrego a `PRINCIPLES.md` cuando defino una política transversal.
@@ -284,6 +300,27 @@ Si la pasada adversaria de Capa N encuentra un problema bloqueante en código de
 - Corrijo el código.
 - Re-verifico el checklist completo de esa capa.
 - Recién entonces continúo con la capa actual.
+
+### 6.4.2 Lo que la pasada adversaria de código NO puede validar
+
+La pasada adversaria del código tiene límites claros. **Es la primera línea de defensa técnica, no la única.**
+
+**El adversario SÍ valida:**
+- Que cada criterio de aceptación de la spec tiene un test que lo cubre.
+- Que el código no modifica módulos marcados como "sin tocar" en restricciones.
+- Que los nombres, patrones y convenciones siguen lo definido en `CONVENTIONS.md` y la spec.
+- Que todos los casos de error definidos en la spec tienen manejo explícito en el código.
+- Que la estructura de archivos sigue lo definido en el proyecto.
+
+**El adversario NO puede validar (estos riesgos quedan en mi responsabilidad):**
+- Que el criterio de aceptación captura correctamente la necesidad real del negocio.
+- Que la restricción declarada en la spec era la correcta en primer lugar.
+- Que la arquitectura elegida es la más adecuada para el problema.
+- Que no existen casos de error que la spec no contemplaba.
+- Que el diseño de la spec es técnicamente óptimo.
+
+**Implicancia operativa:**
+Pasar la pasada adversaria del código significa que **el código cumple la spec**, no que **la spec es correcta**. Si tengo dudas sobre si la spec captura bien la realidad del negocio, ninguna pasada adversaria de código va a resolverlas. La validación de la spec en sí ocurre antes, en Fase 4, y depende del contacto con el experto de dominio (sección 2.3).
 
 ### 6.5 Commits
 
@@ -478,6 +515,7 @@ En esta versión del workflow, la gestión de specs (estados, versiones, changel
 - **Sobre-ingeniería silenciosa** que se acumula sin que lo note.
 - **Iteración adversaria infinita:** seguir iterando contra hallazgos cada vez más menores en vez de aprobar con criterio (máximo 2 pasadas, ver sección 11).
 - **Reabrir decisiones de pasadas adversarias anteriores sin nuevo criterio:** la IA repite hallazgos entre pasadas porque no tiene memoria; mi trabajo es reconocerlos y mantener decisiones cerradas.
+- **Validación circular silenciosa:** asumir que porque el código pasa la pasada adversaria contra la spec, la spec es correcta. Ver sección 2.6 y 6.4.2.
 
 ### 10.2 Mis zonas de riesgo personales
 
@@ -497,8 +535,9 @@ Antes de aprobar una spec o cerrar una capa de código, recorro esta checklist:
 - [ ] **¿Releí completo?** No "le di una mirada".
 - [ ] **¿Esquivé alguna decisión?** ¿Hay algún "lo definimos después" o "es estándar" que en realidad necesita decisión ahora?
 - [ ] **¿Quedan decisiones abiertas o pendientes de consulta?** Si sí, NO apruebo. Resuelvo primero.
-- [ ] **¿Criterios de aceptación y casos borde están suficientemente detallados?** Si me parece que están justos, sumo 50% más.
+- [ ] **¿Criterios de aceptación y casos borde están suficientemente detallados?** Si me parece que están justos, releo y aplico la taxonomía obligatoria de la guide.
 - [ ] **¿Procesé el feedback recibido o lo cerré rápido?** ¿Estoy aprobando con criterio o con ansiedad?
+- [ ] **¿Modifiqué el contenido real de la spec para reflejar lo procesado de la pasada adversaria, o solo le di la razón al adversario en el chat sin trasladarlo al documento?**
 - [ ] **¿Las decisiones del LLM tomadas por defecto fueron revisadas y validadas explícitamente?**
 - [ ] **¿La pasada adversaria se hizo o la salté?**
 - [ ] **¿Estoy cansado?** Si sí, el riesgo de aprobación apresurada es mayor. Considero esperar.
@@ -583,5 +622,6 @@ Este `WORKFLOW.md` evoluciona. Las modificaciones siguen las reglas de versionad
 | Versión | Fecha | Cambios |
 |---------|-------|---------|
 | 20260520-v1 | 2026-05-20 | Versión inicial del documento. |
-| 20260520-v2 | 2026-05-20 | Resultados de primera pasada adversaria: Review como estado iterativo (1.1); carga de contexto en pasada adversaria como "todos los archivos existentes del setup" (2.1); specs dependientes como "las declaradas en sección Dependencias" (2.2); protocolo de impacto en specs Implemented al modificar setup (3.1); referencia al prompt de pasada adversaria de código (6.1); nota sobre mapeo de capas dependiente de ARCHITECTURE.md (7.1); prohibición de aprobar con decisiones abiertas (8.1); carga de schema real a partir de Capa 2; nueva sección 11 sobre cuántas veces iterar; nota en zonas de riesgo sobre trabajo nocturno (10.2). |
-| 20260520-v3 | 2026-05-20 | Resultados de segunda pasada adversaria: alineación de sección 8.4 con sección 11 sobre estado Review (1.1); restricción de specs dependientes a primer nivel directo (2.2); nueva sub-sección 7.3.1 sobre error estructural descubierto en Fase 6 (rollback de capas afectadas + retorno a Review); nueva sub-sección 6.4.1 con protocolo de hallazgos bloqueantes/no bloqueantes en pasada adversaria de código (6.1); nueva regla en 7.6 sobre migraciones de DB append-only (pregunta crítica final); simplificación de sección 2.5 sobre seguridad (eliminada duplicación en Feature Specs); nueva sub-sección 11.3 sobre hallazgos repetidos entre pasadas; nuevo antipatrón en 10.1 sobre reabrir decisiones cerradas. |
+| 20260520-v2 | 2026-05-20 | Resultados de primera pasada adversaria. |
+| 20260520-v3 | 2026-05-20 | Resultados de segunda pasada adversaria. |
+| 20260522-v4 | 2026-05-22 | Cambios incorporados del análisis del ebook "Agentic Engineer" de LIDR: nueva sección 2.6 sobre riesgo de validación circular; nueva sub-sección 6.4.2 con la lista explícita de lo que la pasada adversaria del código NO puede validar; nuevo antipatrón "validación circular silenciosa" en 10.1. Cambios pendientes incorporados de pasada adversaria del WORKFLOW v2: agregado item en checklist 10.3 sobre "modifiqué el contenido o solo le di la razón en el chat". |
