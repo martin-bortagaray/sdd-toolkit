@@ -1,6 +1,6 @@
 # CODEGEN PROTOCOL — Protocolo de Generación de Código por Capas
 
-> **Versión:** 20260523-v1
+> **Versión:** 20260525-v3
 > **Toolkit:** sdd-toolkit
 > **Propósito:** Referencia rápida para usar durante Fase 6 (generación de código). No es un prompt para la IA. Es el checklist operativo del autor para ejecutar Fase 6 correctamente.
 
@@ -103,19 +103,19 @@ Ejecutar después de revisar el código y antes de la pasada adversaria. **No ti
 
 1. Apuntar a la sección exacta de la spec que se está violando.
 2. Pedir cambio quirúrgico, no rehacer.
-3. Límite: 2 intentos. Al tercero, revisar si el problema es la spec (WORKFLOW.md sección 7.2).
+3. Límite: 2 intentos. Al tercero, revisar si el problema es la spec (WORKFLOW.md sección 8.2).
 
 ### Si la spec necesita modificarse durante Fase 6
 
 1. **Frenar generación inmediatamente.**
 2. Modificar la spec. Subir versión.
 3. Documentar qué cambió y por qué en el changelog de la spec.
-4. Si el cambio afecta capas ya generadas: evaluar impacto (WORKFLOW.md sección 7.3.1).
+4. Si el cambio afecta capas ya generadas: evaluar impacto (WORKFLOW.md sección 8.3.1).
 5. Reanudar generación con la spec nueva en contexto.
 
 ### Si se encuentra un error estructural en la spec durante Fase 6
 
-Ver WORKFLOW.md sección 7.3.1:
+Ver WORKFLOW.md sección 8.3.1:
 1. La spec retrocede de `Approved` a `Review` con nueva versión.
 2. Evaluar si capas ya generadas están afectadas.
 3. Si no afectadas: continuar desde capa actual con spec nueva.
@@ -174,3 +174,4 @@ Ver WORKFLOW.md sección 7.3.1:
 |---------|-------|---------|
 | 20260523-v1 | 2026-05-23 | Versión inicial. |
 | 20260523-v2 | 2026-05-23 | Agregados pasos de merge a staging y producción en "Al terminar Fase 6". Agregada regla 6 (no pushear directo a main). Coherente con WORKFLOW.md sección 9.6. |
+| 20260525-v3 | 2026-05-25 | Corrección de referencias cruzadas residuales del renumerado v7→v8 del WORKFLOW. Línea 106: "sección 7.2" → "sección 8.2". Línea 113: "sección 7.3.1" → "sección 8.3.1". Línea 118: "sección 7.3.1" → "sección 8.3.1". |

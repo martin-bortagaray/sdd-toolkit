@@ -34,7 +34,7 @@
 
 Los estados válidos son: `Draft`, `Review`, `Approved`, `Implemented`, `Deprecated`.
 
-Definidos en `WORKFLOW.md` sección 8.4. La columna del INDEX se actualiza al cambiar de estado en los cuatro momentos clave indicados arriba.
+Definidos en `WORKFLOW.md` sección 9.4. La columna del INDEX se actualiza al cambiar de estado en los cuatro momentos clave indicados arriba.
 
 ### Versión
 
@@ -47,7 +47,7 @@ Fecha del último cambio significativo en la spec (creación, aprobación, modif
 ### Dependencias directas
 
 - Lista separada por comas: `LOTES-001, AUTH-002, UI-003`.
-- **Solo primer nivel directo.** Si esta spec depende de `LOTES-001` y `LOTES-001` depende de `AUTH-002`, esta spec lista solo `LOTES-001`, no `AUTH-002`. (Coherente con WORKFLOW.md sección 6.2.7.)
+- **Solo primer nivel directo.** Si esta spec depende de `LOTES-001` y `LOTES-001` depende de `AUTH-002`, esta spec lista solo `LOTES-001`, no `AUTH-002`. (Coherente con WORKFLOW.md sección 7.2.)
 - Si no tiene dependencias declaradas, dejar vacío o escribir `—`.
 
 ---

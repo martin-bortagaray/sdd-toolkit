@@ -1,6 +1,6 @@
 # WORKFLOW — Mi Proceso de Desarrollo de Software con IA
 
-> **Versión:** 20260524-v7
+> **Versión:** 20260525-v8
 > **Autor:** Martin Bortagaray
 > **Estado:** Review (pendiente aprobación final)
 
@@ -347,7 +347,7 @@ En cada prompt de generación incluyo:
 - [ ] Requerimientos no funcionales relevantes de la spec verificados.
 - [ ] Decisiones tomadas por defecto por el LLM revisadas y aprobadas o rechazadas explícitamente.
 - [ ] **Pasada adversaria del código realizada** (en conversación separada, usando el prompt `prompts/05-adversarial-code.prompt.md` del toolkit).
-- [ ] Hallazgos de la pasada adversaria de código procesados según protocolo de 6.4.1.
+- [ ] Hallazgos de la pasada adversaria de código procesados según protocolo de 7.4.1.
 - [ ] Tests de esta capa generados, ejecutados y pasan.
 - [ ] No hay sobre-ingeniería: todo lo generado tiene justificación en spec o convenciones.
 
@@ -470,7 +470,7 @@ Cuando una spec aprobada se modifica y hay código generado contra la versión a
 
 - Le paso al LLM la spec nueva + spec anterior + código actual.
 - Le pido que actualice el código basándose en el diff entre versiones.
-- Verifico contra la spec nueva con el mismo checklist de 6.4.
+- Verifico contra la spec nueva con el mismo checklist de 7.4.
 
 **Caso especial — migraciones de base de datos:**
 Las migraciones de DB son **append-only**. Nunca se editan migraciones ya ejecutadas.
@@ -522,7 +522,7 @@ Los proyectos creados desde el toolkit guardan referencia a la versión del tool
 ```
 Draft → Review → Approved → Implemented → [Deprecated]
                     ↓
-       (Approved → Review si surge error estructural en Fase 6, ver 7.3.1)
+       (Approved → Review si surge error estructural en Fase 6, ver 8.3.1)
 ```
 
 - **Draft:** en escritura inicial.
@@ -781,8 +781,9 @@ Este `WORKFLOW.md` evoluciona. Las modificaciones siguen las reglas de versionad
 |---------|-------|---------|
 | 20260520-v1 | 2026-05-20 | Versión inicial del documento. |
 | 20260520-v2 | 2026-05-20 | Resultados de primera pasada adversaria. |
-| 20260520-v3 | 2026-05-20 | Resultados de segunda pasada adversaria. |
+| 20260521-v3 | 2026-05-21 | Resultados de segunda pasada adversaria. |
 | 20260522-v4 | 2026-05-22 | Cambios incorporados del análisis del ebook "Agentic Engineer" de LIDR: nueva sección 2.6 sobre riesgo de validación circular; nueva sub-sección 6.4.2 con la lista explícita de lo que la pasada adversaria del código NO puede validar; nuevo antipatrón "validación circular silenciosa" en 10.1. Cambios pendientes incorporados de pasada adversaria del WORKFLOW v2: agregado item en checklist 10.3 sobre "modifiqué el contenido o solo le di la razón en el chat". |
 | 20260523-v5 | 2026-05-23 | Calibración de Regla 4 (sección 2.2): diferencia explícita entre specs de feature (pasada adversaria obligatoria) y artefactos del toolkit (opcional según criterio del autor). Nueva sección INDEX en 9.5: referencia a project-index.template.md como fuente única de verdad para asignación de IDs, estado de specs y grafo de dependencias. |
 | 20260523-v6 | 2026-05-23 | Nueva sección 9.6: gestión de ramas. Modelo GitHub Flow simplificado con rama staging dedicada. Cubre estructura de ramas (main, staging, feature/*, hotfix/*), naming conectado a spec IDs, flujo de feature normal, flujo de hotfix, y evolución futura hacia CI/CD y equipos. |
 | 20260524-v7 | 2026-05-24 | Nueva sección 5: Fase 0 — Inicio del proyecto. Documenta los 3 pasos (discovery inicial, redacción setup + roadmap, diseño de prototipo) con sus prompts asociados. Renumeración de secciones 6-14 (antes 5-13) y todas las sub-secciones y referencias cruzadas. Sección 4.2 actualizada para reflejar que el setup foundacional se produce automáticamente en Fase 0 (antes era reactivo). Sección 5.4 nueva: design system del autor como transversal a todos los proyectos. Sección 10.5 ampliada: agregada referencia al ROADMAP junto al INDEX, con su rol distintivo. |
+| 20260525-v8 | 2026-05-25 | Corrección de 3 referencias cruzadas residuales del renumerado v7. Línea 350: "protocolo de 6.4.1" → "protocolo de 7.4.1". Línea 473: "checklist de 6.4" → "checklist de 7.4". Línea 525 (sección 9.4, diagrama de estados): "ver 7.3.1" → "ver 8.3.1". Corrección de fecha del v3 en el changelog: 20260520-v3 → 20260521-v3 (fecha real de redacción). Detectadas vía verificación con checklist desde Claude Code. Aplica Regla 5 (Errores en spec aprobada: subir versión, documentar). |

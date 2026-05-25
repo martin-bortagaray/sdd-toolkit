@@ -46,6 +46,10 @@ La estimación detallada para cotización formal se hace en documento aparte tom
 
 ## Fases del proyecto
 
+> **Nota sobre los IDs:** los identificadores de specs en este roadmap son **orientativos**, no definitivos. Se usan etiquetas tipo "Spec A1", "Spec A2", "Spec B1" para mantener el roadmap como documento estratégico independiente de la asignación operativa de IDs.
+>
+> Los IDs reales (con formato `<DOMINIO>-001`, etc.) se asignan vía el INDEX del proyecto cuando arranca cada spec. Esto evita confusiones cuando una spec real difiere de lo que el roadmap previó al inicio.
+
 ### Fase 1 — [Nombre descriptivo de la fase]
 
 **Objetivo:** [En una frase. Qué va a poder hacer el usuario o el sistema al terminar esta fase.]
@@ -56,9 +60,9 @@ La estimación detallada para cotización formal se hace en documento aparte tom
 
 | Tamaño | Spec | Descripción breve |
 |--------|------|-------------------|
-| M | AUTH-001 | Autenticación de usuarios |
-| S | USERS-002 | Gestión de perfiles |
-| L | DASHBOARD-003 | Dashboard principal |
+| M | Spec A1 | Autenticación de usuarios |
+| S | Spec A2 | Gestión de perfiles |
+| L | Spec A3 | Dashboard principal |
 
 **Estimación gruesa:** [Total de tamaños sumados, ej: "2S + 3M + 1L"]
 
