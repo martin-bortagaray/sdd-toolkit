@@ -1,0 +1,206 @@
+# Prompt — Generación de Código por Capas (Fase 6)
+
+> **Versión:** 20260523-v1
+> **Uso:** Después de que la spec pasó verificación pre-generación (`prompts/06-spec-verification.prompt.md`) con veredicto VERDE o AMARILLO aceptado. Se ejecuta una vez por capa, con contexto incremental.
+> **Dónde se ejecuta:** Claude Code (preferido) o Claude.ai en conversación nueva por capa.
+
+---
+
+## Cuándo usar este prompt
+
+Este prompt se ejecuta **4 veces por feature**, una por capa:
+
+| Capa | Qué genera | Prerequisito |
+|------|-----------|--------------|
+| 1 — Modelo de datos | Entidades, schemas, migraciones de DB | Nada (es la primera) |
+| 2 — Lógica de negocio | Servicios, reglas de dominio, integraciones | Código de Capa 1 aprobado |
+| 3 — API / Capa de acceso | Endpoints, rutas, validaciones de entrada | Código de Capas 1 y 2 aprobados |
+| 4 — UI | Componentes, páginas, flujos de interfaz | Código de Capas 1, 2 y 3 aprobados |
+
+**No pasar a la siguiente capa hasta completar el checklist de verificación entre capas** (WORKFLOW.md sección 6.4). El prompt de pasada adversaria de código (`prompts/05-adversarial-code.prompt.md`) se ejecuta después de cada capa, antes de tildar el checklist.
+
+---
+
+## Cómo usar este prompt
+
+1. Verificar que la spec pasó el prompt de verificación pre-generación con veredicto VERDE o AMARILLO aceptado.
+
+2. Abrir conversación nueva (o sesión nueva en Claude Code).
+
+3. **Adjuntar como archivos** (no pegar como texto plano):
+
+   **Siempre:**
+   - Spec aprobada (`<spec-id>.md`).
+   - `ARCHITECTURE.md`
+   - `DOMAIN_MODEL.md`
+   - `CONVENTIONS.md`
+   - `PRINCIPLES.md`
+   - `GLOSSARY.md`
+   - Specs declaradas como dependencias en sección 12 (primer nivel directo).
+
+   **A partir de Capa 2:** agregar también:
+   - Código generado y aprobado de todas las capas anteriores.
+   - Schema real de la base de datos (dump del schema vivo o migraciones ejecutadas).
+
+4. Reemplazar los placeholders `{CAPA}`, `{NUMERO-CAPA}`, `{SPEC-ID}` y `{SPEC-VERSION}` en el prompt antes de pegar.
+
+5. Pegar el prompt (solo el bloque delimitado por ` ``` `) y enviar.
+
+---
+
+## Prompt
+
+```
+Necesito que actúes como Generador de código para la Capa {NUMERO-CAPA} — {CAPA} de la feature {SPEC-ID} versión {SPEC-VERSION}.
+
+CONTEXTO QUE TE PASO:
+- Spec aprobada de la feature.
+- Setup foundacional del proyecto: ARCHITECTURE, DOMAIN_MODEL, CONVENTIONS, PRINCIPLES, GLOSSARY.
+- Specs dependientes declaradas en sección 12 de la spec (primer nivel directo).
+[A partir de Capa 2 agregar: - Código de capas anteriores ya generadas y aprobadas.]
+[A partir de Capa 2 agregar: - Schema real de la base de datos (migraciones ejecutadas).]
+
+QUÉ GENERAR EN ESTA CAPA:
+
+Capa 1 — Modelo de datos:
+- Definición de entidades con todos sus atributos, tipos y restricciones declarados en sección 6 de la spec.
+- Schemas de validación (Pydantic o equivalente según ARCHITECTURE.md).
+- Migraciones de base de datos (append-only; nunca modificar migraciones existentes).
+- Tests de modelo: constraints, relaciones, validaciones de tipo.
+
+Capa 2 — Lógica de negocio:
+- Servicios que implementan los requerimientos funcionales (sección 4) y las reglas de negocio (sección 7).
+- Manejo de todos los casos borde declarados en sección 9.
+- Integraciones con servicios externos declarados en sección 12.
+- Tests de lógica: happy paths, reglas de negocio, casos borde, errores de integración.
+
+Capa 3 — API / Capa de acceso:
+- Endpoints o rutas según el patrón arquitectónico de ARCHITECTURE.md.
+- Validación de inputs en la capa de entrada.
+- Manejo de errores HTTP según criterios de aceptación (sección 8).
+- Aplicación de políticas de autenticación y autorización de PRINCIPLES.md.
+- Tests de endpoints: status codes, payloads, autenticación, autorización, validaciones.
+
+Capa 4 — UI:
+- Componentes y páginas según los flujos descritos en sección 13 (Notas de implementación).
+- Estados de carga, error, vacío y éxito para cada flujo.
+- Validaciones en cliente declaradas en sección 13.
+- Tests de componentes o e2e según criterios de aceptación (sección 8).
+
+REGLAS DE GENERACIÓN:
+
+Regla 1 — La spec es el contrato. Implementá exactamente lo que dice la spec, no lo que "tiene sentido" agregar.
+
+Regla 2 — Tabla comparativa antes del código. Antes de generar el código, generá una tabla con este formato:
+
+| Requerimiento / Criterio en spec | Implementación en esta capa | Estado |
+|---|---|---|
+| [Sección X, ítem Y: texto exacto] | [Dónde y cómo se implementa] | Cubierto / Parcial / No aplica en esta capa |
+
+Si algún requerimiento queda "Parcial", explicá por qué y en qué capa se completa.
+Si algún requerimiento no está cubierto en esta capa (aplica a otra), marcalo como "No aplica en esta capa".
+
+Regla 3 — No sobre-ingenieriar. No agregués atributos, validaciones, restricciones, relaciones, endpoints, componentes, capas de abstracción, o patrones que no estén explícitamente en la spec o requeridos por CONVENTIONS.md o PRINCIPLES.md.
+
+Regla 4 — No tomes decisiones de producto. Si durante la generación encontrás algo que la spec no especifica y que requiere una decisión de producto (no solo técnica), parate y avisame. No lo implementés con tu criterio.
+
+Regla 5 — Consistencia con capas anteriores. El código de esta capa debe ser coherente con el código ya generado y aprobado de capas anteriores. Si hay inconsistencia entre lo que las capas anteriores implementaron y lo que la spec pide para esta capa, avisame antes de generar.
+
+Regla 6 — Convenciones siempre. Naming, estructura de carpetas, patrones y estilo según CONVENTIONS.md. Sin excepciones.
+
+Regla 7 — Seguridad transversal. Las políticas de PRINCIPLES.md aplican en todas las capas. No delegues seguridad a "la capa siguiente". Si esta capa maneja datos sensibles, autenticación, o autorización, implementá las políticas correspondientes acá.
+
+Regla 8 — Migraciones append-only (solo Capa 1). Nunca modificar migraciones ya ejecutadas. Si la spec requiere cambios al schema, generá una nueva migración que referencia la versión de spec que la requirió.
+
+PASO 0 — ANTES DE GENERAR:
+
+1. Leé la spec completa.
+2. Identificá todos los requerimientos funcionales (sección 4), reglas de negocio (sección 7), criterios de aceptación (sección 8) y casos borde (sección 9) que aplican a esta capa.
+3. Generá la tabla comparativa (Regla 2) con todos los ítems identificados.
+4. Esperá mi confirmación: "tabla ok, generá el código". No generés código hasta que yo confirme la tabla.
+
+PASO 1 — GENERACIÓN DE CÓDIGO:
+
+Después de mi confirmación de la tabla:
+- Generá el código completo de esta capa.
+- Incluí los tests de la capa en el mismo output (ver "QUÉ GENERAR EN ESTA CAPA").
+- Organizá el output por archivos, con ruta completa de cada archivo según CONVENTIONS.md.
+
+Formato del output de código:
+
+```archivo: <ruta/completa/del/archivo.py>
+[contenido del archivo]
+```
+
+PASO 2 — DECISIONES IMPLÍCITAS:
+
+Después del código, generá un bloque con este formato exacto:
+
+DECISIONES TÉCNICAS TOMADAS POR DEFECTO
+========================================
+[Lista numerada de decisiones técnicas que tomaste durante la generación que no estaban explícitas en la spec ni en CONVENTIONS.md. Solo decisiones técnicas operativas (nombre de función, estructura de módulo, tipo de excepción, patrón de manejo de error). NUNCA decisiones de producto.]
+
+Si no tomaste ninguna: escribir "Sin decisiones por defecto. Todo proviene de la spec o de CONVENTIONS.md."
+
+MANEJO DE GAPS DURANTE LA GENERACIÓN:
+
+Si durante la generación encontrás cualquiera de estas situaciones:
+1. La spec dice X pero ARCHITECTURE.md o CONVENTIONS.md dice algo incompatible.
+2. Un requerimiento de la spec es ambiguo y admite implementaciones distintas con consecuencias reales.
+3. Una regla de negocio no es implementable con el stack declarado sin decisión arquitectónica.
+4. El código de una capa anterior es inconsistente con lo que la spec pide para esta capa.
+
+Hacé esto:
+- PARATE. No implementés con tu criterio.
+- Describí el gap encontrado con cita textual de la spec y del documento que entra en conflicto.
+- Esperá mi decisión antes de continuar.
+
+Esto es crítico. Un gap ignorado en Capa 1 se propaga a Capa 4. El costo de corregirlo tarde es alto (WORKFLOW.md sección 7.3.1).
+
+¿Listo para empezar? Confirmame que tenés todo el contexto cargado y ejecutá el Paso 0 (tabla comparativa).
+```
+
+---
+
+> **Nota: lo que sigue NO es parte del prompt. Es para mí, no para copiar en la conversación con la IA.**
+
+## Después de cada capa
+
+1. **Revisar la tabla comparativa** antes de confirmar. Si falta algún requerimiento en la tabla, pedirle al LLM que lo agregue antes de generar código.
+
+2. **Revisar código y tests** con el checklist de WORKFLOW.md sección 6.4.
+
+3. **Ejecutar pasada adversaria de código** con `prompts/05-adversarial-code.prompt.md` en conversación nueva.
+
+4. **Procesar decisiones técnicas tomadas por defecto.** Para cada una: aceptar o pedir cambio quirúrgico. Si alguna decisión "técnica" esconde una decisión de producto, modificar la spec primero.
+
+5. **Si el LLM detectó un gap:** resolverlo antes de continuar. Según la naturaleza:
+   - Gap de redacción (la spec es ambigua pero la decisión ya está tomada): modificar spec, subir versión.
+   - Gap de producto (decisión no tomada): volver a Fase 2 (discovery adicional) o decidir ahora y documentar en spec.
+   - Gap de arquitectura: modificar ARCHITECTURE.md y evaluar impacto en specs anteriores.
+
+6. **Commitear capa** solo después de que el checklist 6.4 esté completo. Un commit por capa (no por archivo).
+
+7. **Pasar a la siguiente capa** adjuntando el código aprobado como contexto adicional.
+
+---
+
+## Notas operativas
+
+- **Claude Code vs. Claude.ai:** Claude Code mantiene contexto del proyecto por sí solo. Claude.ai requiere cargar contexto explícitamente en cada conversación. El prompt funciona en ambos, pero con Claude Code podés omitir el paso de adjuntar archivos de setup foundacional si ya están en el contexto del proyecto.
+
+- **Si el LLM genera código que "funciona" pero no está en la spec:** eso es sobre-ingeniería. Pedirle que lo elimine. No es negociable.
+
+- **Si la tabla comparativa muestra items "Parcial":** verificar que estén cubiertos en otra capa. Si llegan a Capa 4 como "Parcial", hay un gap de implementación.
+
+- **Si el LLM pide aclaraciones sobre la spec:** eso es señal de que la spec tiene ambigüedad. Resolverla en la spec primero, no en el chat. Ver WORKFLOW.md sección 7.3.
+
+- **Tests primero o después:** el prompt pide tests en el mismo output que el código de producción. Si preferís separar (generar código, revisar, después tests), podés adaptar el Paso 1 para pedirlo en dos rondas. Lo que no es negociable es que los tests existan antes de pasar a la siguiente capa.
+
+---
+
+## Changelog
+
+| Versión | Fecha | Cambios |
+|---------|-------|---------|
+| 20260523-v1 | 2026-05-23 | Versión inicial. |

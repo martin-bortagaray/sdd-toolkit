@@ -1,6 +1,6 @@
 # Prompt — Pasada adversaria de código
 
-> **Versión:** 20260522-v2
+> **Versión:** 20260523-v3
 > **Uso:** Después de generar una capa de código contra una spec aprobada, antes de pasar a la siguiente capa.
 > **Dónde se ejecuta:** En conversación nueva con contexto limpio. NO en la conversación donde se generó el código.
 
@@ -41,7 +41,7 @@ Antes de ejecutar este prompt, recordá que esta pasada adversaria **tiene lími
 - Que no existen casos de error que la spec no contemplaba.
 - Que el diseño de la spec es técnicamente óptimo.
 
-**Riesgo a tener presente — validación circular:** la IA generó la spec (a partir de mis respuestas en Modo B), generó el código contra esa spec, y ahora va a verificar el código contra la misma spec. Si la spec capturó mal el requisito de negocio, el código y los tests serán consistentes entre sí pero incorrectos respecto al problema real. **La pasada adversaria del código no detecta este caso.** Si tengo dudas sobre si la spec captura bien la realidad del negocio, esas dudas se resuelven antes (en Fase 4, con consulta a experto de dominio si corresponde), no con esta pasada.
+**Riesgo a tener presente — validación circular:** la IA generó la spec (a partir de mis respuestas durante el discovery), generó el código contra esa spec, y ahora va a verificar el código contra la misma spec. Si la spec capturó mal el requisito de negocio, el código y los tests serán consistentes entre sí pero incorrectos respecto al problema real. **La pasada adversaria del código no detecta este caso.** Si tengo dudas sobre si la spec captura bien la realidad del negocio, esas dudas se resuelven antes (en Fase 4, con consulta a experto de dominio si corresponde), no con esta pasada.
 
 ---
 
@@ -118,3 +118,13 @@ Terminá con UNA pregunta crítica: ¿qué riesgo operativo concreto introduce e
 - **Si la pasada adversaria devuelve "todo está bien":** desconfiá. O el código es trivial, o el adversario no buscó bien. Repetir con prompt reforzado.
 - **Si la pasada adversaria devuelve más de 20 hallazgos serios:** probablemente la capa tiene problemas estructurales. Considerá descartar la generación y volver a generar con prompt mejorado, en vez de iterar.
 - **Si tenés dudas sobre la spec en sí:** este prompt no las va a resolver. Esas dudas se trabajan en Fase 4 con pasada adversaria de spec o con consulta a experto de dominio. Ver WORKFLOW.md sección 2.6 sobre riesgo de validación circular.
+
+---
+
+## Changelog
+
+| Versión | Fecha | Cambios |
+|---------|-------|---------|
+| 20260521-v1 | 2026-05-21 | Versión inicial. |
+| 20260522-v2 | 2026-05-22 | Cambios incorporados del análisis del ebook "Agentic Engineer" de LIDR: nueva sección "Advertencia sobre límites" antes del prompt; bloque "ALCANCE DE TU REVISIÓN" dentro del prompt; restricción al final del prompt sobre no cuestionar la spec; nota sobre validación circular en notas operativas. |
+| 20260523-v3 | 2026-05-23 | Quitada referencia a "Modo B" de la advertencia sobre validación circular. Reemplazado por "durante el discovery". El término "Modo B" se mantiene solo en WORKFLOW.md. |

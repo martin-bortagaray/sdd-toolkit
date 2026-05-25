@@ -1,6 +1,6 @@
 # WORKFLOW — Mi Proceso de Desarrollo de Software con IA
 
-> **Versión:** 20260522-v4
+> **Versión:** 20260524-v7
 > **Autor:** Martin Bortagaray
 > **Estado:** Review (pendiente aprobación final)
 
@@ -39,7 +39,7 @@ Estas reglas aplican en todo el proceso. No se relajan por urgencia ni por cansa
 
 **Regla 3.** Leo la spec entera antes de aprobarla. No "le doy una mirada". Lectura completa, con cabeza fresca.
 
-**Regla 4.** Toda spec aprobada pasa por una pasada adversaria. No se salta ese paso.
+**Regla 4.** Toda spec de feature aprobada pasa por una pasada adversaria. No se salta ese paso. Para artefactos del toolkit (prompts, templates, protocolos), la pasada adversaria es recomendada pero opcional según criterio del autor. Justificación: el toolkit evoluciona con la experiencia de uso real; refinarlo prematuramente sin señal de uso introduce más fricción que valor. Cuando un artefacto del toolkit muestre problema en uso real, se itera con Regla 5.
 
 **Regla 5.** Si descubro que una spec aprobada estaba mal después de aprobarla, no lo escondo. Subo versión, documento el cambio, entiendo por qué se me escapó.
 
@@ -73,7 +73,7 @@ La seguridad no es una fase ni una capa. Es una preocupación transversal que se
 1. **`PRINCIPLES.md`** (setup foundacional): políticas de seguridad globales del proyecto (autenticación, autorización, manejo de datos sensibles, logging, validación, manejo de errores).
 2. **Feature Specs** (sección de Requerimientos no funcionales): **solo si una feature difiere o extiende las políticas globales**. Si no hay cambios respecto a `PRINCIPLES.md`, la sección se omite.
 
-La verificación de cumplimiento ocurre en el checklist entre capas (sección 6.4) contra `PRINCIPLES.md` directamente, más cualquier extensión específica declarada en la spec.
+La verificación de cumplimiento ocurre en el checklist entre capas (sección 7.4) contra `PRINCIPLES.md` directamente, más cualquier extensión específica declarada en la spec.
 
 ### 2.6 Riesgo de validación circular
 
@@ -86,7 +86,7 @@ Trabajo solo. Soy a la vez PM, autor de la spec, y verificador. No hay otro huma
 1. Modo B: yo defino los criterios, no la IA. Reduce el riesgo en origen.
 2. Pasada adversaria de la spec (Regla 4): cuestiona la spec antes de aprobar.
 3. Principio personal de consultar a experto de dominio cuando dudo dos veces (sección 2.3).
-4. Pasada adversaria del código tiene límites declarados (sección 6.4.1).
+4. Pasada adversaria del código tiene límites declarados (sección 7.4.1).
 
 **Lo que estas mitigaciones NO cubren completamente:**
 Que el criterio de aceptación, aunque verificable y completo, **capture mal la necesidad real del negocio**. Eso solo lo detectaría un usuario real del producto, no la IA. Por eso ningún proceso SDD reemplaza el contacto con el usuario.
@@ -123,21 +123,20 @@ Todo proyecto nuevo arranca creando estos seis artefactos, en este orden:
 5. **`GLOSSARY.md`** — Términos del dominio con definición precisa.
 6. **`PRINCIPLES.md`** — Principios y políticas transversales (incluye seguridad).
 
-### 4.2 Criterio de "suficientemente completo" para empezar specs
+### 4.2 Cómo se produce el setup foundacional
 
-No necesito que los seis artefactos estén completos para empezar a escribir specs de feature. **El setup foundacional es vivo y evoluciona.**
+**El setup foundacional se produce en Fase 0** (ver sección 5) a través de los prompts `00-project-discovery.prompt.md` y `00b-setup-foundation.prompt.md`. Esos prompts producen los 6 artefactos completos + el `ROADMAP.md` del proyecto en un solo flujo.
 
-**Mínimo necesario para arrancar la primera spec de feature:**
-- `PRODUCT.md`: versión draft con norte y no-objetivos.
-- `ARCHITECTURE.md`: stack + patrón arquitectónico base.
-- `DOMAIN_MODEL.md`: 4-6 entidades core con sus relaciones principales.
+**Esto cambia respecto a versiones anteriores del workflow.** En versiones previas, el setup foundacional se llenaba reactivamente arrancando con esqueletos vacíos. En v7, el setup foundacional sale completo de Fase 0.
 
-**Los otros tres** (`CONVENTIONS.md`, `GLOSSARY.md`, `PRINCIPLES.md`) pueden empezar como esqueleto vacío y se llenan reactivamente:
-- Agrego al `GLOSSARY.md` cuando aparece un término que necesita definición.
-- Agrego a `CONVENTIONS.md` cuando tomo una decisión técnica que aplica a más de una feature.
-- Agrego a `PRINCIPLES.md` cuando defino una política transversal.
+**Lo que sigue siendo cierto:** el setup foundacional sigue siendo **vivo y evoluciona**. Los 6 artefactos producidos en Fase 0 son la base inicial. A medida que el proyecto avanza, se actualizan reactivamente cuando:
+- Aparece un término nuevo que necesita definición precisa (actualiza `GLOSSARY.md`).
+- Aparece una decisión técnica que aplica a más de una feature (actualiza `CONVENTIONS.md`).
+- Aparece una política transversal nueva (actualiza `PRINCIPLES.md`).
+- Aparece un cambio arquitectónico importante (actualiza `ARCHITECTURE.md`).
+- Cambia el alcance del producto (actualiza `PRODUCT.md` y posiblemente `ROADMAP.md`).
 
-**Riesgo a vigilar:** la tentación de "completar todo antes de avanzar". El setup foundacional es base viva, no requisito de perfección anticipada.
+**Riesgo a vigilar:** la tentación de regenerar el setup foundacional cada vez que algo cambia. Las actualizaciones son **quirúrgicas y reactivas**, no regeneraciones completas.
 
 ### 4.3 Stack base por defecto
 
@@ -153,7 +152,72 @@ DB y Auth: Supabase (PostgreSQL managed)
 
 ---
 
-## 5. Ciclo SDD por feature
+## 5. Fase 0 — Inicio del proyecto
+
+Fase 0 es el flujo de inicio que se ejecuta **una sola vez por proyecto**, antes del primer ciclo de feature. Produce el setup foundacional completo, el roadmap inicial y un prototipo visual del producto.
+
+### 5.1 Pasos de Fase 0
+
+Tres pasos secuenciales:
+
+**Paso 1 — Discovery inicial del proyecto.**
+- Prompt: `00-project-discovery.prompt.md`.
+- Input: idea de producto a alto nivel (texto libre del autor).
+- Output: documento estructurado por 6 bloques temáticos con decisiones estratégicas crudas.
+- Duración esperada: 1-4 horas según tamaño del proyecto.
+
+**Paso 2 — Redacción del setup foundacional + roadmap.**
+- Prompt: `00b-setup-foundation.prompt.md`.
+- Input: output del Paso 1.
+- Output: 7 archivos completos del proyecto (los 6 del setup foundacional + `ROADMAP.md`).
+- Pre-requisito: el output del discovery no puede tener pendientes ni decisiones por defecto sin validar ni cuestionamientos de viabilidad sin resolver.
+
+**Paso 3 — Diseño de prototipo UI.**
+- Prompt: `00c-design-prototype.prompt.md`.
+- Flujo híbrido: brief en Claude.ai + prototipo en Claude Design.
+- Output: prototipo navegable de 4-8 pantallas principales.
+- Input: setup foundacional completo + design system del autor.
+
+### 5.2 Después de Fase 0
+
+Al terminar los 3 pasos, el autor tiene:
+- Repo del proyecto creado con setup foundacional commiteado.
+- `INDEX.md` del proyecto creado (de `templates/project-index.template.md`).
+- Prototipo guardado en `docs/prototype/` del repo.
+- Roadmap con specs orientativas listas para arrancar la primera feature.
+
+El paso siguiente es la **propuesta al cliente** (cotización), que se hace **fuera del SDD**. Ver sección 10.5 para más detalle.
+
+Cuando el cliente aprueba la propuesta, arranca **Fase 1 del ciclo de feature** sobre la primera spec del roadmap.
+
+### 5.3 Cuándo NO ejecutar Fase 0
+
+Fase 0 se ejecuta una sola vez por proyecto. No se vuelve a ejecutar para:
+
+- Nuevas features (esas van por el ciclo de feature, Fase 1).
+- Cambios en el setup foundacional (esos se hacen de forma reactiva, ver sección 4.2).
+- Refactor del producto (eso requiere decisión explícita de "nuevo proyecto" vs "evolución del proyecto actual").
+
+Si el proyecto cambia tanto que requiere repensar el setup foundacional desde cero, evaluar si es realmente el mismo proyecto. Si lo es, ejecutar Fase 0 nuevamente con versión incrementada. Si no lo es, crear un proyecto nuevo.
+
+### 5.4 Design System del autor
+
+El autor mantiene un **design system propio** en `templates/design-system.template.md` del toolkit. Es transversal a todos los proyectos: define identidad visual, tipografía, componentes base, patrones de UX.
+
+Decisiones del design system del autor (versión actual):
+- Tono visual: moderno/minimalista.
+- Modo: oscuro como default, claro como variación.
+- Color de acento: indigo por defecto, **variable por proyecto** cuando el cliente requiere su marca corporativa.
+- Tipografía: Inter (principal) + JetBrains Mono (monoespaciada).
+- Componentes: shadcn/ui core + extensiones para SaaS B2B.
+- Iconos: Lucide.
+- Logo: variable por proyecto.
+
+El design system se carga como contexto en el prompt 00c-design-prototype y en los prompts de generación de UI (Capa 4 del codegen).
+
+---
+
+## 6. Ciclo SDD por feature
 
 Cada feature pasa por estas seis fases. **Cualquier cambio futuro a una feature implementada vuelve a Fase 1.**
 
@@ -183,7 +247,7 @@ Cada feature pasa por estas seis fases. **Cualquier cambio futuro a una feature 
 ### Fase 4 — Pasada adversaria + ajustes
 
 - Inicio conversación nueva (contexto limpio).
-- Cargo el draft + **todos los archivos del setup foundacional que existan en el proyecto** + las **specs declaradas en la sección "Dependencias" del draft** (solo primer nivel directo; ver sección 6.2).
+- Cargo el draft + **todos los archivos del setup foundacional que existan en el proyecto** + las **specs declaradas en la sección "Dependencias" del draft** (solo primer nivel directo; ver sección 7.2).
 - La IA en rol Adversario busca ambigüedades, contradicciones internas, gaps, casos borde no cubiertos.
 - Resuelvo los puntos identificados.
 - La IA redacta versión actualizada con mis resoluciones.
@@ -197,7 +261,7 @@ Cada feature pasa por estas seis fases. **Cualquier cambio futuro a una feature 
 - **Pre-requisitos obligatorios para pasar a Approved:**
   - No quedan en la spec decisiones marcadas como abiertas, pendientes de consulta, o "TBD".
   - Todas las dudas externas (al agrónomo, socio, expertos de dominio) fueron resueltas y escritas en la spec.
-  - La pasada adversaria fue ejecutada al menos una vez (máximo dos veces, ver sección 11).
+  - La pasada adversaria fue ejecutada al menos una vez (máximo dos veces, ver sección 12).
 - **Estado Review es iterativo:** la spec puede permanecer en Review mientras itero ajustes y, si fuera necesario, mientras ejecuto una segunda pasada adversaria. Solo paso a Approved cuando los pre-requisitos están cumplidos y mi lectura crítica de la spec entera es satisfactoria.
 - Si paso a **Approved**, registro fecha/hora + versión. La spec queda congelada durante la implementación.
 
@@ -222,15 +286,15 @@ Capa 3 — API / Capa de acceso + tests
 Capa 4 — UI + tests (si aplica)
 ```
 
-Protocolo detallado en sección 6.
+Protocolo detallado en sección 7.
 
 **Output:** código verificado contra spec, commit único con la feature completa.
 
 ---
 
-## 6. Generación de código por capas
+## 7. Generación de código por capas
 
-### 6.1 Modelo de 4 capas con tests intercalados
+### 7.1 Modelo de 4 capas con tests intercalados
 
 ```
 Capa 1 — Modelo de datos
@@ -245,7 +309,7 @@ Capa 4 — UI
 
 **Nota:** el mapeo concreto de cada capa a estructura de código depende de la arquitectura definida en el `ARCHITECTURE.md` del proyecto. Por ejemplo, una arquitectura Next.js + Supabase directo puede mapear "Capa 3 — API" a políticas RLS y funciones de DB en Supabase, no a endpoints FastAPI. Esa decisión vive en `ARCHITECTURE.md`, no en este workflow.
 
-### 6.2 Carga de contexto para cada capa
+### 7.2 Carga de contexto para cada capa
 
 Para cada capa, cargo en contexto del LLM, en este orden:
 
@@ -259,7 +323,7 @@ Para cada capa, cargo en contexto del LLM, en este orden:
 8. Código de capas anteriores ya generadas (si aplica).
 9. **A partir de Capa 2 inclusive:** schema real actual de la base de datos (migraciones ejecutadas o dump del schema vivo). El modelo conceptual solo no alcanza: el LLM necesita ver los nombres y tipos exactos desplegados para evitar divergencias.
 
-### 6.3 Instrucciones contra los tres saboteos
+### 7.3 Instrucciones contra los tres saboteos
 
 En cada prompt de generación incluyo:
 
@@ -272,7 +336,7 @@ En cada prompt de generación incluyo:
 **Contra sobre-ingeniería:**
 > "No agregues atributos, validaciones, restricciones, relaciones o capas de abstracción que no estén explícitamente en la spec o requeridos por las convenciones / principios del setup foundacional."
 
-### 6.4 Verificación entre capas
+### 7.4 Verificación entre capas
 
 **No paso a la siguiente capa hasta cumplir todo este checklist:**
 
@@ -287,7 +351,7 @@ En cada prompt de generación incluyo:
 - [ ] Tests de esta capa generados, ejecutados y pasan.
 - [ ] No hay sobre-ingeniería: todo lo generado tiene justificación en spec o convenciones.
 
-### 6.4.1 Protocolo de hallazgos de pasada adversaria de código
+### 7.4.1 Protocolo de hallazgos de pasada adversaria de código
 
 Los hallazgos se clasifican en dos categorías:
 
@@ -301,7 +365,7 @@ Si la pasada adversaria de Capa N encuentra un problema bloqueante en código de
 - Re-verifico el checklist completo de esa capa.
 - Recién entonces continúo con la capa actual.
 
-### 6.4.2 Lo que la pasada adversaria de código NO puede validar
+### 7.4.2 Lo que la pasada adversaria de código NO puede validar
 
 La pasada adversaria del código tiene límites claros. **Es la primera línea de defensa técnica, no la única.**
 
@@ -322,7 +386,7 @@ La pasada adversaria del código tiene límites claros. **Es la primera línea d
 **Implicancia operativa:**
 Pasar la pasada adversaria del código significa que **el código cumple la spec**, no que **la spec es correcta**. Si tengo dudas sobre si la spec captura bien la realidad del negocio, ninguna pasada adversaria de código va a resolverlas. La validación de la spec en sí ocurre antes, en Fase 4, y depende del contacto con el experto de dominio (sección 2.3).
 
-### 6.5 Commits
+### 7.5 Commits
 
 **Commiteo cuando la feature está completa y verificada**, no capa por capa. Un solo commit por feature, con mensaje que referencia el ID y versión de la spec.
 
@@ -336,9 +400,9 @@ Implementa <id-spec> versión <YYYYMMDD-vN>.
 
 ---
 
-## 7. Manejo de modificaciones
+## 8. Manejo de modificaciones
 
-### 7.1 Regla operativa: ¿dónde corrijo?
+### 8.1 Regla operativa: ¿dónde corrijo?
 
 Pregunta mental cuando aparece un problema:
 
@@ -346,7 +410,7 @@ Pregunta mental cuando aparece un problema:
 > - Si es solo de esta feature → modifico spec.
 > - Si se repite → modifico setup foundacional.
 
-### 7.2 Iterar código
+### 8.2 Iterar código
 
 **Cuándo:**
 - Error técnico de implementación (tipo de dato incorrecto, naming wrong, estructura equivocada).
@@ -357,7 +421,7 @@ Pregunta mental cuando aparece un problema:
 - Pido cambios quirúrgicos, no rehacer.
 - Límite: 2 intentos. En el tercero, freno y reviso si el problema es la spec.
 
-### 7.3 Modificar spec
+### 8.3 Modificar spec
 
 **Cuándo:**
 - Después de 2-3 iteraciones, releo la spec y detecto que es ambigua o contradictoria.
@@ -371,7 +435,7 @@ Pregunta mental cuando aparece un problema:
 - Documento qué cambió y por qué.
 - Reanudo la generación con la spec nueva en contexto.
 
-### 7.3.1 Caso especial: error estructural descubierto en plena Fase 6
+### 8.3.1 Caso especial: error estructural descubierto en plena Fase 6
 
 Si durante la generación de código (Fase 6) descubro un error estructural que invalida una spec ya Approved:
 
@@ -382,7 +446,7 @@ Si durante la generación de código (Fase 6) descubro un error estructural que 
 3. **Prohibido continuar generación en la capa actual** hasta haber completado nuevamente Fase 5 sobre la nueva versión de spec.
 4. Documento qué cambió y por qué en el changelog de la spec.
 
-### 7.4 Modificar setup foundacional
+### 8.4 Modificar setup foundacional
 
 **Cuándo:**
 - El problema afecta a varias specs presentes o futuras.
@@ -396,11 +460,11 @@ Si durante la generación de código (Fase 6) descubro un error estructural que 
 - **Listo las specs en estado `Implemented` que se ven afectadas por el cambio.**
 - Para cada spec afectada, decido: la actualizo ahora, o la registro como **deuda explícita** (en un archivo `DEBT.md` o issue en GitHub) para abordar más adelante. La decisión queda documentada.
 
-### 7.5 Regla estricta: spec antes que código
+### 8.5 Regla estricta: spec antes que código
 
 **Siempre actualizo la spec antes de cambiar el código.** No al revés. No "lo arreglo en el código y después documento". Sin excepciones.
 
-### 7.6 Migración de código tras modificación de spec
+### 8.6 Migración de código tras modificación de spec
 
 Cuando una spec aprobada se modifica y hay código generado contra la versión anterior:
 
@@ -418,9 +482,9 @@ Si una modificación de spec afecta el modelo de datos (cambio de columna, nueva
 
 ---
 
-## 8. Versionado
+## 9. Versionado
 
-### 8.1 Versionado de specs
+### 9.1 Versionado de specs
 
 **Formato:** `YYYYMMDD-vN`
 - `YYYYMMDD`: fecha del cambio (ej: `20260520`).
@@ -430,7 +494,7 @@ Si una modificación de spec afecta el modelo de datos (cambio de columna, nueva
 
 Cada cambio de spec incrementa N. La fecha refleja el último cambio.
 
-### 8.2 Identificación de specs
+### 9.2 Identificación de specs
 
 **Formato del archivo:** `<dominio>-<numero>.md`
 
@@ -441,7 +505,7 @@ Cada cambio de spec incrementa N. La fecha refleja el último cambio.
 
 Los IDs son secuenciales por proyecto, no por dominio.
 
-### 8.3 Versionado del toolkit
+### 9.3 Versionado del toolkit
 
 El toolkit en sí también se versiona con `YYYYMMDD-vN`.
 
@@ -453,7 +517,7 @@ El toolkit en sí también se versiona con `YYYYMMDD-vN`.
 
 Los proyectos creados desde el toolkit guardan referencia a la versión del toolkit que usaron.
 
-### 8.4 Estados de una spec
+### 9.4 Estados de una spec
 
 ```
 Draft → Review → Approved → Implemented → [Deprecated]
@@ -462,16 +526,16 @@ Draft → Review → Approved → Implemented → [Deprecated]
 ```
 
 - **Draft:** en escritura inicial.
-- **Review:** iniciada tras la pasada adversaria 1. **Estado iterativo** donde se procesan hallazgos, se ejecuta la pasada adversaria 2 si fuera necesario (ver sección 11), se resuelven decisiones abiertas y se hace lectura crítica final.
+- **Review:** iniciada tras la pasada adversaria 1. **Estado iterativo** donde se procesan hallazgos, se ejecuta la pasada adversaria 2 si fuera necesario (ver sección 12), se resuelven decisiones abiertas y se hace lectura crítica final.
 - **Approved:** congelada, lista para implementación. Solo se pasa a este estado cuando los pre-requisitos de Fase 5 están cumplidos.
 - **Implemented:** ya en código.
 - **Deprecated:** la feature fue eliminada o reemplazada.
 
 ---
 
-## 9. Herramientas que uso
+## 10. Herramientas que uso
 
-### 9.1 Asignación de roles a herramientas
+### 10.1 Asignación de roles a herramientas
 
 | Rol | Herramienta |
 |-----|-------------|
@@ -480,28 +544,122 @@ Draft → Review → Approved → Implemented → [Deprecated]
 | Adversario | Claude.ai |
 | Generador | Claude Code |
 
-### 9.2 Editor / IDE
+### 10.2 Editor / IDE
 
 **Visual Studio Code** para edición y trabajo con el repo.
 
-### 9.3 Repositorios
+### 10.3 Repositorios
 
 - **Toolkit:** template repository en GitHub (`sdd-toolkit`).
 - **Proyectos:** repos creados desde el template, uno por proyecto.
 
-### 9.4 Stack técnico base de proyectos
+### 10.4 Stack técnico base de proyectos
 
 Definido en sección 4.3.
 
-### 9.5 Gestión de specs
+### 10.5 Gestión de specs
 
 En esta versión del workflow, la gestión de specs (estados, versiones, changelogs, dependencias) se mantiene **manualmente** en archivos `.md` en el repo. Es posible que en versiones futuras se incorpore una herramienta de gestión (ej: Notion con sincronización a GitHub) para automatizar el bookkeeping. Esa decisión se tomará después de haber ejecutado al menos una feature completa con flujo manual.
 
+**INDEX del proyecto:** cada proyecto tiene un archivo `specs/INDEX.md` generado desde `templates/project-index.template.md`. Es la fuente única de verdad para:
+- Asignar IDs de specs (secuenciales por proyecto, no por dominio).
+- Conocer el estado actual de cada spec.
+- Ver el grafo de dependencias entre specs (primer nivel directo).
+
+El INDEX se actualiza manualmente en cuatro momentos clave del ciclo de vida de cada spec: creación (Draft), aprobación (Approved), implementación (Implemented) y deprecación (Deprecated). La transición Draft → Review no requiere actualización del INDEX.
+
+**ROADMAP del proyecto:** cada proyecto tiene un archivo `ROADMAP.md` generado desde `templates/project-roadmap.template.md` durante Fase 0 (paso 2). Es el documento de visión estratégica que complementa al INDEX:
+
+- **INDEX:** bookkeeping operativo. Cambia cuando una spec cambia de estado.
+- **ROADMAP:** planificación estratégica. Cambia solo con cambios estructurales (se agrega/elimina una feature, se reordena el plan, cambia la visión).
+
+El ROADMAP incluye specs agrupadas por fase, con estimación gruesa (S/M/L) y dependencias entre fases. Es input para la cotización al cliente (que se maneja fuera del SDD). Los IDs de specs en el ROADMAP son **orientativos**, no definitivos: los IDs reales se asignan vía el INDEX cuando arranca cada spec.
+
+### 10.6 Gestión de ramas
+
+**Modelo:** GitHub Flow simplificado con rama de staging dedicada.
+
+#### Estructura de ramas
+
+```
+main        → producción. Siempre estable. Nunca se pushea directo.
+staging     → validación del cliente. Se actualiza cuando yo decido.
+feature/*   → desarrollo de features. Una rama por spec.
+hotfix/*    → fixes urgentes en producción.
+```
+
+**Regla operativa:** nadie pushea directo a `main`, ni yo mismo. Todo pasa por merge desde rama de feature o hotfix.
+
+#### Naming de ramas
+
+```
+feature/<SPEC-ID>       → ej: feature/LOTES-001
+feature/<SPEC-ID>-v2    → si la spec tuvo revisión mayor durante Fase 6
+hotfix/<descripcion>    → ej: hotfix/login-token-expiry
+```
+
+El ID de la spec en el nombre de la rama conecta la rama con el INDEX del proyecto, los commits y la spec misma.
+
+#### Flujo de feature normal
+
+```
+1. Crear rama al iniciar Fase 6:
+   git checkout main && git pull origin main
+   git checkout -b feature/SPEC-ID
+
+2. Desarrollar por capas (Fase 6):
+   Un commit por capa aprobada.
+   Formato: feat(SPEC-ID): capa N — descripción breve
+
+3. Feature completa → staging para validación del cliente:
+   git checkout staging && git pull origin staging
+   git merge feature/SPEC-ID
+   git push origin staging
+   → Deploy manual a staging.
+   → Cliente valida.
+
+4. Cliente aprueba → mergear a producción:
+   git checkout main && git pull origin main
+   git merge feature/SPEC-ID
+   git push origin main
+   → Deploy manual a producción.
+   git branch -d feature/SPEC-ID
+
+5. Actualizar INDEX:
+   Cambiar estado de la spec de Approved a Implemented.
+```
+
+#### Flujo de hotfix
+
+```
+git checkout main && git pull origin main
+git checkout -b hotfix/descripcion-corta
+
+[fix el bug]
+git commit -m "fix(AREA): descripción del problema"
+
+git checkout main
+git merge hotfix/descripcion-corta && git push origin main
+→ Deploy a producción.
+
+git checkout staging
+git merge hotfix/descripcion-corta && git push origin staging
+→ Staging sincronizado.
+
+git branch -d hotfix/descripcion-corta
+```
+
+#### Evolución futura
+
+Cuando se incorpore CI/CD, el deploy manual se reemplaza por trigger automático en merge a `main` (producción) y merge a `staging`. El modelo de ramas no cambia.
+
+Cuando se incorpore gente al equipo, agregar branch protection en `main` en GitHub (Settings → Branches → Branch protection rules): Pull Requests obligatorios, mínimo 1 aprobación. El modelo de ramas no cambia.
+
 ---
 
-## 10. Antipatrones a evitar
+## 11. Antipatrones a evitar
 
-### 10.1 Antipatrones generales del proceso SDD
+### 11.1 Antipatrones generales del proceso SDD
 
 - **Vibe coding:** generar código sin spec previa.
 - **Spec retroactiva:** escribir spec después del código.
@@ -513,11 +671,11 @@ En esta versión del workflow, la gestión de specs (estados, versiones, changel
 - **Mezclar capacidades funcionales** en una sola spec (violación de granularidad).
 - **Dejar decisiones implícitas** del LLM sin validar.
 - **Sobre-ingeniería silenciosa** que se acumula sin que lo note.
-- **Iteración adversaria infinita:** seguir iterando contra hallazgos cada vez más menores en vez de aprobar con criterio (máximo 2 pasadas, ver sección 11).
+- **Iteración adversaria infinita:** seguir iterando contra hallazgos cada vez más menores en vez de aprobar con criterio (máximo 2 pasadas, ver sección 12).
 - **Reabrir decisiones de pasadas adversarias anteriores sin nuevo criterio:** la IA repite hallazgos entre pasadas porque no tiene memoria; mi trabajo es reconocerlos y mantener decisiones cerradas.
-- **Validación circular silenciosa:** asumir que porque el código pasa la pasada adversaria contra la spec, la spec es correcta. Ver sección 2.6 y 6.4.2.
+- **Validación circular silenciosa:** asumir que porque el código pasa la pasada adversaria contra la spec, la spec es correcta. Ver sección 2.6 y 7.4.2.
 
-### 10.2 Mis zonas de riesgo personales
+### 11.2 Mis zonas de riesgo personales
 
 Estas son mis tendencias específicas. Las nombro explícitamente para vigilarlas activamente:
 
@@ -528,7 +686,7 @@ Estas son mis tendencias específicas. Las nombro explícitamente para vigilarla
 - **No relectura antes de cerrar:** mando o cierro sin releer.
 - **Trabajar cansado y de noche aumenta el riesgo de aprobación apresurada.** No tengo barrera operativa de tiempo entre Fase 4 y Fase 5; la disciplina depende solo de mí. Cuando aparezca un caso de spec mal aprobada por cansancio, activo Regla 5 y revisito esta decisión.
 
-### 10.3 Checklist de auto-check
+### 11.3 Checklist de auto-check
 
 Antes de aprobar una spec o cerrar una capa de código, recorro esta checklist:
 
@@ -546,11 +704,11 @@ Si alguna respuesta es "no" o "no estoy seguro", freno y resuelvo antes de avanz
 
 ---
 
-## 11. Pasadas adversarias: cuántas veces iterar
+## 12. Pasadas adversarias: cuántas veces iterar
 
 La IA en rol Adversario siempre va a encontrar algo. Si itero indefinidamente, nunca apruebo. Las siguientes reglas evitan caer en el loop adversario infinito.
 
-### 11.1 Calidad de los hallazgos, no cantidad
+### 12.1 Calidad de los hallazgos, no cantidad
 
 No cuento cuántos hallazgos hay. Evalúo **qué tipo** son.
 
@@ -566,7 +724,7 @@ No cuento cuántos hallazgos hay. Evalúo **qué tipo** son.
 - Sugerencias de sobre-especificación.
 - Preferencias del adversario disfrazadas de problemas.
 
-### 11.2 Regla práctica: máximo 2 pasadas adversarias
+### 12.2 Regla práctica: máximo 2 pasadas adversarias
 
 - **Pasada 1:** sobre el draft (estado Draft). Procesa hallazgos, genera nueva versión, la spec pasa a Review.
 - **Pasada 2:** sobre la nueva versión (durante estado Review). Procesa hallazgos serios.
@@ -574,7 +732,7 @@ No cuento cuántos hallazgos hay. Evalúo **qué tipo** son.
 
 Si la pasada 2 sigue revelando hallazgos estructurales serios, la spec tiene problemas de fondo, no de iteración. Parar y reconsiderar de raíz.
 
-### 11.3 Hallazgos repetidos entre pasadas
+### 12.3 Hallazgos repetidos entre pasadas
 
 **Importante:** la IA en rol Adversario no tiene memoria de pasadas anteriores. Es esperable que en la Pasada 2 vuelvan a aparecer hallazgos ya resueltos en Pasada 1.
 
@@ -582,7 +740,7 @@ Si la pasada 2 sigue revelando hallazgos estructurales serios, la spec tiene pro
 
 Esto previene caer en loop infinito reabriendo en cada pasada las mismas discusiones.
 
-### 11.4 Pregunta de corte
+### 12.4 Pregunta de corte
 
 Después de cada pasada adversaria:
 
@@ -591,7 +749,7 @@ Después de cada pasada adversaria:
 - Aprobé con criterio, sabía los trade-offs → **apruebo**.
 - Me voy a arrepentir, debí haber visto X → **itero una vez más sobre X específicamente**.
 
-### 11.5 Principio de fondo
+### 12.5 Principio de fondo
 
 Las specs no se aprueban porque son perfectas. Se aprueban porque son **suficientemente buenas para el riesgo que asumo**.
 
@@ -599,9 +757,9 @@ Una spec con 3 imperfecciones menores conocidas y documentadas es mejor que una 
 
 ---
 
-## 12. Cambios a este documento
+## 13. Cambios a este documento
 
-Este `WORKFLOW.md` evoluciona. Las modificaciones siguen las reglas de versionado de sección 8.3 (toolkit).
+Este `WORKFLOW.md` evoluciona. Las modificaciones siguen las reglas de versionado de sección 9.3 (toolkit).
 
 **Cuándo lo modifico:**
 - Cuando incorporo aprendizaje de un proyecto real.
@@ -617,7 +775,7 @@ Este `WORKFLOW.md` evoluciona. Las modificaciones siguen las reglas de versionad
 
 ---
 
-## 13. Changelog
+## 14. Changelog
 
 | Versión | Fecha | Cambios |
 |---------|-------|---------|
@@ -625,3 +783,6 @@ Este `WORKFLOW.md` evoluciona. Las modificaciones siguen las reglas de versionad
 | 20260520-v2 | 2026-05-20 | Resultados de primera pasada adversaria. |
 | 20260520-v3 | 2026-05-20 | Resultados de segunda pasada adversaria. |
 | 20260522-v4 | 2026-05-22 | Cambios incorporados del análisis del ebook "Agentic Engineer" de LIDR: nueva sección 2.6 sobre riesgo de validación circular; nueva sub-sección 6.4.2 con la lista explícita de lo que la pasada adversaria del código NO puede validar; nuevo antipatrón "validación circular silenciosa" en 10.1. Cambios pendientes incorporados de pasada adversaria del WORKFLOW v2: agregado item en checklist 10.3 sobre "modifiqué el contenido o solo le di la razón en el chat". |
+| 20260523-v5 | 2026-05-23 | Calibración de Regla 4 (sección 2.2): diferencia explícita entre specs de feature (pasada adversaria obligatoria) y artefactos del toolkit (opcional según criterio del autor). Nueva sección INDEX en 9.5: referencia a project-index.template.md como fuente única de verdad para asignación de IDs, estado de specs y grafo de dependencias. |
+| 20260523-v6 | 2026-05-23 | Nueva sección 9.6: gestión de ramas. Modelo GitHub Flow simplificado con rama staging dedicada. Cubre estructura de ramas (main, staging, feature/*, hotfix/*), naming conectado a spec IDs, flujo de feature normal, flujo de hotfix, y evolución futura hacia CI/CD y equipos. |
+| 20260524-v7 | 2026-05-24 | Nueva sección 5: Fase 0 — Inicio del proyecto. Documenta los 3 pasos (discovery inicial, redacción setup + roadmap, diseño de prototipo) con sus prompts asociados. Renumeración de secciones 6-14 (antes 5-13) y todas las sub-secciones y referencias cruzadas. Sección 4.2 actualizada para reflejar que el setup foundacional se produce automáticamente en Fase 0 (antes era reactivo). Sección 5.4 nueva: design system del autor como transversal a todos los proyectos. Sección 10.5 ampliada: agregada referencia al ROADMAP junto al INDEX, con su rol distintivo. |

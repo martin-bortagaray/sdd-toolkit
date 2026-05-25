@@ -1,11 +1,11 @@
 # Guide — Feature Spec
 
 > **Toolkit:** sdd-toolkit
-> **Versión de la guía:** 20260520-v2
+> **Versión de la guía:** 20260523-v3
 > **Propósito:** Documento de referencia para completar `feature-spec.template.md`. Define qué va en cada sección, qué no va, cómo redactar y pregunta guía para verificar suficiencia.
 >
 > **Audiencias:**
-> - **IA en rol Redactor:** consume esta guía junto con el template para redactar specs a partir del discovery (Modo B). El prompt de redacción (`prompts/02-draft-spec.prompt.md`) referencia este documento.
+> - **IA en rol Redactor:** consume esta guía junto con el template para redactar specs a partir del output del discovery. El prompt de redacción (`prompts/02-draft-spec.prompt.md`) referencia este documento.
 > - **Autor (yo):** consulta esta guía cuando reviso una spec o cuando dudo qué va en una sección.
 
 ---
@@ -242,7 +242,7 @@ Esta sección tiene **dos sub-secciones**: decisiones del autor y decisiones der
 ### 10.1 Decisiones del autor
 
 **Qué va:**
-- Decisiones tomadas durante el discovery (Modo B) donde había alternativas válidas.
+- Decisiones tomadas durante el discovery donde había alternativas válidas.
 - Qué se eligió, qué se descartó, qué se gana, qué se pierde.
 - Trade-offs aceptados conscientemente.
 
@@ -411,7 +411,7 @@ Escribir literalmente: *"Sin decisiones por defecto. Todas las decisiones provie
 
 ## Reglas globales de redacción
 
-Estas reglas aplican a todas las secciones cuando la IA redacta una spec en Modo B:
+Estas reglas aplican a todas las secciones cuando la IA redacta una spec a partir del discovery:
 
 1. **Decisiones tomadas por defecto.** Si la IA tiene que tomar una decisión que no está en el discovery con el autor, listarla en la sección 14 del documento. No omitir ninguna, aunque parezca obvia.
 
@@ -431,3 +431,4 @@ Estas reglas aplican a todas las secciones cuando la IA redacta una spec en Modo
 |---------|-------|---------|
 | 20260520-v1 | 2026-05-20 | Versión inicial. |
 | 20260520-v2 | 2026-05-20 | Resultados de primera pasada adversaria: agregada sección 14 dedicada para decisiones por defecto de la IA (hallazgo 1.1); reestructurada sección 10 con sub-secciones 10.1 (decisiones del autor) y 10.2 (decisiones derivadas de pasadas adversarias) (hallazgo 2.1); reemplazado "sumá 50% más" por taxonomía obligatoria condicional de 10 categorías en sección 9 (hallazgo 3.1); modo obligatorio / opcional en sección 13 según complejidad de UI (hallazgo 2.2 zona gris). |
+| 20260523-v3 | 2026-05-23 | Quitada toda referencia a "Modo B" del documento, ya que es terminología interna del WORKFLOW que la IA no conoce en conversación nueva. Reemplazado por descripción directa de las situaciones. El término "Modo B" se mantiene solo en WORKFLOW.md. |
