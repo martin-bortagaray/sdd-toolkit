@@ -1,7 +1,7 @@
 # Vista general del proceso SDD
 
 > **Toolkit:** sdd-toolkit
-> **Versión:** 20260523-v1
+> **Versión:** 20260526-v2
 > **Propósito:** Vista rápida del proceso completo del toolkit SDD. Para detalle visual completo, ver [`process-diagram.svg`](./process-diagram.svg).
 
 ---
@@ -28,6 +28,15 @@ flowchart TD
 
     CICLO --> DEPLOY[Deploy<br/>feature → staging → main]
 
+    subgraph BUG[Tratamiento de bug — cuando aparece un bug post-implementación]
+        B1[Clasificar: Tipo A / B / C] --> B2[Crear bugfix-XXX.md]
+        B2 --> B3[Actualizar spec si Tipo B]
+        B3 --> B4[Fix + test de regresión<br/>04-codegen-layer]
+        B4 --> B5[Pasada adversaria<br/>05-adversarial-code]
+    end
+
+    DEPLOY -.puede activar.-> BUG
+
     subgraph GOB[Artefactos de gobierno]
         WF[WORKFLOW.md]
         IDX[INDEX del proyecto]
@@ -37,6 +46,7 @@ flowchart TD
     GOB -.gobierna.-> FASE0
     GOB -.gobierna.-> CICLO
     GOB -.gobierna.-> DEPLOY
+    GOB -.gobierna.-> BUG
 ```
 
 ---
@@ -47,7 +57,7 @@ flowchart TD
 
 **Ciclo de feature** se repite por cada feature listada en el roadmap. Tiene 6 fases secuenciales con prompts asociados.
 
-**Deploy** ocurre después de completar Fase 6. Sigue el modelo de ramas definido en WORKFLOW sección 9.6.
+**Deploy** ocurre después de completar Fase 6. Sigue el modelo de ramas definido en WORKFLOW sección 11.6.
 
 **Artefactos de gobierno** son transversales: aplican a todo el proceso.
 
@@ -63,15 +73,15 @@ El diagrama Mermaid de arriba muestra el esqueleto del proceso. Para ver el deta
 
 ## Inventario del toolkit
 
-El toolkit contiene **23 artefactos** organizados en:
+El toolkit contiene **26 artefactos** organizados en:
 
 - **1 workflow:** `WORKFLOW.md`
 - **9 prompts:** 3 de Fase 0 + 6 del ciclo de feature
-- **10 templates:** setup foundacional (6) + spec de feature (2) + proyecto (2)
+- **13 templates:** setup foundacional (6) + spec de feature (2) + proyecto (2) + ADR (1) + design system (1) + bugfix (1)
 - **1 protocolo:** codegen-protocol
-- **2 documentos:** este archivo y el diagrama SVG
+- **6 documentos:** process-overview, process-diagram.svg, 3 diagramas de flujo SVG, artifacts-usage-guide
 
-Para listado completo y referencia rápida, ver `README.md` del toolkit.
+Para listado completo y referencia rápida, ver `docs/artifacts-usage-guide.md`.
 
 ---
 
@@ -80,3 +90,4 @@ Para listado completo y referencia rápida, ver `README.md` del toolkit.
 | Versión | Fecha | Cambios |
 |---------|-------|---------|
 | 20260523-v1 | 2026-05-23 | Versión inicial. |
+| 20260526-v2 | 2026-05-26 | Agregado flujo de tratamiento de bugs al diagrama mermaid. Corregida referencia sección 9.6 → 11.6. Actualizado inventario: 23 → 26 artefactos con desglose correcto. |
