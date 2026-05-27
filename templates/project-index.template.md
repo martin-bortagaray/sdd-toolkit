@@ -34,7 +34,7 @@
 
 Los estados válidos son: `Draft`, `Review`, `Approved`, `Implemented`, `Deprecated`.
 
-Definidos en `WORKFLOW.md` sección 9.4. La columna del INDEX se actualiza al cambiar de estado en los cuatro momentos clave indicados arriba.
+Definidos en `WORKFLOW.md` sección 10.4. La columna del INDEX se actualiza al cambiar de estado en los cuatro momentos clave indicados arriba.
 
 ### Versión
 

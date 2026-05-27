@@ -1,7 +1,7 @@
 # Guía de uso de artefactos del toolkit SDD
 
 > **Toolkit:** sdd-toolkit
-> **Versión:** 20260524-v1
+> **Versión:** 20260526-v2
 > **Propósito:** Referencia rápida de qué artefacto usar en cada momento del proceso y catálogo completo del toolkit.
 
 Este documento es complemento del WORKFLOW.md y de los diagramas de flujo. Tiene dos vistas:
@@ -55,11 +55,26 @@ Durante todo el ciclo, los siguientes artefactos están como referencia constant
 - `INDEX.md` del proyecto: para asignar IDs y consultar estados.
 - `ROADMAP.md` del proyecto: para saber qué feature viene después.
 
+### Tratamiento de bugs (se ejecuta cuando aparece un bug en producción o en testing post-implementación)
+
+Flujo reactivo, fuera del ciclo de feature. Se activa sobre código ya implementado. Protocolo completo en `WORKFLOW.md` sección 9.
+
+| Momento | Prompt que ejecuto | Templates / archivos que adjunto | Output |
+|---------|-------------------|----------------------------------|--------|
+| **Clasificación del bug** | Ninguno. Análisis manual. | Spec afectada (versión vigente). | Tipo del bug: A (fallo de implementación), B (fallo de spec) o C (cambio de negocio → reclasificar como feature). |
+| **Registro del bug** | Ninguno. | `templates/bugfix.template.md`. | Archivo `bugfixes/bugfix-XXX.md` en estado Abierto, con descripción, reproducción y severidad completos. |
+| **Actualización de spec (solo Tipo B)** | Ninguno. Edición directa de la spec afectada. | Spec afectada + `bugfix-XXX.md`. | Nueva versión de la spec (vN+1) con la sección corregida. Spec original sube versión antes de tocar el código. |
+| **Generación del fix** | `04-codegen-layer.prompt.md` con instrucción de fix mínimo (ver protocolo en sección 9.5 del WORKFLOW). | `bugfix-XXX.md` completo + spec afectada (actualizada si Tipo B, original si Tipo A) + setup foundacional relevante + código actual del módulo afectado. | Fix mínimo + test de regresión (debe fallar con código actual). |
+| **Pasada adversaria del fix** | `05-adversarial-code.prompt.md` | Fix + `bugfix-XXX.md` + spec afectada. | Hallazgos clasificados. Bloqueantes corregidos antes de cerrar. |
+| **Verificación y cierre** | Ninguno. Verificación manual. | Test de regresión ejecutado en la suite. | Test de regresión pasando. `bugfix-XXX.md` actualizado a estado Cerrado. |
+
+**Nota sobre severidad crítica:** si la producción está caída o hay datos corruptos, el fix mínimo puede preceder al artefacto completo. El `bugfix-XXX.md` se crea ese mismo día en estado Abierto y se completa en las próximas 24 horas. Ver sección 9.4 del WORKFLOW.
+
 ---
 
 ## Vista 2 — Catálogo completo del toolkit
 
-Esta tabla lista los 25 artefactos del toolkit organizados por tipo.
+Esta tabla lista los 26 artefactos del toolkit organizados por tipo.
 
 ### Workflow (1 artefacto)
 
@@ -112,6 +127,12 @@ Estos templates se usan principalmente durante Fase 0 paso 2. Definen la estruct
 |-----------|------|---------------|----------------|
 | `templates/project-index.template.md` | Template | Una vez al inicio del proyecto, después de Fase 0. | Esqueleto del `INDEX.md` del proyecto. Bookkeeping operativo: asignación de IDs, estados de specs, dependencias. |
 | `templates/project-roadmap.template.md` | Template | Cargado en prompt 00b. | Esqueleto del `ROADMAP.md`. Visión estratégica del proyecto: specs agrupadas por fase con estimación gruesa. |
+
+### Template de bugfix (1 artefacto, uso reactivo)
+
+| Artefacto | Tipo | Cuándo se usa | Para qué sirve |
+|-----------|------|---------------|----------------|
+| `templates/bugfix.template.md` | Template | Reactivo. Cuando se detecta un bug en producción o en testing post-implementación. | Esqueleto del artefacto `bugfix-XXX.md`. Estructura obligatoria para registrar clasificación, root cause, criterio de aceptación del fix y test de regresión. Numeración secuencial por proyecto. |
 
 ### Template de ADR (1 artefacto, uso reactivo)
 
@@ -172,3 +193,4 @@ A diferencia de los otros templates, `design-system.template.md` NO se instancia
 | Versión | Fecha | Cambios |
 |---------|-------|---------|
 | 20260524-v1 | 2026-05-24 | Versión inicial. |
+| 20260526-v2 | 2026-05-26 | Agregado flujo de tratamiento de bugs en Vista 1. Agregado `templates/bugfix.template.md` en catálogo Vista 2. Actualizado conteo de artefactos a 26. |
