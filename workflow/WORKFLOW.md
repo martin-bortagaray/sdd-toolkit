@@ -1,6 +1,6 @@
 # WORKFLOW — Mi Proceso de Desarrollo de Software con IA
 
-> **Versión:** 20260525-v8
+> **Versión:** 20260526-v9
 > **Autor:** Martin Bortagaray
 > **Estado:** Review (pendiente aprobación final)
 
@@ -186,7 +186,7 @@ Al terminar los 3 pasos, el autor tiene:
 - Prototipo guardado en `docs/prototype/` del repo.
 - Roadmap con specs orientativas listas para arrancar la primera feature.
 
-El paso siguiente es la **propuesta al cliente** (cotización), que se hace **fuera del SDD**. Ver sección 10.5 para más detalle.
+El paso siguiente es la **propuesta al cliente** (cotización), que se hace **fuera del SDD**. Ver sección 11.5 para más detalle.
 
 Cuando el cliente aprueba la propuesta, arranca **Fase 1 del ciclo de feature** sobre la primera spec del roadmap.
 
@@ -261,7 +261,7 @@ Cada feature pasa por estas seis fases. **Cualquier cambio futuro a una feature 
 - **Pre-requisitos obligatorios para pasar a Approved:**
   - No quedan en la spec decisiones marcadas como abiertas, pendientes de consulta, o "TBD".
   - Todas las dudas externas (al agrónomo, socio, expertos de dominio) fueron resueltas y escritas en la spec.
-  - La pasada adversaria fue ejecutada al menos una vez (máximo dos veces, ver sección 12).
+  - La pasada adversaria fue ejecutada al menos una vez (máximo dos veces, ver sección 13).
 - **Estado Review es iterativo:** la spec puede permanecer en Review mientras itero ajustes y, si fuera necesario, mientras ejecuto una segunda pasada adversaria. Solo paso a Approved cuando los pre-requisitos están cumplidos y mi lectura crítica de la spec entera es satisfactoria.
 - Si paso a **Approved**, registro fecha/hora + versión. La spec queda congelada durante la implementación.
 
@@ -482,9 +482,140 @@ Si una modificación de spec afecta el modelo de datos (cambio de columna, nueva
 
 ---
 
-## 9. Versionado
+## 9. Tratamiento de Bugs
 
-### 9.1 Versionado de specs
+### 9.1 Principio fundamental
+
+Un bug no interrumpe la regla de "spec antes que código". Lo que cambia es la velocidad y la forma del artefacto. La trazabilidad no se negocia ni bajo presión.
+
+### 9.2 Clasificación obligatoria: primer paso siempre
+
+Antes de tocar una línea de código, clasifico el bug en uno de tres tipos. La clasificación determina qué corrijo y dónde.
+
+| Tipo | Definición | Qué corrijo |
+|------|-----------|-------------|
+| **Tipo A — Fallo de implementación** | El código no cumple lo que la spec dice explícitamente. La spec estaba bien. | Solo el código. La spec no cambia. |
+| **Tipo B — Fallo de spec** | La spec no contempló el caso, era ambigua, o modeló mal el comportamiento. El código hizo lo que la spec decía. | Primero la spec (nueva versión). Luego el código. |
+| **Tipo C — Cambio de negocio** | El sistema se comporta exactamente como la spec dice, pero el negocio cambió de opinión. | No es un bug. Es una feature nueva. Se trata con el ciclo SDD completo. |
+
+**Señal de alerta:** si dudo entre Tipo A y Tipo B, casi siempre es Tipo B. La ambigüedad en la spec es la causa más frecuente de bugs.
+
+### 9.3 Artefacto bugfix-XXX.md
+
+Todo bug genera un artefacto de trazabilidad. Sin excepción.
+
+**Formato del archivo:** `bugfix-<numero>.md`
+- Numeración secuencial por proyecto, reinicia en cada proyecto.
+- Ejemplos: `bugfix-001.md`, `bugfix-002.md`.
+
+**Ciclo de vida del artefacto:**
+
+```
+Abierto → En fix → Cerrado
+```
+
+- **Abierto:** bug identificado y clasificado.
+- **En fix:** spec actualizada (si Tipo B), código en corrección, test de regresión escrito.
+- **Cerrado:** fix verificado, test de regresión pasando, spec original actualizada si correspondía.
+
+**Estructura del artefacto:**
+
+```markdown
+# bugfix-XXX — [Título corto del bug]
+**Versión:** YYYYMMDD-v1
+**Estado:** Abierto | En fix | Cerrado
+**Severidad:** Crítico | Alto | Medio | Bajo
+**Tipo:** A (implementación) | B (spec) | C (negocio → reclasificar como feature)
+**Spec afectada:** [nombre-spec.md versión YYYYMMDD-vN]
+
+## Descripción del bug
+[Qué ocurre. Comportamiento observado vs. comportamiento esperado.]
+
+## Reproducción
+[Pasos mínimos para reproducir. Sin ambigüedad.]
+
+## Root cause
+[Causa raíz identificada: dónde y por qué falló.]
+
+## Criterio de aceptación del fix
+[Cómo verifico que el bug está corregido. Redactado como criterio testeable.]
+
+## Test de regresión
+[Descripción del test que se agrega a la suite. El test debe fallar antes del fix y pasar después.]
+
+## Cambios en spec original
+[Solo si Tipo B. Qué sección se modifica y por qué. Nueva versión de la spec.]
+
+## Decisiones tomadas
+[Cualquier decisión no obvia que tomé al resolver el bug.]
+```
+
+### 9.4 Flujo por severidad
+
+#### Severidad Crítica — producción caída o dato corrupto
+
+La única situación donde el fix puede preceder al artefacto completo, con condiciones estrictas.
+
+1. **Fix mínimo:** el cambio más pequeño posible que restaura funcionamiento. Sin refactoring, sin mejoras aprovechando el momento.
+2. **Deuda técnica registrada:** ese mismo día, antes de cerrar la sesión, creo el `bugfix-XXX.md` con estado **Abierto** y el campo de root cause como pendiente explícito.
+3. **Completar el artefacto:** en las próximas 24 horas, completo la clasificación, el root cause, el criterio de aceptación y el test de regresión.
+4. **Actualizar spec si es Tipo B:** en la sesión siguiente, la spec original recibe su nueva versión.
+
+**Regla personal:** dado que soy ansioso y tiendo a no volver sobre cosas "ya resueltas", el `bugfix-XXX.md` en estado Abierto es mi mecanismo de compromiso. No cierro el bug hasta que el artefacto esté completo y el test de regresión esté en la suite.
+
+#### Severidad Alta — funcionalidad rota, workaround posible
+
+Proceso completo sin atajos:
+
+1. Clasifico el tipo.
+2. Creo `bugfix-XXX.md` con la estructura completa.
+3. Si es Tipo B: actualizo la spec original (nueva versión) antes de tocar código.
+4. Escribo el test de regresión (debe fallar).
+5. Genero el fix con la IA, pasando el `bugfix-XXX.md` como contexto.
+6. Verifico que el test de regresión pasa.
+7. Cierro el `bugfix-XXX.md`.
+
+#### Severidad Media / Baja
+
+Idéntico a Alta, sin urgencia de tiempo. No salto pasos porque "es chico".
+
+### 9.5 Protocolo de generación del fix con IA
+
+El prompt de generación del fix siempre incluye:
+- El `bugfix-XXX.md` completo.
+- La spec afectada (versión actualizada si Tipo B, versión original si Tipo A).
+- El setup foundacional relevante (`CONVENTIONS.md`, `ARCHITECTURE.md`).
+- El código actual del módulo afectado.
+
+Instrucción explícita contra sobre-ingeniería:
+
+> "Generá el fix mínimo que resuelve el bug descrito. No refactorices, no mejores, no agregues nada que no esté en el bugfix spec. Si detectás algo fuera del scope del bug que debería corregirse, listalo como observación separada."
+
+### 9.6 Test de regresión: regla de cierre
+
+**Un bug no está cerrado hasta que el test de regresión existe y pasa.**
+
+El test de regresión:
+- Se escribe antes del fix (debe fallar con el código actual).
+- Reproduce el caso exacto que falló en producción.
+- Se incorpora a la suite de tests existente de la feature afectada.
+- Se referencia en el `bugfix-XXX.md` con el nombre del test y el archivo.
+
+### 9.7 Impacto en specs existentes
+
+| Tipo de bug | Spec original | Acción |
+|-------------|--------------|--------|
+| Tipo A | No cambia | El test de regresión se incorpora a la suite existente |
+| Tipo B | Nueva versión | Se sube versión, se documenta el cambio en el changelog de la spec |
+| Tipo C | No cambia | Se abre nueva spec de feature con el ciclo completo |
+
+**Regla:** nunca edito una spec archivada sin subirle versión. El historial es la trazabilidad.
+
+---
+
+## 10. Versionado
+
+### 10.1 Versionado de specs
 
 **Formato:** `YYYYMMDD-vN`
 - `YYYYMMDD`: fecha del cambio (ej: `20260520`).
@@ -494,7 +625,7 @@ Si una modificación de spec afecta el modelo de datos (cambio de columna, nueva
 
 Cada cambio de spec incrementa N. La fecha refleja el último cambio.
 
-### 9.2 Identificación de specs
+### 10.2 Identificación de specs
 
 **Formato del archivo:** `<dominio>-<numero>.md`
 
@@ -505,7 +636,7 @@ Cada cambio de spec incrementa N. La fecha refleja el último cambio.
 
 Los IDs son secuenciales por proyecto, no por dominio.
 
-### 9.3 Versionado del toolkit
+### 10.3 Versionado del toolkit
 
 El toolkit en sí también se versiona con `YYYYMMDD-vN`.
 
@@ -517,7 +648,7 @@ El toolkit en sí también se versiona con `YYYYMMDD-vN`.
 
 Los proyectos creados desde el toolkit guardan referencia a la versión del toolkit que usaron.
 
-### 9.4 Estados de una spec
+### 10.4 Estados de una spec
 
 ```
 Draft → Review → Approved → Implemented → [Deprecated]
@@ -526,16 +657,18 @@ Draft → Review → Approved → Implemented → [Deprecated]
 ```
 
 - **Draft:** en escritura inicial.
-- **Review:** iniciada tras la pasada adversaria 1. **Estado iterativo** donde se procesan hallazgos, se ejecuta la pasada adversaria 2 si fuera necesario (ver sección 12), se resuelven decisiones abiertas y se hace lectura crítica final.
+- **Review:** iniciada tras la pasada adversaria 1. **Estado iterativo** donde se procesan hallazgos, se ejecuta la pasada adversaria 2 si fuera necesario (ver sección 13), se resuelven decisiones abiertas y se hace lectura crítica final.
 - **Approved:** congelada, lista para implementación. Solo se pasa a este estado cuando los pre-requisitos de Fase 5 están cumplidos.
 - **Implemented:** ya en código.
 - **Deprecated:** la feature fue eliminada o reemplazada.
 
+**Nota sobre bugfixes:** los artefactos `bugfix-XXX.md` tienen su propio ciclo de vida simplificado. Ver sección 9 (Tratamiento de Bugs).
+
 ---
 
-## 10. Herramientas que uso
+## 11. Herramientas que uso
 
-### 10.1 Asignación de roles a herramientas
+### 11.1 Asignación de roles a herramientas
 
 | Rol | Herramienta |
 |-----|-------------|
@@ -544,20 +677,20 @@ Draft → Review → Approved → Implemented → [Deprecated]
 | Adversario | Claude.ai |
 | Generador | Claude Code |
 
-### 10.2 Editor / IDE
+### 11.2 Editor / IDE
 
 **Visual Studio Code** para edición y trabajo con el repo.
 
-### 10.3 Repositorios
+### 11.3 Repositorios
 
 - **Toolkit:** template repository en GitHub (`sdd-toolkit`).
 - **Proyectos:** repos creados desde el template, uno por proyecto.
 
-### 10.4 Stack técnico base de proyectos
+### 11.4 Stack técnico base de proyectos
 
 Definido en sección 4.3.
 
-### 10.5 Gestión de specs
+### 11.5 Gestión de specs
 
 En esta versión del workflow, la gestión de specs (estados, versiones, changelogs, dependencias) se mantiene **manualmente** en archivos `.md` en el repo. Es posible que en versiones futuras se incorpore una herramienta de gestión (ej: Notion con sincronización a GitHub) para automatizar el bookkeeping. Esa decisión se tomará después de haber ejecutado al menos una feature completa con flujo manual.
 
@@ -575,7 +708,7 @@ El INDEX se actualiza manualmente en cuatro momentos clave del ciclo de vida de 
 
 El ROADMAP incluye specs agrupadas por fase, con estimación gruesa (S/M/L) y dependencias entre fases. Es input para la cotización al cliente (que se maneja fuera del SDD). Los IDs de specs en el ROADMAP son **orientativos**, no definitivos: los IDs reales se asignan vía el INDEX cuando arranca cada spec.
 
-### 10.6 Gestión de ramas
+### 11.6 Gestión de ramas
 
 **Modelo:** GitHub Flow simplificado con rama de staging dedicada.
 
@@ -657,9 +790,9 @@ Cuando se incorpore gente al equipo, agregar branch protection en `main` en GitH
 
 ---
 
-## 11. Antipatrones a evitar
+## 12. Antipatrones a evitar
 
-### 11.1 Antipatrones generales del proceso SDD
+### 12.1 Antipatrones generales del proceso SDD
 
 - **Vibe coding:** generar código sin spec previa.
 - **Spec retroactiva:** escribir spec después del código.
@@ -671,11 +804,20 @@ Cuando se incorpore gente al equipo, agregar branch protection en `main` en GitH
 - **Mezclar capacidades funcionales** en una sola spec (violación de granularidad).
 - **Dejar decisiones implícitas** del LLM sin validar.
 - **Sobre-ingeniería silenciosa** que se acumula sin que lo note.
-- **Iteración adversaria infinita:** seguir iterando contra hallazgos cada vez más menores en vez de aprobar con criterio (máximo 2 pasadas, ver sección 12).
+- **Iteración adversaria infinita:** seguir iterando contra hallazgos cada vez más menores en vez de aprobar con criterio (máximo 2 pasadas, ver sección 13).
 - **Reabrir decisiones de pasadas adversarias anteriores sin nuevo criterio:** la IA repite hallazgos entre pasadas porque no tiene memoria; mi trabajo es reconocerlos y mantener decisiones cerradas.
 - **Validación circular silenciosa:** asumir que porque el código pasa la pasada adversaria contra la spec, la spec es correcta. Ver sección 2.6 y 7.4.2.
 
-### 11.2 Mis zonas de riesgo personales
+### 12.2 Antipatrones específicos de bugs
+
+- **Fix sin clasificar:** corregir un bug sin determinar primero si es Tipo A, B o C. La corrección que corresponde es diferente según el origen.
+- **Parchear código sin crear el bugfix spec:** el fix queda sin trazabilidad. No se puede saber qué causó el cambio meses después.
+- **Tratar un Tipo C como bug:** si el comportamiento es correcto según la spec pero el negocio cambió de opinión, es un cambio de requerimiento. Tratarlo como bug corrompe la trazabilidad.
+- **Fix de emergencia sin deuda técnica registrada:** el "lo especifico después" que nunca llega. Si el fix urgente se hace sin spec, la deuda técnica se registra ese mismo día, no "cuando haya tiempo".
+- **No escribir el test de regresión:** el bug se cierra, el test no existe, el bug vuelve. El test de regresión es parte del cierre, no un opcional.
+- **Actualizar la spec original sin subirle versión:** la spec queda con cambio invisible. La trazabilidad se rompe.
+
+### 12.3 Mis zonas de riesgo personales
 
 Estas son mis tendencias específicas. Las nombro explícitamente para vigilarlas activamente:
 
@@ -686,7 +828,7 @@ Estas son mis tendencias específicas. Las nombro explícitamente para vigilarla
 - **No relectura antes de cerrar:** mando o cierro sin releer.
 - **Trabajar cansado y de noche aumenta el riesgo de aprobación apresurada.** No tengo barrera operativa de tiempo entre Fase 4 y Fase 5; la disciplina depende solo de mí. Cuando aparezca un caso de spec mal aprobada por cansancio, activo Regla 5 y revisito esta decisión.
 
-### 11.3 Checklist de auto-check
+### 12.4 Checklist de auto-check
 
 Antes de aprobar una spec o cerrar una capa de código, recorro esta checklist:
 
@@ -704,11 +846,11 @@ Si alguna respuesta es "no" o "no estoy seguro", freno y resuelvo antes de avanz
 
 ---
 
-## 12. Pasadas adversarias: cuántas veces iterar
+## 13. Pasadas adversarias: cuántas veces iterar
 
 La IA en rol Adversario siempre va a encontrar algo. Si itero indefinidamente, nunca apruebo. Las siguientes reglas evitan caer en el loop adversario infinito.
 
-### 12.1 Calidad de los hallazgos, no cantidad
+### 13.1 Calidad de los hallazgos, no cantidad
 
 No cuento cuántos hallazgos hay. Evalúo **qué tipo** son.
 
@@ -724,7 +866,7 @@ No cuento cuántos hallazgos hay. Evalúo **qué tipo** son.
 - Sugerencias de sobre-especificación.
 - Preferencias del adversario disfrazadas de problemas.
 
-### 12.2 Regla práctica: máximo 2 pasadas adversarias
+### 13.2 Regla práctica: máximo 2 pasadas adversarias
 
 - **Pasada 1:** sobre el draft (estado Draft). Procesa hallazgos, genera nueva versión, la spec pasa a Review.
 - **Pasada 2:** sobre la nueva versión (durante estado Review). Procesa hallazgos serios.
@@ -732,7 +874,7 @@ No cuento cuántos hallazgos hay. Evalúo **qué tipo** son.
 
 Si la pasada 2 sigue revelando hallazgos estructurales serios, la spec tiene problemas de fondo, no de iteración. Parar y reconsiderar de raíz.
 
-### 12.3 Hallazgos repetidos entre pasadas
+### 13.3 Hallazgos repetidos entre pasadas
 
 **Importante:** la IA en rol Adversario no tiene memoria de pasadas anteriores. Es esperable que en la Pasada 2 vuelvan a aparecer hallazgos ya resueltos en Pasada 1.
 
@@ -740,7 +882,7 @@ Si la pasada 2 sigue revelando hallazgos estructurales serios, la spec tiene pro
 
 Esto previene caer en loop infinito reabriendo en cada pasada las mismas discusiones.
 
-### 12.4 Pregunta de corte
+### 13.4 Pregunta de corte
 
 Después de cada pasada adversaria:
 
@@ -749,7 +891,7 @@ Después de cada pasada adversaria:
 - Aprobé con criterio, sabía los trade-offs → **apruebo**.
 - Me voy a arrepentir, debí haber visto X → **itero una vez más sobre X específicamente**.
 
-### 12.5 Principio de fondo
+### 13.5 Principio de fondo
 
 Las specs no se aprueban porque son perfectas. Se aprueban porque son **suficientemente buenas para el riesgo que asumo**.
 
@@ -757,9 +899,9 @@ Una spec con 3 imperfecciones menores conocidas y documentadas es mejor que una 
 
 ---
 
-## 13. Cambios a este documento
+## 14. Cambios a este documento
 
-Este `WORKFLOW.md` evoluciona. Las modificaciones siguen las reglas de versionado de sección 9.3 (toolkit).
+Este `WORKFLOW.md` evoluciona. Las modificaciones siguen las reglas de versionado de sección 10.3 (toolkit).
 
 **Cuándo lo modifico:**
 - Cuando incorporo aprendizaje de un proyecto real.
@@ -775,7 +917,7 @@ Este `WORKFLOW.md` evoluciona. Las modificaciones siguen las reglas de versionad
 
 ---
 
-## 14. Changelog
+## 15. Changelog
 
 | Versión | Fecha | Cambios |
 |---------|-------|---------|
@@ -787,3 +929,4 @@ Este `WORKFLOW.md` evoluciona. Las modificaciones siguen las reglas de versionad
 | 20260523-v6 | 2026-05-23 | Nueva sección 9.6: gestión de ramas. Modelo GitHub Flow simplificado con rama staging dedicada. Cubre estructura de ramas (main, staging, feature/*, hotfix/*), naming conectado a spec IDs, flujo de feature normal, flujo de hotfix, y evolución futura hacia CI/CD y equipos. |
 | 20260524-v7 | 2026-05-24 | Nueva sección 5: Fase 0 — Inicio del proyecto. Documenta los 3 pasos (discovery inicial, redacción setup + roadmap, diseño de prototipo) con sus prompts asociados. Renumeración de secciones 6-14 (antes 5-13) y todas las sub-secciones y referencias cruzadas. Sección 4.2 actualizada para reflejar que el setup foundacional se produce automáticamente en Fase 0 (antes era reactivo). Sección 5.4 nueva: design system del autor como transversal a todos los proyectos. Sección 10.5 ampliada: agregada referencia al ROADMAP junto al INDEX, con su rol distintivo. |
 | 20260525-v8 | 2026-05-25 | Corrección de 3 referencias cruzadas residuales del renumerado v7. Línea 350: "protocolo de 6.4.1" → "protocolo de 7.4.1". Línea 473: "checklist de 6.4" → "checklist de 7.4". Línea 525 (sección 9.4, diagrama de estados): "ver 7.3.1" → "ver 8.3.1". Corrección de fecha del v3 en el changelog: 20260520-v3 → 20260521-v3 (fecha real de redacción). Detectadas vía verificación con checklist desde Claude Code. Aplica Regla 5 (Errores en spec aprobada: subir versión, documentar). |
+| 20260526-v9 | 2026-05-26 | Agregada sección 9: Tratamiento de Bugs (clasificación A/B/C, artefacto bugfix-XXX.md, flujo por severidad, protocolo de generación de fix con IA, test de regresión, impacto en specs existentes). Agregados antipatrones específicos de bugs en sección 12.2. Agregada nota sobre bugfixes en sección 10.4 (ciclo de vida de specs). Renumeradas secciones 9-14 → 10-15 para incorporar la nueva sección 9. Actualizadas todas las referencias cruzadas afectadas. |
