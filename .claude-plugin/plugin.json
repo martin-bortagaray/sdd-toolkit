@@ -16,6 +16,7 @@
   "commands": [
     "./commands/sdd-discovery.md",
     "./commands/sdd-spec.md",
+    "./commands/sdd-modify-spec.md",
     "./commands/sdd-adversarial-spec.md",
     "./commands/sdd-verify.md",
     "./commands/sdd-codegen.md",

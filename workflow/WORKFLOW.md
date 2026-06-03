@@ -435,6 +435,8 @@ Pregunta mental cuando aparece un problema:
 - Documento qué cambió y por qué.
 - Reanudo la generación con la spec nueva en contexto.
 
+**Caso frecuente — agregar/cambiar funcionalidad en una feature ya implementada (o spec as-built):** cuando el cambio es de producto (no un bug) y el sistema hoy se comporta como la spec dice, la modificación re-entra al ciclo acotada al delta: discovery del delta → edición quirúrgica de la spec existente (sube versión + changelog) → pasada adversaria → verificación → codegen solo de las capas afectadas. El prompt `prompts/07-modify-spec.prompt.md` (comando `/sdd-modify-spec`) cubre este flujo, con foco en specs Implemented y As-built. Para specs as-built, la primera modificación suele revelar huecos de la descripción reverse-engineered: completarlos es parte del cambio (espíritu de Regla 5).
+
 ### 8.3.1 Caso especial: error estructural descubierto en plena Fase 6
 
 Si durante la generación de código (Fase 6) descubro un error estructural que invalida una spec ya Approved:
