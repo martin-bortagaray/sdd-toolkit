@@ -1,8 +1,8 @@
 # Prompt — Discovery de Feature (Fase 2)
 
-> **Versión:** 20260523-v3
+> **Versión:** 20260602-v4
 > **Uso:** Inicio de cada feature nueva. Es el prompt que ejecuta el rol Interrogador de la IA (WORKFLOW.md sección 3) durante la Fase 2 del ciclo SDD.
-> **Dónde se ejecuta:** En conversación nueva dentro del proyecto, con contexto limpio.
+> **Dónde se ejecuta:** Vía el comando `/sdd-discovery` en Claude Code, o en conversación nueva en Claude.ai. Contexto limpio (WORKFLOW.md sección 11.1, modelo híbrido v10).
 
 ---
 
@@ -194,3 +194,4 @@ NO HAGAS REDACCIÓN DE SPEC EN ESTE PASO. Solo recolección y estructuración de
 | 20260522-v1 | 2026-05-22 | Versión inicial. |
 | 20260523-v2 | 2026-05-23 | Cambios de primera pasada adversaria: volumen reducido a 20-30 para complejas con sugerencia de partir feature (1.1); ejemplo concreto de estructurar vs redactar en output (1.2); detección de feature que debería partirse (3.1); validación circular en discovery (6.1); decisiones por defecto reforzadas sin prohibición absoluta (8.1); continuación de sesiones interrumpidas (Q crítica); pregunta de cierre cambiada a "hasta 3 puntos críticos" (4.1); manejo de setup foundacional incompleto simplificado (3.2); separador visual de notas operativas reforzado (5.1). |
 | 20260523-v3 | 2026-05-23 | Quitada toda referencia a "Modo B" del prompt y de las notas operativas, ya que es terminología interna del WORKFLOW que la IA no conoce en conversación nueva. Reemplazado por descripción directa de las reglas. El término "Modo B" se mantiene solo en WORKFLOW.md. |
+| 20260602-v4 | 2026-06-02 | Header "Dónde se ejecuta" actualizado al modelo híbrido v10: ejecutable vía comando `/sdd-discovery` en Claude Code, o Claude.ai en conversación nueva. |

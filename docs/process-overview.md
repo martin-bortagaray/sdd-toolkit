@@ -1,7 +1,7 @@
 # Vista general del proceso SDD
 
 > **Toolkit:** sdd-toolkit
-> **Versión:** 20260526-v2
+> **Versión:** 20260602-v3
 > **Propósito:** Vista rápida del proceso completo del toolkit SDD. Para detalle visual completo, ver [`process-diagram.svg`](./process-diagram.svg).
 
 ---
@@ -73,13 +73,16 @@ El diagrama Mermaid de arriba muestra el esqueleto del proceso. Para ver el deta
 
 ## Inventario del toolkit
 
-El toolkit contiene **26 artefactos** organizados en:
+El toolkit está organizado en:
 
 - **1 workflow:** `WORKFLOW.md`
-- **9 prompts:** 3 de Fase 0 + 6 del ciclo de feature
+- **10 prompts:** 3 de Fase 0 + 7 del ciclo de feature (incluye `07-modify-spec`)
 - **13 templates:** setup foundacional (6) + spec de feature (2) + proyecto (2) + ADR (1) + design system (1) + bugfix (1)
 - **1 protocolo:** codegen-protocol
 - **6 documentos:** process-overview, process-diagram.svg, 3 diagramas de flujo SVG, artifacts-usage-guide
+- **1 plugin de Claude Code:** `.claude-plugin/` + `commands/` (un comando por fase del proceso)
+
+> Nota: el conteo total de artefactos quedó pendiente de recuento (el número anterior ya no cuadraba con el desglose). Revisar al consolidar.
 
 Para listado completo y referencia rápida, ver `docs/artifacts-usage-guide.md`.
 
@@ -91,3 +94,4 @@ Para listado completo y referencia rápida, ver `docs/artifacts-usage-guide.md`.
 |---------|-------|---------|
 | 20260523-v1 | 2026-05-23 | Versión inicial. |
 | 20260526-v2 | 2026-05-26 | Agregado flujo de tratamiento de bugs al diagrama mermaid. Corregida referencia sección 9.6 → 11.6. Actualizado inventario: 23 → 26 artefactos con desglose correcto. |
+| 20260602-v3 | 2026-06-02 | Inventario actualizado por WORKFLOW v10: 10 prompts (agregado `07-modify-spec`), agregado el plugin de Claude Code. Removido el total exacto de artefactos (ya no cuadraba con el desglose) y marcado para recuento. Pendiente: regenerar `process-diagram.svg` (sigue mostrando conteos viejos). |

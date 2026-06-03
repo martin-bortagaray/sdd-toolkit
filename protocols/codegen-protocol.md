@@ -1,6 +1,6 @@
 # CODEGEN PROTOCOL — Protocolo de Generación de Código por Capas
 
-> **Versión:** 20260525-v3
+> **Versión:** 20260602-v4
 > **Toolkit:** sdd-toolkit
 > **Propósito:** Referencia rápida para usar durante Fase 6 (generación de código). No es un prompt para la IA. Es el checklist operativo del autor para ejecutar Fase 6 correctamente.
 
@@ -32,15 +32,17 @@ Para cada capa (1 → 2 → 3 → 4):
      Ejecutar checklist de verificación entre capas (abajo).
 
   4. PASADA ADVERSARIA
-     Ejecutar prompt 05-adversarial-code.prompt.md en conversación nueva.
+     Ejecutar prompt 05-adversarial-code.prompt.md en conversación nueva (o subagente).
      Procesar hallazgos: bloqueantes antes de avanzar, no bloqueantes a DEBT.md.
 
-  5. COMMITEAR
-     Un commit por capa, con referencia a spec ID y versión.
-     Formato: feat(<spec-id>): capa N — <descripción>
-
-  6. PASAR A SIGUIENTE CAPA
+  5. PASAR A SIGUIENTE CAPA
      Adjuntar código de esta capa como contexto adicional en la siguiente.
+
+Al completar las 4 capas (no capa por capa; ver WORKFLOW.md sección 7.5):
+
+  COMMITEAR la feature completa y verificada.
+  Un solo commit por feature, con referencia a spec ID y versión.
+  Formato: feat(<spec-id>): <descripción de la feature>
 ```
 
 ---
@@ -133,7 +135,7 @@ Ver WORKFLOW.md sección 8.3.1:
 ## Al terminar Fase 6
 
 - [ ] Las 4 capas tienen todos los ítems del checklist tildados.
-- [ ] Todos los commits de capas están en el branch `feature/<SPEC-ID>`.
+- [ ] El commit de la feature (completa y verificada) está en el branch `feature/<SPEC-ID>`.
 - [ ] Mergear a staging para validación del cliente:
   ```
   git checkout staging && git pull origin staging
@@ -175,3 +177,4 @@ Ver WORKFLOW.md sección 8.3.1:
 | 20260523-v1 | 2026-05-23 | Versión inicial. |
 | 20260523-v2 | 2026-05-23 | Agregados pasos de merge a staging y producción en "Al terminar Fase 6". Agregada regla 6 (no pushear directo a main). Coherente con WORKFLOW.md sección 9.6. |
 | 20260525-v3 | 2026-05-25 | Corrección de referencias cruzadas residuales del renumerado v7→v8 del WORKFLOW. Línea 106: "sección 7.2" → "sección 8.2". Línea 113: "sección 7.3.1" → "sección 8.3.1". Línea 118: "sección 7.3.1" → "sección 8.3.1". |
+| 20260602-v4 | 2026-06-02 | Granularidad de commits corregida a "un commit por feature" (resolución de la contradicción §7.5 vs §11.6 del WORKFLOW a favor de §7.5): el paso COMMITEAR sale del loop por capa y pasa a ejecutarse al completar las 4 capas. Actualizado el checklist "Al terminar Fase 6". Mención de subagente como opción para las pasadas adversarias (WORKFLOW v10/v11). |

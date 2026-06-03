@@ -1,7 +1,7 @@
 # Guía de uso de artefactos del toolkit SDD
 
 > **Toolkit:** sdd-toolkit
-> **Versión:** 20260526-v2
+> **Versión:** 20260602-v3
 > **Propósito:** Referencia rápida de qué artefacto usar en cada momento del proceso y catálogo completo del toolkit.
 
 Este documento es complemento del WORKFLOW.md y de los diagramas de flujo. Tiene dos vistas:
@@ -55,6 +55,17 @@ Durante todo el ciclo, los siguientes artefactos están como referencia constant
 - `INDEX.md` del proyecto: para asignar IDs y consultar estados.
 - `ROADMAP.md` del proyecto: para saber qué feature viene después.
 
+### Modificación de feature existente (agregar o cambiar funcionalidad en una spec Implemented/As-built)
+
+Variante del ciclo cuando el cambio es de producto (no un bug) sobre una feature que ya existe. Re-entra al ciclo acotado al delta. Protocolo en `WORKFLOW.md` sección 8.3.
+
+| Momento | Prompt que ejecuto | Templates / archivos que adjunto | Output |
+|---------|-------------------|----------------------------------|--------|
+| **Discovery del delta** | `01-discovery.prompt.md` | Setup foundacional + spec existente + dependencias. | Documento de discovery acotado al cambio. |
+| **Modificación de la spec** | `07-modify-spec.prompt.md` | Spec existente + output del discovery del delta + setup foundacional + dependencias + `feature-spec.guide.md`. | Spec editada quirúrgicamente, versión subida, changelog actualizado. Estado: vuelve a Review. |
+| **Pasada adversaria** | `03-adversarial-spec.prompt.md` | Spec modificada + setup + dependencias + guide. | Hallazgos. La Regla 4 no se relaja por ser "solo un cambio". |
+| **Verificación + codegen del delta** | `06-spec-verification.prompt.md` → `04`/`05` | Spec modificada + código existente. | Solo se regeneran las capas que el delta toca. |
+
 ### Tratamiento de bugs (se ejecuta cuando aparece un bug en producción o en testing post-implementación)
 
 Flujo reactivo, fuera del ciclo de feature. Se activa sobre código ya implementado. Protocolo completo en `WORKFLOW.md` sección 9.
@@ -74,7 +85,7 @@ Flujo reactivo, fuera del ciclo de feature. Se activa sobre código ya implement
 
 ## Vista 2 — Catálogo completo del toolkit
 
-Esta tabla lista los 26 artefactos del toolkit organizados por tipo.
+Esta tabla lista los artefactos del toolkit organizados por tipo. (El conteo total quedó pendiente de recuento: el número anterior ya no cuadraba con el desglose, y además se sumó el plugin de Claude Code — ver más abajo.)
 
 ### Workflow (1 artefacto)
 
@@ -90,12 +101,13 @@ Esta tabla lista los 26 artefactos del toolkit organizados por tipo.
 | `prompts/00b-setup-foundation.prompt.md` | Prompt | Una sola vez por proyecto, después del Paso 1 de Fase 0. | Redacta los 6 archivos del setup foundacional + ROADMAP en un solo flujo, usando el output del discovery como input. |
 | `prompts/00c-design-prototype.prompt.md` | Prompt | Una sola vez por proyecto, después del Paso 2 de Fase 0. | Genera un brief estructurado para pegar en Claude Design y producir el prototipo navegable. |
 
-### Prompts del ciclo de feature (6 artefactos)
+### Prompts del ciclo de feature (7 artefactos)
 
 | Artefacto | Tipo | Cuándo se usa | Para qué sirve |
 |-----------|------|---------------|----------------|
 | `prompts/01-discovery.prompt.md` | Prompt | Una vez por feature, al iniciar Fase 2. | Discovery de feature. La IA hace preguntas estructuradas por secciones para preparar la redacción de la spec. |
 | `prompts/02-draft-spec.prompt.md` | Prompt | Una vez por feature, en Fase 3. | Redacta la spec completa usando el output del discovery + setup foundacional + dependencias. |
+| `prompts/07-modify-spec.prompt.md` | Prompt | Cuando una feature ya implementada (o spec as-built) necesita agregar/cambiar funcionalidad. | Edita quirúrgicamente una spec existente con el delta del discovery, sube versión y escribe el changelog. Variante de Fase 3 sobre specs Implemented/As-built (WORKFLOW §8.3). |
 | `prompts/03-adversarial-spec.prompt.md` | Prompt | Una o dos veces por feature, en Fase 4. | Cuestiona la spec en busca de ambigüedades, gaps, supuestos no declarados, casos borde olvidados. |
 | `prompts/04-codegen-layer.prompt.md` | Prompt | 4 veces por feature (una por capa), en Fase 6. | Genera el código de una capa específica (datos, negocio, API o UI) usando un protocolo de 3 pasos. |
 | `prompts/05-adversarial-code.prompt.md` | Prompt | 4 veces por feature (una por capa), en Fase 6. | Cuestiona el código generado contra la spec y contra principios de seguridad y diseño. |
@@ -152,6 +164,12 @@ Estos templates se usan principalmente durante Fase 0 paso 2. Definen la estruct
 |-----------|------|---------------|----------------|
 | `protocols/codegen-protocol.md` | Protocolo operativo | Referencia constante durante Fase 6. | Checklist operativo de las 4 capas, manejo de problemas, pasos de deploy. Es el "checklist físico" que el autor consulta durante codegen. |
 
+### Plugin de Claude Code (1 conjunto)
+
+| Artefacto | Tipo | Cuándo se usa | Para qué sirve |
+|-----------|------|---------------|----------------|
+| `.claude-plugin/` + `commands/` | Plugin de Claude Code | Instalado en Claude Code. Un comando `/sdd-*` por fase. | Ejecuta el proceso desde Claude Code: cada comando lee su prompt canónico de `prompts/` (fuente única de verdad) y carga el contexto del proyecto automáticamente. Las pasadas adversarias corren en subagente con contexto limpio. |
+
 ### Documentación del proceso (5 artefactos)
 
 | Artefacto | Tipo | Cuándo se usa | Para qué sirve |
@@ -182,6 +200,8 @@ Casi todos los prompts requieren conversación NUEVA, sin contexto previo. La ra
 
 **Excepción:** durante codegen, las 4 capas pueden hacerse en una misma sesión si se usa Claude Code (que mantiene contexto del proyecto). Si se usa Claude.ai, cada capa requiere su propia sesión con el código de capas anteriores adjuntado.
 
+**Con el plugin de Claude Code:** dos cosas cambian respecto al uso manual en Claude.ai. (1) No hace falta adjuntar archivos a mano: cada comando lee del repo el setup foundacional, la spec, las dependencias y el schema vivo de la DB. (2) La regla de "conversación nueva" para las pasadas adversarias se cumple lanzando un **subagente con contexto limpio** (comandos `/sdd-adversarial-spec` y `/sdd-adversarial-code`), sin cambiar de herramienta ni abrir otra ventana. Ver WORKFLOW.md sección 11.1 (modelo híbrido, v10).
+
 **Sobre el design system:**
 
 A diferencia de los otros templates, `design-system.template.md` NO se instancia por proyecto. Es un archivo transversal que el autor mantiene en el toolkit y referencia desde los proyectos. Si en algún momento un proyecto requiere override (ej: color corporativo del cliente), ese override se documenta en `ARCHITECTURE.md` del proyecto, no en el design system.
@@ -194,3 +214,4 @@ A diferencia de los otros templates, `design-system.template.md` NO se instancia
 |---------|-------|---------|
 | 20260524-v1 | 2026-05-24 | Versión inicial. |
 | 20260526-v2 | 2026-05-26 | Agregado flujo de tratamiento de bugs en Vista 1. Agregado `templates/bugfix.template.md` en catálogo Vista 2. Actualizado conteo de artefactos a 26. |
+| 20260602-v3 | 2026-06-02 | Agregado `prompts/07-modify-spec.prompt.md` al catálogo (Vista 2) y nueva sub-vista "Modificación de feature existente" (Vista 1). Agregado el plugin de Claude Code al catálogo. Notas operativas actualizadas: el plugin elimina el adjuntado manual de archivos y resuelve la "conversación nueva" de las pasadas adversarias vía subagente (WORKFLOW v10, modelo híbrido). Removido el total exacto de artefactos, pendiente de recuento. |

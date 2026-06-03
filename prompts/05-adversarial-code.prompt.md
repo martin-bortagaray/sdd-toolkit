@@ -1,8 +1,8 @@
 # Prompt — Pasada adversaria de código
 
-> **Versión:** 20260523-v3
+> **Versión:** 20260602-v4
 > **Uso:** Después de generar una capa de código contra una spec aprobada, antes de pasar a la siguiente capa.
-> **Dónde se ejecuta:** En conversación nueva con contexto limpio. NO en la conversación donde se generó el código.
+> **Dónde se ejecuta:** Vía el comando `/sdd-adversarial-code` en Claude Code (corre en subagente con contexto limpio), o en conversación nueva en Claude.ai. NUNCA en la conversación donde se generó el código (WORKFLOW.md sección 11.1, modelo híbrido v10).
 
 ---
 
@@ -128,3 +128,4 @@ Terminá con UNA pregunta crítica: ¿qué riesgo operativo concreto introduce e
 | 20260521-v1 | 2026-05-21 | Versión inicial. |
 | 20260522-v2 | 2026-05-22 | Cambios incorporados del análisis del ebook "Agentic Engineer" de LIDR: nueva sección "Advertencia sobre límites" antes del prompt; bloque "ALCANCE DE TU REVISIÓN" dentro del prompt; restricción al final del prompt sobre no cuestionar la spec; nota sobre validación circular en notas operativas. |
 | 20260523-v3 | 2026-05-23 | Quitada referencia a "Modo B" de la advertencia sobre validación circular. Reemplazado por "durante el discovery". El término "Modo B" se mantiene solo en WORKFLOW.md. |
+| 20260602-v4 | 2026-06-02 | Header "Dónde se ejecuta" actualizado al modelo híbrido v10: ejecutable vía comando `/sdd-adversarial-code` en Claude Code, que corre en subagente con contexto limpio (cumple la regla de conversación nueva sin cambiar de herramienta). |

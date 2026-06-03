@@ -1,8 +1,8 @@
 # Prompt — Pasada Adversaria de Spec (Fase 4)
 
-> **Versión:** 20260523-v1
+> **Versión:** 20260602-v2
 > **Uso:** Después de Fase 3 (Redacción del draft) y antes de Fase 5 (Aprobación). Es el prompt que ejecuta el rol Adversario de la IA (WORKFLOW.md sección 3) sobre una spec de feature.
-> **Dónde se ejecuta:** En conversación nueva dentro del proyecto, con contexto limpio. NO en la conversación donde se redactó la spec.
+> **Dónde se ejecuta:** Vía el comando `/sdd-adversarial-spec` en Claude Code (corre en subagente con contexto limpio), o en conversación nueva en Claude.ai. NUNCA en la conversación donde se redactó la spec (WORKFLOW.md sección 11.1, modelo híbrido v10).
 
 ---
 
@@ -176,3 +176,4 @@ Terminá con UNA pregunta crítica: ¿qué decisión importante sobre esta featu
 | Versión | Fecha | Cambios |
 |---------|-------|---------|
 | 20260523-v1 | 2026-05-23 | Versión inicial. |
+| 20260602-v2 | 2026-06-02 | Header "Dónde se ejecuta" actualizado al modelo híbrido v10: ejecutable vía comando `/sdd-adversarial-spec` en Claude Code, que corre en subagente con contexto limpio (cumple la regla de conversación nueva sin cambiar de herramienta). |

@@ -1,8 +1,8 @@
 # Prompt — Verificación de Spec Pre-Generación (Fase 5 → Fase 6)
 
-> **Versión:** 20260523-v1
+> **Versión:** 20260602-v2
 > **Uso:** Después de que la spec está en estado Approved y antes de iniciar Fase 6 (generación de código por capas). Es el "semáforo de salida" del ciclo de especificación.
-> **Dónde se ejecuta:** En conversación nueva dentro del proyecto, con contexto limpio.
+> **Dónde se ejecuta:** Vía el comando `/sdd-verify` en Claude Code, o en conversación nueva en Claude.ai. Contexto limpio (WORKFLOW.md sección 11.1, modelo híbrido v10).
 
 ---
 
@@ -199,3 +199,4 @@ Resolvé los bloqueantes antes de continuar. Según la naturaleza del bloqueante
 | Versión | Fecha | Cambios |
 |---------|-------|---------|
 | 20260523-v1 | 2026-05-23 | Versión inicial. |
+| 20260602-v2 | 2026-06-02 | Header "Dónde se ejecuta" actualizado al modelo híbrido v10: ejecutable vía comando `/sdd-verify` en Claude Code, o Claude.ai en conversación nueva. |

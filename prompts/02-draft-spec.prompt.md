@@ -1,8 +1,8 @@
 # Prompt — Redacción de Spec (Fase 3)
 
-> **Versión:** 20260523-v3
+> **Versión:** 20260602-v4
 > **Uso:** Después de Fase 2 (Discovery) y antes de Fase 4 (Pasada adversaria). Es el prompt que ejecuta el rol Redactor de la IA (WORKFLOW.md sección 3).
-> **Dónde se ejecuta:** En conversación nueva dentro del proyecto, con contexto limpio. NO en la misma conversación del discovery.
+> **Dónde se ejecuta:** Vía el comando `/sdd-spec` en Claude Code, o en conversación nueva en Claude.ai. Contexto limpio, separado del discovery (WORKFLOW.md sección 11.1, modelo híbrido v10).
 
 ---
 
@@ -266,3 +266,4 @@ NO hagas pasada adversaria en este paso. Eso es Fase 4, con otro prompt.
 | 20260523-v1 | 2026-05-23 | Versión inicial. |
 | 20260523-v2 | 2026-05-23 | Cambios de primera pasada adversaria: alineada nomenclatura "Recomendación de dependencias" con prompt 01 (1.1); aclaración de adjuntar archivos en lugar de pegar texto (2.1); instrucción explícita para sub-sección 10.2 al redactar primer draft (3.2); regla específica para sección 13 con prohibición de eliminar (3.1); verificación 2 en Paso 0 sobre decisiones por defecto del discovery validadas (3.3); regla de adaptación al template sin "mejorar" contenido (4.1); placeholders {TOOLKIT-VERSION} y {NEXT-SPEC-ID} al inicio del prompt (2.2); resumen y documento separados por delimitador visual (5.1); verificación 3 de conversación limpia con confirmación explícita del usuario (6.1); regla fundamental sobre decisiones de producto consolidada al inicio del prompt. Agregado proceso de asignación de ID usando INDEX del proyecto. |
 | 20260523-v3 | 2026-05-23 | Quitada referencia a "Modo B" del prompt, ya que es terminología interna del WORKFLOW que la IA no conoce en conversación nueva. Reemplazado por descripción directa de las reglas. El término "Modo B" se mantiene solo en WORKFLOW.md. |
+| 20260602-v4 | 2026-06-02 | Header "Dónde se ejecuta" actualizado al modelo híbrido v10: ejecutable vía comando `/sdd-spec` en Claude Code, o Claude.ai en conversación nueva separada del discovery. |

@@ -1,8 +1,8 @@
 # Prompt — Generación de Código por Capas (Fase 6)
 
-> **Versión:** 20260523-v1
+> **Versión:** 20260602-v2
 > **Uso:** Después de que la spec pasó verificación pre-generación (`prompts/06-spec-verification.prompt.md`) con veredicto VERDE o AMARILLO aceptado. Se ejecuta una vez por capa, con contexto incremental.
-> **Dónde se ejecuta:** Claude Code (preferido) o Claude.ai en conversación nueva por capa.
+> **Dónde se ejecuta:** Vía el comando `/sdd-codegen` en Claude Code (preferido), o en conversación nueva por capa en Claude.ai (WORKFLOW.md sección 11.1, modelo híbrido v10).
 
 ---
 
@@ -179,7 +179,7 @@ Esto es crítico. Un gap ignorado en Capa 1 se propaga a Capa 4. El costo de cor
    - Gap de producto (decisión no tomada): volver a Fase 2 (discovery adicional) o decidir ahora y documentar en spec.
    - Gap de arquitectura: modificar ARCHITECTURE.md y evaluar impacto en specs anteriores.
 
-6. **Commitear capa** solo después de que el checklist 6.4 esté completo. Un commit por capa (no por archivo).
+6. **No commitees por capa.** El commit es uno solo, cuando la feature completa pasó la verificación de las 4 capas (un commit por feature, no por capa ni por archivo; ver WORKFLOW.md sección 7.5).
 
 7. **Pasar a la siguiente capa** adjuntando el código aprobado como contexto adicional.
 
@@ -204,3 +204,4 @@ Esto es crítico. Un gap ignorado en Capa 1 se propaga a Capa 4. El costo de cor
 | Versión | Fecha | Cambios |
 |---------|-------|---------|
 | 20260523-v1 | 2026-05-23 | Versión inicial. |
+| 20260602-v2 | 2026-06-02 | Header "Dónde se ejecuta" actualizado al modelo híbrido v10 (comando `/sdd-codegen`). Nota operativa "Después de cada capa": corregido a "no commitees por capa" — el commit es uno por feature completa y verificada, resolviendo la contradicción §7.5 vs §11.6 a favor de §7.5. |

@@ -1,6 +1,6 @@
 # WORKFLOW — Mi Proceso de Desarrollo de Software con IA
 
-> **Versión:** 20260602-v10
+> **Versión:** 20260602-v11
 > **Autor:** Martin Bortagaray
 > **Estado:** Review (pendiente aprobación final)
 
@@ -751,8 +751,8 @@ El ID de la spec en el nombre de la rama conecta la rama con el INDEX del proyec
    git checkout -b feature/SPEC-ID
 
 2. Desarrollar por capas (Fase 6):
-   Un commit por capa aprobada.
-   Formato: feat(SPEC-ID): capa N — descripción breve
+   Un solo commit cuando la feature está completa y verificada (no capa por capa; ver sección 7.5).
+   Formato: feat(SPEC-ID): descripción de la feature
 
 3. Feature completa → staging para validación del cliente:
    git checkout staging && git pull origin staging
@@ -941,3 +941,4 @@ Este `WORKFLOW.md` evoluciona. Las modificaciones siguen las reglas de versionad
 | 20260525-v8 | 2026-05-25 | Corrección de 3 referencias cruzadas residuales del renumerado v7. Línea 350: "protocolo de 6.4.1" → "protocolo de 7.4.1". Línea 473: "checklist de 6.4" → "checklist de 7.4". Línea 525 (sección 9.4, diagrama de estados): "ver 7.3.1" → "ver 8.3.1". Corrección de fecha del v3 en el changelog: 20260520-v3 → 20260521-v3 (fecha real de redacción). Detectadas vía verificación con checklist desde Claude Code. Aplica Regla 5 (Errores en spec aprobada: subir versión, documentar). |
 | 20260526-v9 | 2026-05-26 | Agregada sección 9: Tratamiento de Bugs (clasificación A/B/C, artefacto bugfix-XXX.md, flujo por severidad, protocolo de generación de fix con IA, test de regresión, impacto en specs existentes). Agregados antipatrones específicos de bugs en sección 12.2. Agregada nota sobre bugfixes en sección 10.4 (ciclo de vida de specs). Renumeradas secciones 9-14 → 10-15 para incorporar la nueva sección 9. Actualizadas todas las referencias cruzadas afectadas. |
 | 20260602-v10 | 2026-06-02 | Modelo de roles→herramientas pasado a **híbrido** (sección 11.1): Fases 1-3 en Claude.ai o Claude Code; de Fase 4 en adelante (adversario de spec, verificación, codegen, adversario de código) en Claude Code. Las pasadas adversarias corren en **subagente con contexto limpio**, cumpliendo la regla de "conversación nueva" (sección 3) sin cambiar de herramienta. Empaquetado del proceso como **plugin de Claude Code** (`sdd-toolkit`) con un comando `/sdd-*` por fase, cada uno leyendo su prompt canónico de `prompts/`. Motivación: reducir la fricción de copiar/pegar entre herramientas y aprovechar que Claude Code lee los archivos reales del repo, el schema vivo de la DB y corre los tests directamente. Decisión tomada tras tener el proceso estable y al menos una serie de features as-built (coherente con el principio de sección 11.5 de decidir herramientas después de uso real). |
+| 20260602-v11 | 2026-06-02 | Resuelta contradicción interna sobre granularidad de commits en Fase 6 (aplica Regla 5): §7.5 decía "un commit por feature" mientras §11.6 decía "un commit por capa". Se unifica a favor de §7.5 — **un solo commit por feature completa y verificada**. Corregido el paso 2 del flujo de feature en §11.6 y alineados `protocols/codegen-protocol.md` y `prompts/04-codegen-layer.prompt.md`. |
