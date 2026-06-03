@@ -1,0 +1,33 @@
+---
+description: "Fase 4 SDD — Pasada adversaria de spec (rol Adversario). Corre en subagente con contexto limpio. Busca contradicciones, gaps y ambigüedades."
+argument-hint: "[ID/ruta de la spec] [pasada: 1|2]"
+---
+
+Vas a ejecutar la **Fase 4 (Pasada adversaria de spec)** del ciclo SDD. El rol Adversario debe correr con **contexto limpio**, separado de quien redactó la spec (WORKFLOW sección 3). En Claude Code eso se logra con un **subagente dedicado**: vos NO hacés la pasada vos mismo en esta sesión.
+
+## Paso 1 — Preparación
+
+1. Identificá la spec objetivo y la pasada (1 o 2) desde: **$ARGUMENTS**. Máximo 2 pasadas (WORKFLOW 11.2).
+2. Antes de lanzar, leé la sub-sección **10.2** de la spec ("Decisiones derivadas de pasadas adversarias") para saber qué hallazgos ya se cerraron — esos no se re-marcan salvo nuevo criterio.
+
+## Paso 2 — Lanzá el subagente adversario
+
+Usá la tool **Agent** (subagent_type: `general-purpose`) con un prompt que le ordene:
+
+1. Leer el prompt canónico `${CLAUDE_PLUGIN_ROOT}/prompts/03-adversarial-spec.prompt.md` y ejecutarlo al pie de la letra (rol Adversario, las 10 categorías de hallazgos en orden de prioridad).
+2. Leer como contexto: la spec objetivo (`sdd/specs/<ID>.md`), todo el setup foundacional de `sdd/foundation/`, las specs dependientes de primer nivel declaradas en la sección 12 de la spec, y la guía `${CLAUDE_PLUGIN_ROOT}/templates/feature-spec.guide.md`.
+3. Respetar las restricciones: no felicitar nada, no suavizar, no inventar hallazgos para llenar categorías, no re-marcar lo ya cerrado en 10.2.
+4. Devolver los hallazgos agrupados por las 10 categorías + la pregunta crítica de cierre.
+
+Indicale al subagente que su mensaje final es el reporte de hallazgos (no un resumen humano).
+
+## Paso 3 — Procesá los hallazgos conmigo (esto sí lo hacés en esta sesión)
+
+Cuando el subagente devuelva:
+
+- **No los aceptes en caliente.** Presentámelos clasificados: sólidos para iterar (contradicciones reales, gaps operativos, violaciones al setup, decisiones implícitas no marcadas) / zona gris / descartables (estilo, casos teóricos, sobre-especificación). WORKFLOW 11.1.
+- Para cada hallazgo aceptado, actualizá la spec y **documentá en la sub-sección 10.2** la resolución (aceptado/descartado/modificado) + justificación. Esto es lo que evita el re-marcado en la pasada 2.
+- **Subí versión** de la spec (`YYYYMMDD-vN+1`) y agregá entrada al changelog.
+- Estado: tras procesar Pasada 1, la spec pasa de **Draft → Review**.
+
+Recordame la pregunta de corte (WORKFLOW 13.4): *"Si apruebo esta spec hoy y aparece un problema, ¿voy a poder decir que aprobé con criterio?"*. Siguiente paso: si ya estás conforme, `/sdd-verify` antes de generar código.

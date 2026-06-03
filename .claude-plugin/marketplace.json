@@ -1,0 +1,16 @@
+{
+  "name": "sdd-toolkit",
+  "owner": {
+    "name": "Martin Bortagaray"
+  },
+  "metadata": {
+    "description": "Marketplace personal del sdd-toolkit. Contiene el plugin con el proceso SDD como comandos de Claude Code."
+  },
+  "plugins": [
+    {
+      "name": "sdd-toolkit",
+      "source": "./",
+      "description": "Proceso SDD de Martin Bortagaray: ciclo de feature por fases (discovery, spec, adversario, codegen, verificación) + tratamiento de bugs + commit inteligente."
+    }
+  ]
+}

@@ -1,0 +1,26 @@
+{
+  "name": "sdd-toolkit",
+  "version": "1.0.0",
+  "description": "Proceso SDD (Spec Driven Development) de Martin Bortagaray como comandos de Claude Code. Ejecuta el ciclo de feature por fases y el tratamiento de bugs, con las reglas no negociables del WORKFLOW.",
+  "author": {
+    "name": "Martin Bortagaray"
+  },
+  "repository": "https://github.com/martin-bortagaray/sdd-toolkit",
+  "keywords": [
+    "sdd",
+    "spec-driven-development",
+    "workflow",
+    "specs",
+    "bugfix"
+  ],
+  "commands": [
+    "./commands/sdd-discovery.md",
+    "./commands/sdd-spec.md",
+    "./commands/sdd-adversarial-spec.md",
+    "./commands/sdd-verify.md",
+    "./commands/sdd-codegen.md",
+    "./commands/sdd-adversarial-code.md",
+    "./commands/sdd-bugfix.md",
+    "./commands/sdd-commit.md"
+  ]
+}

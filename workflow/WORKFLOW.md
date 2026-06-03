@@ -1,6 +1,6 @@
 # WORKFLOW — Mi Proceso de Desarrollo de Software con IA
 
-> **Versión:** 20260526-v9
+> **Versión:** 20260602-v10
 > **Autor:** Martin Bortagaray
 > **Estado:** Review (pendiente aprobación final)
 
@@ -670,12 +670,20 @@ Draft → Review → Approved → Implemented → [Deprecated]
 
 ### 11.1 Asignación de roles a herramientas
 
-| Rol | Herramienta |
-|-----|-------------|
-| Interrogador | Claude.ai |
-| Redactor | Claude.ai |
-| Adversario | Claude.ai |
-| Generador | Claude Code |
+Modelo **híbrido** (desde v10). Las fases de pensamiento puro (sin código) pueden hacerse en cualquier herramienta; de Fase 4 en adelante el trabajo vive en Claude Code, donde leo los archivos reales del repo, el schema vivo de la DB y corro los tests.
+
+| Rol | Fase | Herramienta |
+|-----|------|-------------|
+| Interrogador | Fase 2 (discovery) | Claude.ai o Claude Code (`/sdd-discovery`) |
+| Redactor | Fase 3 (draft de spec) | Claude.ai o Claude Code (`/sdd-spec`) |
+| Adversario (spec) | Fase 4 | Claude Code, en subagente con contexto limpio (`/sdd-adversarial-spec`) |
+| Verificador pre-codegen | Fase 5→6 | Claude Code (`/sdd-verify`) |
+| Generador | Fase 6 | Claude Code (`/sdd-codegen`) |
+| Adversario (código) | Fase 6 | Claude Code, en subagente con contexto limpio (`/sdd-adversarial-code`) |
+
+**Contexto limpio sin cambiar de herramienta:** la regla de "conversación nueva" para las pasadas adversarias (sección 3) se cumple en Claude Code lanzando un **subagente dedicado** — arranca con contexto propio, aislado del rol que redactó la spec o generó el código. No requiere abrir otra ventana ni otra herramienta.
+
+**Empaquetado:** el proceso está disponible como plugin de Claude Code (`sdd-toolkit`), instalable desde el repo del toolkit. Cada comando `/sdd-*` lee su prompt canónico de `prompts/` (fuente única de verdad) y carga el contexto del proyecto automáticamente.
 
 ### 11.2 Editor / IDE
 
@@ -930,3 +938,4 @@ Este `WORKFLOW.md` evoluciona. Las modificaciones siguen las reglas de versionad
 | 20260524-v7 | 2026-05-24 | Nueva sección 5: Fase 0 — Inicio del proyecto. Documenta los 3 pasos (discovery inicial, redacción setup + roadmap, diseño de prototipo) con sus prompts asociados. Renumeración de secciones 6-14 (antes 5-13) y todas las sub-secciones y referencias cruzadas. Sección 4.2 actualizada para reflejar que el setup foundacional se produce automáticamente en Fase 0 (antes era reactivo). Sección 5.4 nueva: design system del autor como transversal a todos los proyectos. Sección 10.5 ampliada: agregada referencia al ROADMAP junto al INDEX, con su rol distintivo. |
 | 20260525-v8 | 2026-05-25 | Corrección de 3 referencias cruzadas residuales del renumerado v7. Línea 350: "protocolo de 6.4.1" → "protocolo de 7.4.1". Línea 473: "checklist de 6.4" → "checklist de 7.4". Línea 525 (sección 9.4, diagrama de estados): "ver 7.3.1" → "ver 8.3.1". Corrección de fecha del v3 en el changelog: 20260520-v3 → 20260521-v3 (fecha real de redacción). Detectadas vía verificación con checklist desde Claude Code. Aplica Regla 5 (Errores en spec aprobada: subir versión, documentar). |
 | 20260526-v9 | 2026-05-26 | Agregada sección 9: Tratamiento de Bugs (clasificación A/B/C, artefacto bugfix-XXX.md, flujo por severidad, protocolo de generación de fix con IA, test de regresión, impacto en specs existentes). Agregados antipatrones específicos de bugs en sección 12.2. Agregada nota sobre bugfixes en sección 10.4 (ciclo de vida de specs). Renumeradas secciones 9-14 → 10-15 para incorporar la nueva sección 9. Actualizadas todas las referencias cruzadas afectadas. |
+| 20260602-v10 | 2026-06-02 | Modelo de roles→herramientas pasado a **híbrido** (sección 11.1): Fases 1-3 en Claude.ai o Claude Code; de Fase 4 en adelante (adversario de spec, verificación, codegen, adversario de código) en Claude Code. Las pasadas adversarias corren en **subagente con contexto limpio**, cumpliendo la regla de "conversación nueva" (sección 3) sin cambiar de herramienta. Empaquetado del proceso como **plugin de Claude Code** (`sdd-toolkit`) con un comando `/sdd-*` por fase, cada uno leyendo su prompt canónico de `prompts/`. Motivación: reducir la fricción de copiar/pegar entre herramientas y aprovechar que Claude Code lee los archivos reales del repo, el schema vivo de la DB y corre los tests directamente. Decisión tomada tras tener el proceso estable y al menos una serie de features as-built (coherente con el principio de sección 11.5 de decidir herramientas después de uso real). |
