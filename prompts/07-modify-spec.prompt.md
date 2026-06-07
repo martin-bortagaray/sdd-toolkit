@@ -1,6 +1,6 @@
 # Prompt — Modificación de Spec Existente (Fase 3 sobre feature ya implementada)
 
-> **Versión:** 20260602-v1
+> **Versión:** 20260607-v2
 > **Uso:** Cuando una feature ya implementada (o una spec as-built) necesita agregar o cambiar funcionalidad. Es el rol Redactor (WORKFLOW.md sección 3) aplicado a una spec que **ya existe**, no a una nueva. Cubre el flujo de WORKFLOW.md sección 8.3 (Modificar spec).
 > **Dónde se ejecuta:** Claude Code (preferido) o conversación nueva con contexto limpio.
 
@@ -85,7 +85,7 @@ MANEJO DE GAPS:
 
 Si durante la edición descubrís que el delta requiere una decisión de producto que el discovery no cubrió, o entra en conflicto con el setup foundacional o con una spec dependiente: PARÁ, citá el conflicto, y esperá mi decisión. No lo resuelvas con tu criterio.
 
-OUTPUT FINAL — dos bloques separados por delimitador visual:
+OUTPUT FINAL — tres bloques separados por delimitador visual:
 
 Bloque 1 — RESUMEN DEL CAMBIO:
    - Secciones modificadas (lista).
@@ -95,6 +95,29 @@ Bloque 1 — RESUMEN DEL CAMBIO:
    - Hasta 3 puntos a revisar en la pasada adversaria (Fase 4).
 
 Bloque 2 — SPEC MODIFICADA COMPLETA (markdown), lista para guardar reemplazando el archivo existente.
+
+Bloque 3 — CHANGE-SET ESTRUCTURADO (delta machine-readable para el codegen):
+
+   Este bloque NO es el changelog (el changelog es prosa para humanos y auditoría). El CHANGE-SET es la señal de scope que consume `/sdd-codegen` para regenerar SOLO lo que cambió y preservar el resto. Generalo con este formato exacto:
+
+   ```
+   CHANGE-SET — {SPEC-ID} {VERSION-ANTERIOR} → {VERSION-NUEVA}
+
+   ## ADDED
+   - [Capa N | Sección X, ítem Y] <texto preciso de lo que se agrega>
+
+   ## MODIFIED
+   - [Capa N | Sección X, ítem Y] <qué cambia respecto del comportamiento anterior>
+
+   ## REMOVED
+   - [Capa N | Sección X, ítem Y] <qué deja de existir>
+   ```
+
+   Reglas del CHANGE-SET:
+   - Cada ítem se etiqueta con la(s) capa(s) que toca: 1 (datos), 2 (lógica), 3 (API/acceso), 4 (UI). Un ítem puede tocar varias.
+   - Solo entran requerimientos (sección 4), reglas de negocio (7), criterios de aceptación (8), casos borde (9) y atributos/relaciones del modelo (6). No metas decisiones operativas menores.
+   - Si una capa NO aparece en ningún ítem, esa capa NO se regenera en Fase 6. Decilo explícito al cierre: "Capas sin cambios: [lista]".
+   - Si una sección es ADDED o MODIFIED pero el resto de su capa no cambia, el codegen debe preservar lo existente y tocar solo estos ítems (ver Regla 9 de 04-codegen-layer.prompt.md).
 
 NO hagas pasada adversaria en este paso. Eso es Fase 4, con otro prompt.
 
@@ -112,7 +135,7 @@ NO hagas pasada adversaria en este paso. Eso es Fase 4, con otro prompt.
 3. **Pasada adversaria** (`03-adversarial-spec.prompt.md` / `/sdd-adversarial-spec`) sobre la spec modificada. La Regla 4 no se relaja por ser "solo un cambio".
 4. **Actualizar el INDEX** del proyecto si cambió el estado de la spec.
 5. **Verificación pre-generación** (`/sdd-verify`) antes de generar el código del delta.
-6. **Codegen del delta** (`/sdd-codegen`): solo las capas que el cambio toca. Si el delta no afecta el modelo de datos, no se regenera Capa 1.
+6. **Codegen del delta** (`/sdd-codegen`): solo las capas que el cambio toca. Si el delta no afecta el modelo de datos, no se regenera Capa 1. **Pasale el CHANGE-SET (Bloque 3) como contexto:** es lo que hace que el codegen regenere solo los ítems ADDED/MODIFIED y preserve el resto del código existente, en vez de reconstruir la capa completa.
 
 ## Notas operativas
 
@@ -125,3 +148,4 @@ NO hagas pasada adversaria en este paso. Eso es Fase 4, con otro prompt.
 | Versión | Fecha | Cambios |
 |---------|-------|---------|
 | 20260602-v1 | 2026-06-02 | Versión inicial. Cubre el flujo de WORKFLOW.md sección 8.3 (Modificar spec) con foco en specs Implemented y As-built. |
+| 20260607-v2 | 2026-06-07 | Agregado Bloque 3 — CHANGE-SET ESTRUCTURADO (delta machine-readable con secciones ADDED/MODIFIED/REMOVED y etiqueta de capa por ítem). Cierra el hueco de scope en codegen de capas 2–4: el codegen consume el change-set para regenerar solo lo que cambió y preservar el resto. Inspirado en el modelo de delta specs de OpenSpec, adaptado al modelo de spec-única-viva del toolkit (no se crea carpeta de cambio separada). |

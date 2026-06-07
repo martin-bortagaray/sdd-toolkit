@@ -10,6 +10,7 @@ Vas a ejecutar la **Fase 6 (Generación)** del ciclo SDD en tu rol de **Generado
 1. Leé el prompt maestro: `${CLAUDE_PLUGIN_ROOT}/prompts/04-codegen-layer.prompt.md`. Aplicá sus 8 reglas de generación.
 2. Identificá spec y capa desde **$ARGUMENTS**. La spec debe estar **Approved** y haber pasado `/sdd-verify` con veredicto VERDE o AMARILLO aceptado. Si no, frená y avisame.
 3. Leé: la spec completa, `sdd/foundation/` (ARCHITECTURE, DOMAIN_MODEL, CONVENTIONS, PRINCIPLES, GLOSSARY) y specs dependientes de sección 12.
+   - **Si esto es una modificación** (la spec viene de `/sdd-modify-spec`): cargá también el **CHANGE-SET** (delta `ADDED/MODIFIED/REMOVED`). Activa la Regla 9 del prompt: regenerás solo los ítems del delta y preservás el resto del código existente. Sin CHANGE-SET = build inicial = capa completa.
 4. **A partir de Capa 2:** leé también el código ya aprobado de capas anteriores y el **schema real de la base de datos** (migraciones en `sql/migrations/` o dump vivo). El modelo conceptual solo no alcanza — necesitás los nombres y tipos exactos desplegados.
 
 > Recordá el mapeo de capas a tu arquitectura: en Next.js + Supabase, "Capa 3 — API/Acceso" puede ser RLS + funciones en Supabase, no endpoints FastAPI. Eso lo define `ARCHITECTURE.md`, no este comando.
@@ -17,7 +18,7 @@ Vas a ejecutar la **Fase 6 (Generación)** del ciclo SDD en tu rol de **Generado
 ## Paso 2 — Tabla comparativa ANTES del código (Paso 0 del prompt)
 
 1. Identificá los requerimientos (sección 4), reglas de negocio (7), criterios de aceptación (8) y casos borde (9) que aplican a **esta capa**.
-2. Generá la tabla `Requerimiento en spec | Implementación en esta capa | Cubierto/Parcial/No aplica en esta capa`.
+2. Generá la tabla `Requerimiento en spec | Implementación en esta capa | Cubierto/Parcial/No aplica en esta capa`. En una **modificación**, agregá la columna `Estado en el cambio` (Nuevo / Modificado / Sin cambios — no regenerar) cruzando cada fila contra el CHANGE-SET. Las filas "Sin cambios" no se tocan.
 3. **Esperá mi confirmación explícita** ("tabla ok, generá") antes de escribir una sola línea de código.
 
 ## Paso 3 — Generá (tras mi confirmación)

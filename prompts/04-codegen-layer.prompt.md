@@ -1,6 +1,6 @@
 # Prompt — Generación de Código por Capas (Fase 6)
 
-> **Versión:** 20260602-v2
+> **Versión:** 20260607-v3
 > **Uso:** Después de que la spec pasó verificación pre-generación (`prompts/06-spec-verification.prompt.md`) con veredicto VERDE o AMARILLO aceptado. Se ejecuta una vez por capa, con contexto incremental.
 > **Dónde se ejecuta:** Vía el comando `/sdd-codegen` en Claude Code (preferido), o en conversación nueva por capa en Claude.ai (WORKFLOW.md sección 11.1, modelo híbrido v10).
 
@@ -57,6 +57,7 @@ CONTEXTO QUE TE PASO:
 - Spec aprobada de la feature.
 - Setup foundacional del proyecto: ARCHITECTURE, DOMAIN_MODEL, CONVENTIONS, PRINCIPLES, GLOSSARY.
 - Specs dependientes declaradas en sección 12 de la spec (primer nivel directo).
+[Si es una MODIFICACIÓN agregar: - CHANGE-SET de /sdd-modify-spec (delta ADDED/MODIFIED/REMOVED con capa por ítem). Si NO te paso CHANGE-SET, es un build inicial: generá la capa completa.]
 [A partir de Capa 2 agregar: - Código de capas anteriores ya generadas y aprobadas.]
 [A partir de Capa 2 agregar: - Schema real de la base de datos (migraciones ejecutadas).]
 
@@ -93,12 +94,17 @@ Regla 1 — La spec es el contrato. Implementá exactamente lo que dice la spec,
 
 Regla 2 — Tabla comparativa antes del código. Antes de generar el código, generá una tabla con este formato:
 
-| Requerimiento / Criterio en spec | Implementación en esta capa | Estado |
-|---|---|---|
-| [Sección X, ítem Y: texto exacto] | [Dónde y cómo se implementa] | Cubierto / Parcial / No aplica en esta capa |
+| Requerimiento / Criterio en spec | Implementación en esta capa | Estado | Estado en el cambio |
+|---|---|---|---|
+| [Sección X, ítem Y: texto exacto] | [Dónde y cómo se implementa] | Cubierto / Parcial / No aplica en esta capa | Nuevo / Modificado / Sin cambios — no regenerar / (vacío si es build inicial) |
 
 Si algún requerimiento queda "Parcial", explicá por qué y en qué capa se completa.
 Si algún requerimiento no está cubierto en esta capa (aplica a otra), marcalo como "No aplica en esta capa".
+
+La columna "Estado en el cambio" solo aplica cuando esta generación viene de una MODIFICACIÓN (recibiste un CHANGE-SET de `/sdd-modify-spec`). En un build inicial dejala vacía. En una modificación:
+- "Nuevo" = ítem ADDED en el CHANGE-SET → generalo.
+- "Modificado" = ítem MODIFIED → ajustá el código existente solo en lo que cambió.
+- "Sin cambios — no regenerar" = está en la spec pero NO en el CHANGE-SET → NO lo toques. Su código ya existe y aprobado.
 
 Regla 3 — No sobre-ingenieriar. No agregués atributos, validaciones, restricciones, relaciones, endpoints, componentes, capas de abstracción, o patrones que no estén explícitamente en la spec o requeridos por CONVENTIONS.md o PRINCIPLES.md.
 
@@ -112,11 +118,18 @@ Regla 7 — Seguridad transversal. Las políticas de PRINCIPLES.md aplican en to
 
 Regla 8 — Migraciones append-only (solo Capa 1). Nunca modificar migraciones ya ejecutadas. Si la spec requiere cambios al schema, generá una nueva migración que referencia la versión de spec que la requirió.
 
+Regla 9 — Modificación: regenerá solo el delta, preservá el resto (solo si recibiste un CHANGE-SET). Si esta generación viene de una modificación de spec, recibís un CHANGE-SET con secciones ADDED / MODIFIED / REMOVED y la capa que toca cada ítem. En ese caso:
+- Generá o ajustá SOLO los ítems del CHANGE-SET que aplican a esta capa. El código de los requerimientos que NO están en el CHANGE-SET ya existe, está aprobado y revisado: NO lo regenerés ni lo reformatees.
+- Para ítems MODIFIED, hacé el cambio quirúrgico sobre el código existente; no reescribas el archivo entero si solo cambia una función.
+- Para ítems REMOVED, eliminá el código y los tests correspondientes (en Capa 1, vía nueva migración append-only que dropea, nunca editando una migración corrida).
+- Si la capa actual no tiene NINGÚN ítem en el CHANGE-SET, avisame: esta capa no debería regenerarse en este cambio.
+- Esta regla NO aplica en builds iniciales (sin CHANGE-SET): ahí sí generás la capa completa.
+
 PASO 0 — ANTES DE GENERAR:
 
-1. Leé la spec completa.
+1. Leé la spec completa. Si recibiste un CHANGE-SET (modificación), leelo también e identificá qué ítems de esta capa son ADDED / MODIFIED / REMOVED.
 2. Identificá todos los requerimientos funcionales (sección 4), reglas de negocio (sección 7), criterios de aceptación (sección 8) y casos borde (sección 9) que aplican a esta capa.
-3. Generá la tabla comparativa (Regla 2) con todos los ítems identificados.
+3. Generá la tabla comparativa (Regla 2) con todos los ítems identificados. En una modificación, completá la columna "Estado en el cambio" para cada fila (Nuevo / Modificado / Sin cambios — no regenerar).
 4. Esperá mi confirmación: "tabla ok, generá el código". No generés código hasta que yo confirme la tabla.
 
 PASO 1 — GENERACIÓN DE CÓDIGO:
@@ -205,3 +218,4 @@ Esto es crítico. Un gap ignorado en Capa 1 se propaga a Capa 4. El costo de cor
 |---------|-------|---------|
 | 20260523-v1 | 2026-05-23 | Versión inicial. |
 | 20260602-v2 | 2026-06-02 | Header "Dónde se ejecuta" actualizado al modelo híbrido v10 (comando `/sdd-codegen`). Nota operativa "Después de cada capa": corregido a "no commitees por capa" — el commit es uno por feature completa y verificada, resolviendo la contradicción §7.5 vs §11.6 a favor de §7.5. |
+| 20260607-v3 | 2026-06-07 | Soporte de modificaciones acotadas al delta. Nueva Regla 9 (regenerar solo el delta, preservar el resto cuando hay CHANGE-SET). Columna "Estado en el cambio" en la tabla comparativa (Regla 2). CHANGE-SET agregado como input opcional en CONTEXTO. Paso 0 lee el CHANGE-SET. Cierra el hueco de scope en capas 2–4: antes el prompt pedía "generá la capa completa" también en modificaciones, sin instrucción de preservar lo existente; ahora el comportamiento queda tan acotado como ya lo estaba la Capa 1 por append-only. Pareja de 07-modify-spec.prompt.md v2. |

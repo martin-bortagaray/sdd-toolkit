@@ -27,11 +27,12 @@ Antes de editar, leé la spec completa y decime si refleja con precisión el com
 - Editá **solo las secciones afectadas**. Lenguaje preciso, densidad sobre volumen.
 - Si el delta toca el modelo de datos → en código será una **nueva migración append-only** (nunca editar una ya corrida).
 - **Subí la versión** (`AAAAMMDD-vN`), actualizá la Metadata (sección 1) y agregá una **entrada de changelog** concreta: qué secciones cambiaron, qué se agregó/modificó y por qué. Si estaba As-built, proponé pasarla a Implemented.
+- Además del changelog (prosa, para humanos), preparate para emitir el **CHANGE-SET** en el cierre: el mismo delta pero estructurado (`ADDED/MODIFIED/REMOVED` + capa por ítem) para que el codegen lo consuma.
 - Sección 14: decisiones operativas por defecto, "Pendiente de validación". Si no hubo, escribilo literal.
 - Si aparece un **gap de producto** o conflicto con el setup: **PARÁ y avisame**, no lo resuelvas con tu criterio.
 
 ## Paso 5 — Cierre
 
-Entregá un resumen del cambio (secciones tocadas, qué cambió, versión nueva, debilidades corregidas, hasta 3 puntos para Fase 4) + la spec modificada completa lista para reemplazar el archivo. **No commitees** todavía.
+Entregá tres bloques: (1) resumen del cambio (secciones tocadas, qué cambió, versión nueva, debilidades corregidas, hasta 3 puntos para Fase 4), (2) la spec modificada completa lista para reemplazar el archivo, y (3) el **CHANGE-SET estructurado** — el delta machine-readable con secciones `ADDED / MODIFIED / REMOVED`, cada ítem etiquetado con la capa que toca. El CHANGE-SET no es el changelog: es la señal que `/sdd-codegen` usa para regenerar solo lo que cambió. **No commitees** todavía.
 
-Siguiente paso obligatorio: `/sdd-adversarial-spec` sobre la spec modificada (la Regla 4 no se relaja por ser "solo un cambio") → `/sdd-verify` → `/sdd-codegen` solo de las capas que el delta toca.
+Siguiente paso obligatorio: `/sdd-adversarial-spec` sobre la spec modificada (la Regla 4 no se relaja por ser "solo un cambio") → `/sdd-verify` → `/sdd-codegen` solo de las capas que el delta toca, **pasándole el CHANGE-SET como contexto**.

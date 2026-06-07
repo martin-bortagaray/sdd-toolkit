@@ -1,6 +1,6 @@
 # CODEGEN PROTOCOL — Protocolo de Generación de Código por Capas
 
-> **Versión:** 20260602-v4
+> **Versión:** 20260607-v5
 > **Toolkit:** sdd-toolkit
 > **Propósito:** Referencia rápida para usar durante Fase 6 (generación de código). No es un prompt para la IA. Es el checklist operativo del autor para ejecutar Fase 6 correctamente.
 
@@ -11,6 +11,7 @@
 - [ ] La spec tiene estado `Approved`.
 - [ ] El prompt `06-spec-verification.prompt.md` fue ejecutado con veredicto **VERDE** o **AMARILLO aceptado conscientemente** (con decisión registrada en sección 10.1 de la spec).
 - [ ] El INDEX del proyecto (`specs/INDEX.md`) tiene la spec en estado `Approved`.
+- [ ] **Si es una modificación** (la spec viene de `/sdd-modify-spec`): tenés el **CHANGE-SET** a mano (delta `ADDED/MODIFIED/REMOVED` con capa por ítem). Solo se generan las capas listadas en el CHANGE-SET; las demás no se tocan. Build inicial = sin CHANGE-SET = las 4 capas completas.
 
 ---
 
@@ -54,6 +55,8 @@ Ejecutar después de revisar el código y antes de la pasada adversaria. **No ti
 ### Siempre (todas las capas)
 
 - [ ] Tabla comparativa spec vs. código revisada. Todos los ítems de esta capa en estado "Cubierto".
+- [ ] **Solo en modificaciones (hay CHANGE-SET):** las filas marcadas "Sin cambios — no regenerar" NO fueron tocadas; el diff solo contiene ítems ADDED/MODIFIED/REMOVED del delta.
+- [ ] **Solo en modificaciones — RIESGO DE PROPAGACIÓN:** verificá que ningún ítem "Sin cambios" de esta capa dependa de un ítem MODIFIED/REMOVED de otra capa (ej: lógica de Capa 2 que consume un campo cuyo tipo cambió en Capa 1). Si lo hay, ese ítem dejó de ser "sin cambios": agregalo al CHANGE-SET y regeneralo. Ver WORKFLOW.md sección 8.3.
 - [ ] Naming y estructura coinciden con `CONVENTIONS.md`.
 - [ ] Entidades usadas coinciden con `DOMAIN_MODEL.md`.
 - [ ] Políticas de `PRINCIPLES.md` aplicadas en esta capa (autenticación, autorización, validación, logging, manejo de errores).
@@ -178,3 +181,4 @@ Ver WORKFLOW.md sección 8.3.1:
 | 20260523-v2 | 2026-05-23 | Agregados pasos de merge a staging y producción en "Al terminar Fase 6". Agregada regla 6 (no pushear directo a main). Coherente con WORKFLOW.md sección 9.6. |
 | 20260525-v3 | 2026-05-25 | Corrección de referencias cruzadas residuales del renumerado v7→v8 del WORKFLOW. Línea 106: "sección 7.2" → "sección 8.2". Línea 113: "sección 7.3.1" → "sección 8.3.1". Línea 118: "sección 7.3.1" → "sección 8.3.1". |
 | 20260602-v4 | 2026-06-02 | Granularidad de commits corregida a "un commit por feature" (resolución de la contradicción §7.5 vs §11.6 del WORKFLOW a favor de §7.5): el paso COMMITEAR sale del loop por capa y pasa a ejecutarse al completar las 4 capas. Actualizado el checklist "Al terminar Fase 6". Mención de subagente como opción para las pasadas adversarias (WORKFLOW v10/v11). |
+| 20260607-v5 | 2026-06-07 | Soporte de modificaciones acotadas al delta vía CHANGE-SET (pareja de 04-codegen-layer v3 y 07-modify-spec v2). Agregado ítem en "Antes de empezar Fase 6" y dos ítems en el checklist "Siempre": no tocar filas "Sin cambios — no regenerar", y chequeo de RIESGO DE PROPAGACIÓN entre capas. |
