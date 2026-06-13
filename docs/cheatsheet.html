@@ -1,0 +1,1427 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <title>SDD Toolkit — Guía de Referencia Rápida</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  
+  <!-- Google Fonts: Outfit (headings), Inter (body) -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Fira+Code:wght@400;500;600&family=Inter:wght@300;400;500;600;700&family=Outfit:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+
+  <style>
+    /* VARIABLES DE DISEÑO (TEMA OSCURO - PANTALLA) */
+    :root {
+      --bg-body: #090d16;
+      --bg-page: #0f172a;
+      --bg-card: #1e293b;
+      --bg-card-header: #1e293b;
+      --border-color: #334155;
+      
+      --text-title: #ffffff;
+      --text-main: #f1f5f9;
+      --text-muted: #94a3b8;
+      
+      --primary: #6366f1;         /* Indigo */
+      --primary-glow: rgba(99, 102, 241, 0.15);
+      --primary-border: #4f46e5;
+      
+      --accent-rule: #f59e0b;     /* Amber */
+      --accent-rule-bg: rgba(245, 158, 11, 0.08);
+      --accent-rule-border: #d97706;
+      
+      --accent-bug: #ef4444;      /* Red */
+      --accent-bug-bg: rgba(239, 68, 68, 0.08);
+      --accent-bug-border: #dc2626;
+      
+      --accent-ok: #10b981;       /* Emerald */
+      --accent-ok-bg: rgba(16, 185, 129, 0.08);
+      --accent-ok-border: #059669;
+      
+      --accent-info: #06b6d4;     /* Cyan */
+      --accent-info-bg: rgba(6, 182, 212, 0.08);
+      --accent-info-border: #0891b2;
+
+      --font-family: 'Inter', system-ui, -apple-system, sans-serif;
+      --font-title: 'Outfit', system-ui, sans-serif;
+      --font-mono: 'Fira Code', 'Consolas', monospace;
+    }
+
+    /* ESTADO TEMA CLARO / PREVIEW DE IMPRESIÓN */
+    body.light-preview {
+      --bg-body: #f1f5f9;
+      --bg-page: #ffffff;
+      --bg-card: #f8fafc;
+      --bg-card-header: #f1f5f9;
+      --border-color: #cbd5e1;
+      
+      --text-title: #0f172a;
+      --text-main: #1e293b;
+      --text-muted: #64748b;
+      
+      --primary: #4f46e5;
+      --primary-glow: rgba(79, 70, 229, 0.06);
+      --primary-border: #cbd5e1;
+      
+      --accent-rule: #d97706;
+      --accent-rule-bg: #fffbeb;
+      --accent-rule-border: #f59e0b;
+      
+      --accent-bug: #dc2626;
+      --accent-bug-bg: #fef2f2;
+      --accent-bug-border: #ef4444;
+      
+      --accent-ok: #059669;
+      --accent-ok-bg: #ecfdf5;
+      --accent-ok-border: #10b981;
+      
+      --accent-info: #0891b2;
+      --accent-info-bg: #ecfeff;
+      --accent-info-border: #06b6d4;
+    }
+
+    /* ESTILOS GENERALES */
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
+    body {
+      background-color: var(--bg-body);
+      color: var(--text-main);
+      font-family: var(--font-family);
+      font-size: 9pt;
+      line-height: 1.3;
+      padding: 30px 20px;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 20px;
+      transition: background-color 0.2s ease, color 0.2s ease;
+    }
+
+    /* PANEL INTERACTIVO DE PANTALLA */
+    .screen-controls {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      width: 297mm;
+      background: var(--bg-card);
+      border: 1px solid var(--border-color);
+      border-radius: 8px;
+      padding: 10px 20px;
+      box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+      flex-shrink: 0;
+    }
+    
+    .controls-title {
+      font-family: var(--font-title);
+      font-weight: 600;
+      color: var(--text-title);
+      font-size: 10.5pt;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .controls-title span {
+      background: var(--accent-info-bg);
+      color: var(--accent-info);
+      border: 1px solid var(--accent-info-border);
+      font-size: 7.5pt;
+      padding: 1px 6px;
+      border-radius: 9999px;
+      font-family: var(--font-mono);
+      font-weight: bold;
+    }
+
+    .btn-group {
+      display: flex;
+      gap: 10px;
+    }
+
+    .btn {
+      font-family: var(--font-family);
+      font-size: 8.5pt;
+      font-weight: 500;
+      padding: 6px 12px;
+      border-radius: 6px;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      border: 1px solid var(--border-color);
+      background: var(--bg-card-header);
+      color: var(--text-main);
+      transition: all 0.2s ease;
+    }
+
+    .btn:hover {
+      border-color: var(--primary);
+      background: var(--primary-glow);
+    }
+
+    .btn-primary {
+      background: var(--primary);
+      color: #ffffff;
+      border-color: var(--primary-border);
+    }
+
+    .btn-primary:hover {
+      background: #4f46e5;
+      color: #ffffff;
+      box-shadow: 0 0 8px rgba(99, 102, 241, 0.25);
+    }
+
+    /* CONTENEDOR DE PÁGINAS A4 */
+    .page-wrapper {
+      display: flex;
+      flex-direction: column;
+      gap: 25px;
+    }
+
+    /* CONTENEDOR INDIVIDUAL DE PÁGINA (A4 LANDSCAPE) */
+    .page {
+      background-color: var(--bg-page);
+      border: 1px solid var(--border-color);
+      border-radius: 12px;
+      box-shadow: 0 15px 30px -5px rgba(0, 0, 0, 0.2);
+      width: 297mm;
+      height: 210mm;
+      padding: 7mm 9mm;
+      box-sizing: border-box;
+      position: relative;
+      display: flex;
+      flex-direction: column;
+      gap: 3.5mm;
+      overflow: hidden;
+      page-break-after: always;
+      transition: all 0.2s ease;
+    }
+
+    /* CABECERA DE LA PÁGINA */
+    .page-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: flex-end;
+      border-bottom: 2px solid var(--primary);
+      padding-bottom: 4px;
+      flex-shrink: 0;
+    }
+
+    .header-left {
+      display: flex;
+      align-items: flex-end;
+      gap: 8px;
+    }
+
+    .header-logo {
+      background: var(--primary);
+      color: #ffffff;
+      font-family: var(--font-title);
+      font-weight: 800;
+      font-size: 11pt;
+      padding: 3px 6px;
+      border-radius: 4px;
+      line-height: 1;
+    }
+
+    .header-title {
+      font-family: var(--font-title);
+      font-size: 14pt;
+      font-weight: 700;
+      color: var(--text-title);
+      line-height: 1;
+      letter-spacing: -0.5px;
+    }
+
+    .header-right {
+      font-family: var(--font-mono);
+      font-size: 7.5pt;
+      color: var(--text-muted);
+      text-align: right;
+    }
+
+    /* CONTENEDOR DIAGRAMA DE FLUJO DEL PROCESO SDD */
+    .process-flowchart-container {
+      background: var(--bg-card);
+      border: 1px solid var(--border-color);
+      border-radius: 8px;
+      padding: 4px 6px;
+      flex-shrink: 0;
+      display: flex;
+      flex-direction: column;
+      gap: 2px;
+      box-shadow: inset 0 1px 2px rgba(0,0,0,0.1);
+    }
+
+    .flowchart-title {
+      font-family: var(--font-title);
+      font-size: 7.5pt;
+      font-weight: 700;
+      text-transform: uppercase;
+      color: var(--text-muted);
+      letter-spacing: 0.5px;
+      padding-left: 2px;
+    }
+
+    .process-flow-diagram {
+      width: 100%;
+      height: auto;
+      max-height: 48px;
+    }
+
+    /* GRID DE CONTENIDO DETALLADO */
+    .page-content-grid {
+      display: grid;
+      grid-template-columns: 42% 58%;
+      gap: 4.5mm;
+      flex-grow: 1;
+      min-height: 0; /* Permite a las columnas encogerse y no desbordar */
+      overflow: hidden;
+    }
+
+    /* COLUMNAS */
+    .col {
+      display: flex;
+      flex-direction: column;
+      gap: 3.5mm;
+      height: 100%;
+      min-height: 0; /* Permite encogerse */
+    }
+
+    /* TARJETAS (CARDS) */
+    .card {
+      background: var(--bg-card);
+      border: 1px solid var(--border-color);
+      border-radius: 8px;
+      overflow: hidden;
+      display: flex;
+      flex-direction: column;
+      box-shadow: 0 1px 3px rgba(0,0,0,0.05);
+      min-height: 0; /* Permite encogerse */
+    }
+
+    .card-header {
+      background: var(--bg-card-header);
+      padding: 5px 8px;
+      border-bottom: 1px solid var(--border-color);
+      font-family: var(--font-title);
+      font-size: 8.8pt;
+      font-weight: 700;
+      color: var(--text-title);
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      flex-shrink: 0;
+    }
+
+    .card-header svg {
+      width: 12px;
+      height: 12px;
+      fill: var(--primary);
+    }
+
+    .card-body {
+      padding: 6px 8px;
+      flex-grow: 1;
+      font-size: 8pt;
+      min-height: 0; /* Permite encogerse */
+      overflow: hidden;
+    }
+
+    /* REGLAS NO NEGOCIABLES */
+    .rules-container {
+      display: flex;
+      flex-direction: column;
+      gap: 3px;
+    }
+
+    .rule-item {
+      display: flex;
+      align-items: flex-start;
+      gap: 6px;
+      padding: 3px 5px;
+      background: var(--accent-rule-bg);
+      border-left: 3px solid var(--accent-rule-border);
+      border-radius: 0 4px 4px 0;
+    }
+
+    .rule-num {
+      font-family: var(--font-mono);
+      font-weight: bold;
+      color: var(--accent-rule);
+      font-size: 8.5pt;
+      line-height: 1.1;
+    }
+
+    .rule-text {
+      color: var(--text-main);
+      font-size: 7.8pt;
+      font-weight: 500;
+      line-height: 1.25;
+    }
+
+    .rule-text strong {
+      color: var(--text-title);
+    }
+
+    /* JERARQUÍA DE GOBIERNO */
+    .gov-flow {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-top: 5px;
+      background: var(--primary-glow);
+      border: 1px dashed var(--primary);
+      border-radius: 6px;
+      padding: 4px 8px;
+    }
+
+    .gov-step {
+      font-family: var(--font-title);
+      font-weight: 600;
+      font-size: 7.2pt;
+      color: var(--text-title);
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+    }
+
+    .gov-arrow {
+      color: var(--primary);
+      font-weight: bold;
+      font-size: 9pt;
+    }
+
+    /* TABLAS */
+    table.table-dense {
+      width: 100%;
+      border-collapse: collapse;
+      font-size: 7.4pt;
+    }
+
+    table.table-dense th {
+      background: var(--primary);
+      color: #ffffff;
+      font-family: var(--font-title);
+      font-weight: 700;
+      padding: 4px 5px;
+      text-align: left;
+      border: 1px solid var(--primary-border);
+    }
+
+    table.table-dense td {
+      padding: 3.5px 5px;
+      border: 1px solid var(--border-color);
+      vertical-align: top;
+      line-height: 1.25;
+    }
+
+    table.table-dense tr:nth-child(even) td {
+      background: rgba(255, 255, 255, 0.015);
+    }
+    
+    body.light-preview table.table-dense tr:nth-child(even) td {
+      background: rgba(0, 0, 0, 0.012);
+    }
+
+    .cmd-badge {
+      font-family: var(--font-mono);
+      font-weight: 600;
+      color: var(--text-title);
+      background: var(--primary-glow);
+      border: 1px solid var(--border-color);
+      padding: 1px 3px;
+      border-radius: 3px;
+      display: inline-block;
+      font-size: 7pt;
+    }
+
+    /* FLUJO FEATURE NUEVA (GRID DE FASES) */
+    .phases-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      grid-template-rows: repeat(3, 1fr);
+      gap: 2.5mm;
+      height: 100%;
+      min-height: 0;
+    }
+
+    .phase-card {
+      border: 1px solid var(--border-color);
+      background: var(--bg-card);
+      border-radius: 6px;
+      padding: 4px 6px;
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+      position: relative;
+      min-height: 0;
+    }
+
+    .phase-card.active-verify {
+      border-left: 3px solid var(--accent-ok-border);
+    }
+
+    .phase-card.active-adversarial {
+      border-left: 3px solid var(--accent-rule-border);
+    }
+
+    .phase-card.active-codegen {
+      border-left: 3px solid var(--primary);
+    }
+
+    .phase-number {
+      font-family: var(--font-mono);
+      font-size: 7.2pt;
+      font-weight: 700;
+      color: var(--primary);
+      text-transform: uppercase;
+      margin-bottom: 1px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      line-height: 1;
+    }
+
+    .phase-number span.badge {
+      font-size: 6.2pt;
+      padding: 1px 3.5px;
+      border-radius: 3px;
+      font-family: var(--font-mono);
+      line-height: 1;
+    }
+
+    .badge-draft { background: var(--border-color); color: var(--text-muted); }
+    .badge-review { background: var(--accent-rule-bg); color: var(--accent-rule); border: 1px solid var(--accent-rule-border); }
+    .badge-approved { background: var(--accent-ok-bg); color: var(--accent-ok); border: 1px solid var(--accent-ok-border); }
+
+    .phase-title {
+      font-family: var(--font-title);
+      font-size: 8.4pt;
+      font-weight: 700;
+      color: var(--text-title);
+      line-height: 1.1;
+      margin-bottom: 2px;
+    }
+
+    .phase-cmd {
+      font-family: var(--font-mono);
+      font-size: 6.8pt;
+      color: var(--accent-info);
+      background: var(--accent-info-bg);
+      border: 1px solid var(--accent-info-border);
+      padding: 1px 3px;
+      border-radius: 3px;
+      margin-bottom: 3px;
+      display: inline-block;
+      align-self: flex-start;
+      line-height: 1.1;
+    }
+
+    .phase-checklist {
+      list-style: none;
+      margin-top: 1px;
+    }
+
+    .phase-checklist li {
+      position: relative;
+      padding-left: 9px;
+      font-size: 7.2pt;
+      color: var(--text-main);
+      margin-bottom: 1px;
+      line-height: 1.2;
+    }
+
+    .phase-checklist li::before {
+      content: "▪";
+      position: absolute;
+      left: 0;
+      color: var(--primary);
+    }
+    
+    .phase-output {
+      font-size: 6.8pt;
+      color: var(--text-muted);
+      border-top: 1px solid var(--border-color);
+      padding-top: 2px;
+      margin-top: 2px;
+      display: flex;
+      justify-content: space-between;
+      line-height: 1.1;
+    }
+
+    .phase-output strong {
+      color: var(--text-main);
+    }
+
+    /* PÁGINA 2: CONTENIDOS */
+    .delta-list {
+      display: flex;
+      flex-direction: column;
+      gap: 3px;
+      height: 100%;
+      justify-content: space-between;
+    }
+
+    .delta-step {
+      display: flex;
+      gap: 5px;
+      padding: 3px 5px;
+      background: rgba(255,255,255,0.005);
+      border: 1px solid var(--border-color);
+      border-radius: 4px;
+      line-height: 1.25;
+    }
+    
+    body.light-preview .delta-step {
+      background: rgba(0,0,0,0.005);
+    }
+
+    .delta-num {
+      font-family: var(--font-mono);
+      font-weight: 700;
+      color: var(--primary);
+      font-size: 7.8pt;
+    }
+
+    .delta-text {
+      font-size: 7.5pt;
+    }
+
+    /* MATRIZ DE BUGS */
+    .bug-type-tag {
+      font-family: var(--font-title);
+      font-weight: 700;
+      font-size: 6.8pt;
+      padding: 1px 3.5px;
+      border-radius: 3px;
+      display: inline-block;
+      text-align: center;
+      line-height: 1;
+    }
+
+    .bug-type-a { background: var(--accent-ok-bg); color: var(--accent-ok); border: 1px solid var(--accent-ok-border); }
+    .bug-type-b { background: var(--accent-rule-bg); color: var(--accent-rule); border: 1px solid var(--accent-rule-border); }
+    .bug-type-c { background: var(--accent-bug-bg); color: var(--accent-bug); border: 1px solid var(--accent-bug-border); }
+
+    .bug-protocol-box {
+      margin-top: 5px;
+      background: var(--accent-bug-bg);
+      border: 1px dashed var(--accent-bug-border);
+      border-radius: 6px;
+      padding: 4px 6px;
+    }
+
+    .bug-protocol-title {
+      font-family: var(--font-title);
+      font-weight: 700;
+      color: var(--accent-bug);
+      font-size: 7.8pt;
+      margin-bottom: 2px;
+      display: flex;
+      align-items: center;
+      gap: 4px;
+      line-height: 1;
+    }
+
+    .bug-protocol-list {
+      list-style: none;
+      font-size: 7.2pt;
+    }
+
+    .bug-protocol-list li {
+      margin-bottom: 1px;
+      position: relative;
+      padding-left: 9px;
+      line-height: 1.2;
+    }
+
+    .bug-protocol-list li::before {
+      content: "➔";
+      position: absolute;
+      left: 0;
+      color: var(--accent-bug);
+      font-size: 6.5pt;
+    }
+
+    /* DIAGRAMA DE GIT (SVG) */
+    .git-diagram-container {
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      margin-top: 2px;
+      background: rgba(255,255,255,0.005);
+      border: 1px solid var(--border-color);
+      border-radius: 6px;
+      padding: 3px;
+    }
+    
+    body.light-preview .git-diagram-container {
+      background: rgba(0,0,0,0.005);
+    }
+
+    .git-diagram {
+      width: 100%;
+      height: auto;
+      max-height: 98px;
+    }
+
+    .git-diagram text {
+      font-family: var(--font-family);
+    }
+    
+    .git-diagram text.mono {
+      font-family: var(--font-mono);
+      font-weight: bold;
+    }
+
+    /* RIESGOS Y ANTIPATRONES */
+    .risks-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 6px;
+      height: 100%;
+    }
+
+    .risk-box {
+      border: 1px solid var(--border-color);
+      border-radius: 6px;
+      padding: 4px 6px;
+      display: flex;
+      flex-direction: column;
+      min-height: 0;
+    }
+
+    .risk-box-title {
+      font-family: var(--font-title);
+      font-weight: 700;
+      font-size: 7.8pt;
+      margin-bottom: 2px;
+      display: flex;
+      align-items: center;
+      gap: 3px;
+      line-height: 1;
+      flex-shrink: 0;
+    }
+
+    .risk-box-title svg {
+      width: 10px;
+      height: 10px;
+    }
+
+    .risk-box.personal {
+      border-left: 3px solid var(--accent-rule-border);
+      background: var(--accent-rule-bg);
+    }
+
+    .risk-box.personal .risk-box-title {
+      color: var(--accent-rule);
+    }
+    .risk-box.personal svg {
+      fill: var(--accent-rule);
+    }
+
+    .risk-box.antipatterns {
+      border-left: 3px solid var(--accent-bug-border);
+      background: var(--accent-bug-bg);
+    }
+
+    .risk-box.antipatterns .risk-box-title {
+      color: var(--accent-bug);
+    }
+    .risk-box.antipatterns svg {
+      fill: var(--accent-bug);
+    }
+
+    .risk-list {
+      list-style: none;
+      font-size: 7.1pt;
+      overflow-y: hidden;
+    }
+
+    .risk-list li {
+      margin-bottom: 1.5px;
+      position: relative;
+      padding-left: 7px;
+      line-height: 1.2;
+    }
+
+    .risk-list li::before {
+      content: "•";
+      position: absolute;
+      left: 0;
+      font-size: 8pt;
+      line-height: 1;
+    }
+    
+    .risk-box.personal .risk-list li::before { color: var(--accent-rule-border); }
+    .risk-box.antipatterns .risk-list li::before { color: var(--accent-bug-border); }
+
+    /* FOOTER DE IMPRESIÓN */
+    .print-footer {
+      display: none;
+      position: absolute;
+      bottom: 3mm;
+      left: 9mm;
+      right: 9mm;
+      justify-content: space-between;
+      font-family: var(--font-mono);
+      font-size: 6pt;
+      color: var(--text-muted);
+      border-top: 1px solid var(--border-color);
+      padding-top: 2px;
+    }
+
+    /* ESTILOS ESPECÍFICOS DE IMPRESIÓN (@media print) */
+    @media print {
+      @page {
+        size: A4 landscape;
+        margin: 0;
+      }
+      
+      body {
+        background-color: #ffffff;
+        color: #1e293b;
+        padding: 0;
+        margin: 0;
+        display: block;
+      }
+
+      .screen-controls {
+        display: none !important;
+      }
+
+      .page-wrapper {
+        gap: 0;
+      }
+
+      .page {
+        background-color: #ffffff;
+        border: none;
+        box-shadow: none;
+        border-radius: 0;
+        width: 297mm;
+        height: 210mm;
+        padding: 7mm 9mm;
+        box-sizing: border-box;
+        overflow: hidden;
+        page-break-after: always;
+        -webkit-print-color-adjust: exact;
+        print-color-adjust: exact;
+      }
+
+      /* Invertimos a tema claro forzado de impresión para ahorrar tinta */
+      :root {
+        --bg-body: #ffffff;
+        --bg-page: #ffffff;
+        --bg-card: #ffffff;
+        --bg-card-header: #f8fafc;
+        --border-color: #cbd5e1;
+        
+        --text-title: #0f172a;
+        --text-main: #334155;
+        --text-muted: #64748b;
+        
+        --primary: #4f46e5;
+        --primary-glow: rgba(79, 70, 229, 0.05);
+        --primary-border: #cbd5e1;
+        
+        --accent-rule: #d97706;
+        --accent-rule-bg: #fffbeb;
+        --accent-rule-border: #f59e0b;
+        
+        --accent-bug: #dc2626;
+        --accent-bug-bg: #fef2f2;
+        --accent-bug-border: #ef4444;
+        
+        --accent-ok: #059669;
+        --accent-ok-bg: #ecfdf5;
+        --accent-ok-border: #10b981;
+        
+        --accent-info: #0891b2;
+        --accent-info-bg: #ecfeff;
+        --accent-info-border: #06b6d4;
+      }
+
+      .print-footer {
+        display: flex;
+      }
+    }
+  </style>
+</head>
+<body>
+
+  <!-- PANEL DE CONTROLES (SOLO VISIBLE EN PANTALLA) -->
+  <div class="screen-controls">
+    <div class="controls-title">
+      <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="color: var(--primary)"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/></svg>
+      Guía de Referencia Rápida SDD <span>WORKFLOW v11</span>
+    </div>
+    <div class="btn-group">
+      <button class="btn" id="toggleThemeBtn">
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/></svg>
+        Vista de Impresión (Claro)
+      </button>
+      <button class="btn btn-primary" onclick="window.print()">
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-dasharray="" stroke-width="2" style="fill:none;stroke:currentColor"><polyline points="6 9 6 2 18 2 18 9"/><path d="M6 18H4a2 2 0 0 1-2-2v-5a2 2 0 0 1 2-2h16a2 2 0 0 1 2 2v5a2 2 0 0 1-2 2h-2"/><rect x="6" y="14" width="12" height="8"/></svg>
+        Imprimir Guía (Ctrl + P)
+      </button>
+    </div>
+  </div>
+
+  <div class="page-wrapper">
+    
+    <!-- ==================== PÁGINA 1: FRENTE ==================== -->
+    <div class="page" id="page-front">
+      
+      <div class="page-header">
+        <div class="header-left">
+          <div class="header-logo">SDD</div>
+          <div class="header-title">Guía de Referencia Rápida — Ciclo Principal</div>
+        </div>
+        <div class="header-right">
+          FRENTE (HOJA 1)<br/>
+          sdd-toolkit · WORKFLOW v11
+        </div>
+      </div>
+
+      <!-- DIAGRAMA DE FLUJO GENERAL DEL PROCESO SDD -->
+      <div class="process-flowchart-container">
+        <div class="flowchart-title">Mapa de Ruta del Proceso SDD</div>
+        <svg viewBox="0 0 920 52" class="process-flow-diagram">
+          <defs>
+            <marker id="arrow" viewBox="0 0 10 10" refX="6" refY="5" markerWidth="5" markerHeight="5" orient="auto-start-reverse">
+              <path d="M 0 1.5 L 9 5 L 0 8.5 z" fill="var(--text-muted)" />
+            </marker>
+          </defs>
+          
+          <!-- Conexiones -->
+          <line x1="85" y1="26" x2="110" y2="26" stroke="var(--border-color)" stroke-width="2" marker-end="url(#arrow)" />
+          <line x1="200" y1="26" x2="225" y2="26" stroke="var(--border-color)" stroke-width="2" marker-end="url(#arrow)" />
+          <line x1="315" y1="26" x2="340" y2="26" stroke="var(--border-color)" stroke-width="2" marker-end="url(#arrow)" />
+          <line x1="430" y1="26" x2="455" y2="26" stroke="var(--border-color)" stroke-width="2" marker-end="url(#arrow)" />
+          <line x1="545" y1="26" x2="570" y2="26" stroke="var(--border-color)" stroke-width="2" marker-end="url(#arrow)" />
+          <line x1="660" y1="26" x2="685" y2="26" stroke="var(--border-color)" stroke-width="2" marker-end="url(#arrow)" />
+          <line x1="775" y1="26" x2="800" y2="26" stroke="var(--border-color)" stroke-width="2" marker-end="url(#arrow)" />
+
+          <!-- Nodo 0: Fase 0 -->
+          <rect x="2" y="6" width="83" height="40" rx="6" fill="var(--bg-card)" stroke="var(--border-color)" stroke-width="1.5" />
+          <text x="43.5" y="21" font-size="7.5" font-weight="700" fill="var(--text-title)" text-anchor="middle">FASE 0</text>
+          <text x="43.5" y="34" font-size="6.2" fill="var(--text-muted)" text-anchor="middle">Setup Foundational</text>
+
+          <!-- Nodo 1: Fase 1 -->
+          <rect x="117" y="6" width="83" height="40" rx="6" fill="var(--bg-card)" stroke="var(--border-color)" stroke-width="1.5" />
+          <text x="158.5" y="21" font-size="7.5" font-weight="700" fill="var(--text-title)" text-anchor="middle">FASE 1</text>
+          <text x="158.5" y="34" font-size="6.2" fill="var(--text-muted)" text-anchor="middle">Idea / Necesidad</text>
+
+          <!-- Nodo 2: Fase 2 -->
+          <rect x="232" y="6" width="83" height="40" rx="6" fill="var(--accent-info-bg)" stroke="var(--accent-info-border)" stroke-width="1.5" />
+          <text x="273.5" y="20" font-size="7.5" font-weight="700" fill="var(--accent-info)" text-anchor="middle">FASE 2</text>
+          <text x="273.5" y="30" font-size="6.2" fill="var(--text-main)" text-anchor="middle">Discovery de Feature</text>
+          <text x="273.5" y="39" font-size="5.2" font-family="var(--font-mono)" fill="var(--text-muted)" text-anchor="middle">/sdd-discovery</text>
+
+          <!-- Nodo 3: Fase 3 -->
+          <rect x="347" y="6" width="83" height="40" rx="6" fill="var(--accent-info-bg)" stroke="var(--accent-info-border)" stroke-width="1.5" />
+          <text x="388.5" y="20" font-size="7.5" font-weight="700" fill="var(--accent-info)" text-anchor="middle">FASE 3</text>
+          <text x="388.5" y="30" font-size="6.2" fill="var(--text-main)" text-anchor="middle">Draft de Spec</text>
+          <text x="388.5" y="39" font-size="5.2" font-family="var(--font-mono)" fill="var(--text-muted)" text-anchor="middle">/sdd-spec</text>
+
+          <!-- Nodo 4: Fase 4 -->
+          <rect x="462" y="6" width="83" height="40" rx="6" fill="var(--accent-rule-bg)" stroke="var(--accent-rule-border)" stroke-width="1.5" />
+          <text x="503.5" y="20" font-size="7.5" font-weight="700" fill="var(--accent-rule)" text-anchor="middle">FASE 4</text>
+          <text x="503.5" y="30" font-size="6.2" fill="var(--text-main)" text-anchor="middle">Pasada Adversaria</text>
+          <text x="503.5" y="39" font-size="5.2" font-family="var(--font-mono)" fill="var(--text-muted)" text-anchor="middle">/sdd-adversarial-spec</text>
+
+          <!-- Nodo 5: Fase 5 -->
+          <rect x="577" y="6" width="83" height="40" rx="6" fill="var(--accent-ok-bg)" stroke="var(--accent-ok-border)" stroke-width="1.5" />
+          <text x="618.5" y="20" font-size="7.5" font-weight="700" fill="var(--accent-ok)" text-anchor="middle">FASE 5</text>
+          <text x="618.5" y="30" font-size="6.2" fill="var(--text-main)" text-anchor="middle">Aprobación / Verify</text>
+          <text x="618.5" y="39" font-size="5.2" font-family="var(--font-mono)" fill="var(--text-muted)" text-anchor="middle">/sdd-verify</text>
+
+          <!-- Nodo 6: Fase 6 -->
+          <rect x="692" y="6" width="83" height="40" rx="6" fill="var(--primary-glow)" stroke="var(--primary)" stroke-width="1.5" />
+          <text x="733.5" y="20" font-size="7.5" font-weight="700" fill="var(--primary)" text-anchor="middle">FASE 6</text>
+          <text x="733.5" y="30" font-size="6.2" fill="var(--text-main)" text-anchor="middle">Codegen por Capas</text>
+          <text x="733.5" y="39" font-size="5.2" font-family="var(--font-mono)" fill="var(--text-muted)" text-anchor="middle">/sdd-codegen</text>
+
+          <!-- Nodo 7: Deploy & Bugs -->
+          <rect x="807" y="6" width="111" height="40" rx="6" fill="var(--accent-bug-bg)" stroke="var(--accent-bug-border)" stroke-width="1.5" />
+          <text x="862.5" y="20" font-size="7.5" font-weight="700" fill="var(--accent-bug)" text-anchor="middle">DEPLOY & BUGS</text>
+          <text x="862.5" y="30" font-size="6.2" fill="var(--text-main)" text-anchor="middle">Ramas y Calidad Reactiva</text>
+          <text x="862.5" y="39" font-size="5.2" font-family="var(--font-mono)" fill="var(--text-muted)" text-anchor="middle">/sdd-bugfix | /sdd-commit</text>
+        </svg>
+      </div>
+      
+      <div class="page-content-grid">
+        
+        <!-- COLUMNA IZQUIERDA: REGLAS, GOBIERNO, COMANDOS -->
+        <div class="col">
+          
+          <!-- LAS 5 REGLAS NO NEGOCIABLES -->
+          <div class="card" style="flex-shrink: 0;">
+            <div class="card-header">
+              <svg viewBox="0 0 24 24"><path d="M12 2L1 21h22L12 2zm0 3.99L20.53 19H3.47L12 5.99zM13 16h-2v2h2v-2zm0-6h-2v4h2v-4z"/></svg>
+              Las 5 Reglas No Negociables
+            </div>
+            <div class="card-body" style="padding-bottom: 5px;">
+              <div class="rules-container">
+                <div class="rule-item">
+                  <div class="rule-num">1.</div>
+                  <div class="rule-text">La IA <strong>nunca toma decisiones de producto</strong> sin preguntar (incluso si parecen triviales).</div>
+                </div>
+                <div class="rule-item">
+                  <div class="rule-num">2.</div>
+                  <div class="rule-text">La IA <strong>documenta toda decisión técnica por defecto</strong> en una sección explícita para validación.</div>
+                </div>
+                <div class="rule-item">
+                  <div class="rule-num">3.</div>
+                  <div class="rule-text"><strong>Leo la spec completa</strong> antes de aprobar. Prohibido "dar una mirada rápida".</div>
+                </div>
+                <div class="rule-item">
+                  <div class="rule-num">4.</div>
+                  <div class="rule-text"><strong>Toda spec pasa por pasada adversaria</strong> antes de aprobarse. Regla estricta, sin excepciones.</div>
+                </div>
+                <div class="rule-item">
+                  <div class="rule-num">5.</div>
+                  <div class="rule-text">Si una spec aprobada estaba mal: <strong>subo la versión y documento delta</strong>. Prohibido fix silencioso.</div>
+                </div>
+              </div>
+              
+              <div class="gov-flow">
+                <div class="gov-step">Setup Foundacional</div>
+                <div class="gov-arrow">➔</div>
+                <div class="gov-step">Feature Spec</div>
+                <div class="gov-arrow">➔</div>
+                <div class="gov-step">Código</div>
+              </div>
+            </div>
+          </div>
+          
+          <!-- LOS 9 COMANDOS DE CLAUDE CODE -->
+          <div class="card" style="flex-grow: 1;">
+            <div class="card-header">
+              <svg viewBox="0 0 24 24"><path d="M20 4H4c-1.1 0-1.99.9-1.99 2L2 18c0 1.1.9 2 2 2h16c1.1 0 2-.9 2-2V6c0-1.1-.9-2-2-2zm0 14H4V6h16v12zm-2-1h-6v-2h6v2zM6.29 14.3l3.3-3.3-3.3-3.3L7.7 6.28l4.72 4.72-4.72 4.72-1.41-1.42z"/></svg>
+              Comandos de Claude Code y Parámetros
+            </div>
+            <div class="card-body" style="padding: 0;">
+              <table class="table-dense">
+                <thead>
+                  <tr>
+                    <th style="width: 37%;">Comando e Invocación</th>
+                    <th style="width: 5%; text-align: center;">Fase</th>
+                    <th style="width: 58%;">Parámetros y Propósito del Comando</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  <tr>
+                    <td><span class="cmd-badge">/sdd-discovery "&lt;necesidad&gt;"</span></td>
+                    <td style="text-align: center; font-weight: bold;">2</td>
+                    <td><strong>&lt;necesidad&gt;</strong>: Idea en 1-2 líneas. Interroga y extrae decisiones.</td>
+                  </tr>
+                  <tr>
+                    <td><span class="cmd-badge">/sdd-spec "&lt;discovery&gt;" "&lt;ID&gt;"</span></td>
+                    <td style="text-align: center; font-weight: bold;">3</td>
+                    <td><strong>&lt;discovery&gt;</strong>: Respuestas. <strong>&lt;ID&gt;</strong>: spec-NNN-nombre. Escribe spec en Draft.</td>
+                  </tr>
+                  <tr>
+                    <td><span class="cmd-badge">/sdd-modify-spec "&lt;spec&gt;" "&lt;delta&gt;"</span></td>
+                    <td style="text-align: center; font-weight: bold;">3Δ</td>
+                    <td><strong>&lt;spec&gt;</strong>: Spec original. <strong>&lt;delta&gt;</strong>: Respuestas delta. Modifica spec.</td>
+                  </tr>
+                  <tr>
+                    <td><span class="cmd-badge">/sdd-adversarial-spec "&lt;spec&gt;" "&lt;pasada&gt;"</span></td>
+                    <td style="text-align: center; font-weight: bold;">4</td>
+                    <td><strong>&lt;spec&gt;</strong>: ID/ruta spec. <strong>&lt;pasada&gt;</strong>: 1 o 2. Subagente busca gaps en limpio.</td>
+                  </tr>
+                  <tr>
+                    <td><span class="cmd-badge">/sdd-verify "&lt;spec&gt;"</span></td>
+                    <td style="text-align: center; font-weight: bold;">5➔6</td>
+                    <td><strong>&lt;spec&gt;</strong>: Spec Approved. Semáforo 🟢|🟡|🔴 pre-codegen.</td>
+                  </tr>
+                  <tr>
+                    <td><span class="cmd-badge">/sdd-codegen "&lt;spec&gt;" "&lt;capa&gt;"</span></td>
+                    <td style="text-align: center; font-weight: bold;">6</td>
+                    <td><strong>&lt;spec&gt;</strong>: Spec Approved. <strong>&lt;capa&gt;</strong>: 1|2|3|4 (Datos, Negocio, API, UI). Codegen.</td>
+                  </tr>
+                  <tr>
+                    <td><span class="cmd-badge">/sdd-adversarial-code "&lt;spec&gt;" "&lt;capa&gt;"</span></td>
+                    <td style="text-align: center; font-weight: bold;">6</td>
+                    <td><strong>&lt;spec&gt;</strong>: Spec. <strong>&lt;capa&gt;</strong>: 1|2|3|4. Subagente ataca código contra spec.</td>
+                  </tr>
+                  <tr>
+                    <td><span class="cmd-badge">/sdd-bugfix "&lt;desc&gt;" "&lt;severidad&gt;"</span></td>
+                    <td style="text-align: center; font-weight: bold;">§9</td>
+                    <td><strong>&lt;desc&gt;</strong>: Error. <strong>&lt;severidad&gt;</strong>: critico|alto|medio|bajo. Registra bug.</td>
+                  </tr>
+                  <tr>
+                    <td><span class="cmd-badge">/sdd-commit [push]</span></td>
+                    <td style="text-align: center; font-weight: bold;">—</td>
+                    <td><strong>[push]</strong>: Escribe "push" para subir directo. Commit inteligente.</td>
+                  </tr>
+                </tbody>
+              </table>
+            </div>
+          </div>
+          
+        </div>
+        
+        <!-- COLUMNA DERECHA: FLUJO DETALLADO FEATURE NUEVA -->
+        <div class="col">
+          <div class="card" style="height: 100%;">
+            <div class="card-header">
+              <svg viewBox="0 0 24 24"><path d="M22.4 5.6L18.4 1.6c-.3-.3-.8-.3-1.1 0l-4 4c-.3.3-.3.8 0 1.1l4 4c.1.1.3.2.5.2.2 0 .4-.1.5-.2l4-4c.4-.3.4-.8.1-1.1zM17 6V4h1v2h-1zM2 19c0 1.7 1.3 3 3 3h4c1.7 0 3-1.3 3-3v-4c0-.6-.4-1-1-1H7c-.6 0-1-.4-1-1V9c0-1.7 1.3-3 3-3h3V4H9C6.2 4 4 6.2 4 9v4c-1.1 0-2 .9-2 2v4zm6-3v4H5v-4h3z"/></svg>
+              Flujo A · Ciclo Completo de Feature Nueva
+            </div>
+            <div class="card-body">
+              <div class="phases-grid">
+                
+                <!-- FASE 1 -->
+                <div class="phase-card">
+                  <div>
+                    <div class="phase-number">Fase 1</div>
+                    <div class="phase-title">Definir Necesidad</div>
+                  </div>
+                  <ul class="phase-checklist">
+                    <li>Redactar el problema en 1 o 2 líneas.</li>
+                    <li>Notas crudas y dependencias estimadas.</li>
+                    <li>Libre de formato estructural o formal.</li>
+                  </ul>
+                  <div class="phase-output">Output: <strong>Notas internas crudas</strong></div>
+                </div>
+
+                <!-- FASE 2 -->
+                <div class="phase-card">
+                  <div>
+                    <div class="phase-number">Fase 2</div>
+                    <div class="phase-title">Discovery de Feature</div>
+                    <div class="phase-cmd">/sdd-discovery "&lt;necesidad&gt;"</div>
+                  </div>
+                  <ul class="phase-checklist">
+                    <li>IA hace preguntas numeradas por sección.</li>
+                    <li>Resolver todos los <code>[PENDIENTE]</code> creados.</li>
+                    <li>Validar decisiones técnicas por defecto.</li>
+                  </ul>
+                  <div class="phase-output">Output: <strong>Cuestionario Discovery</strong></div>
+                </div>
+
+                <!-- FASE 3 -->
+                <div class="phase-card">
+                  <div>
+                    <div class="phase-number">Fase 3 <span class="badge badge-draft">Draft</span></div>
+                    <div class="phase-title">Redacción de Spec</div>
+                    <div class="phase-cmd">/sdd-spec "&lt;discovery&gt;" "&lt;ID&gt;"</div>
+                  </div>
+                  <ul class="phase-checklist">
+                    <li>Traduce discovery a spec sin cambiar producto.</li>
+                    <li>Registrar en <code style="font-family:var(--font-mono)">sdd/specs/&lt;ID&gt;.md</code>.</li>
+                    <li>Agregar fila con ID en Draft a <code style="font-family:var(--font-mono)">INDEX.md</code>.</li>
+                  </ul>
+                  <div class="phase-output">Output: <strong>Feature Spec (Borrador)</strong></div>
+                </div>
+
+                <!-- FASE 4 -->
+                <div class="phase-card active-adversarial">
+                  <div>
+                    <div class="phase-number" style="color:var(--accent-rule)">Fase 4 <span class="badge badge-review">Review</span></div>
+                    <div class="phase-title">Pasada Adversaria</div>
+                    <div class="phase-cmd">/sdd-adversarial-spec "&lt;spec&gt;" "&lt;1|2&gt;"</div>
+                  </div>
+                  <ul class="phase-checklist">
+                    <li>Corre en subagente con contexto limpio.</li>
+                    <li>Cuestiona la spec buscando 10 clases de gaps.</li>
+                    <li>Incorporar mejoras y subir versión. Máx 2 pasadas.</li>
+                  </ul>
+                  <div class="phase-output">Output: <strong>Spec Iterada en Review</strong></div>
+                </div>
+
+                <!-- FASE 5 -->
+                <div class="phase-card active-verify">
+                  <div>
+                    <div class="phase-number" style="color:var(--accent-ok)">Fase 5 <span class="badge badge-approved">Approved</span></div>
+                    <div class="phase-title">Aprobación y Verificación</div>
+                    <div class="phase-cmd">/sdd-verify "&lt;spec&gt;"</div>
+                  </div>
+                  <ul class="phase-checklist">
+                    <li>Lectura completa en frío ➔ Estado <strong>Approved</strong>.</li>
+                    <li>Gatillar verificación para evaluar bloqueo.</li>
+                    <li>🟢 Seguir · 🟡 Registrar desvío · 🔴 Freno.</li>
+                  </ul>
+                  <div class="phase-output">Output: <strong>Spec Approved + Semáforo</strong></div>
+                </div>
+
+                <!-- FASE 6 -->
+                <div class="phase-card active-codegen">
+                  <div>
+                    <div class="phase-number">Fase 6</div>
+                    <div class="phase-title">Codegen por Capas</div>
+                    <div class="phase-cmd">/sdd-codegen "&lt;spec&gt;" "&lt;capa&gt;"</div>
+                  </div>
+                  <ul class="phase-checklist">
+                    <li>Code por capas (1➔2➔3➔4). DB append-only.</li>
+                    <li>Aprobar la tabla comparativa antes del código.</li>
+                    <li>Correr <code style="font-family:var(--font-mono)">/sdd-adversarial-code</code> tras cada capa.</li>
+                    <li>Gatillar <code style="font-family:var(--font-mono)">/sdd-commit</code> al verificar la feature.</li>
+                  </ul>
+                  <div class="phase-output">Output: <strong>Código Aprobado + Commit</strong></div>
+                </div>
+
+              </div>
+            </div>
+          </div>
+        </div>
+        
+      </div>
+      
+      <!-- Footer de impresión -->
+      <div class="print-footer">
+        <div>Martin Bortagaray — sdd-toolkit</div>
+        <div>FRENTE (HOJA 1) — Ciclo Principal de Feature</div>
+        <div>Versión: 20260602-v11</div>
+      </div>
+      
+    </div>
+    
+    <!-- ==================== PÁGINA 2: DORSO ==================== -->
+    <div class="page" id="page-back">
+      
+      <div class="page-header">
+        <div class="header-left">
+          <div class="header-logo" style="background: var(--accent-info)">SDD</div>
+          <div class="header-title">Guía de Referencia Rápida — Operaciones y Calidad</div>
+        </div>
+        <div class="header-right">
+          DORSO (HOJA 2)<br/>
+          sdd-toolkit · WORKFLOW v11
+        </div>
+      </div>
+      
+      <div class="page-content-grid">
+        
+        <!-- COLUMNA IZQUIERDA: FLUX B (MODIFICACIÓN) & FLUX D (GIT) -->
+        <div class="col">
+          
+          <!-- FLUJO B: MODIFICAR FEATURE EXISTENTE -->
+          <div class="card" style="flex-shrink: 0;">
+            <div class="card-header">
+              <svg viewBox="0 0 24 24"><path d="M3 17.25V21h3.75L17.81 9.94l-3.75-3.75L3 17.25zM20.71 7.04c.39-.39.39-1.02 0-1.41l-2.34-2.34c-.39-.39-1.02-.39-1.41 0l-1.83 1.83 3.75 3.75 1.83-1.83z"/></svg>
+              Flujo B · Modificar Feature Existente (Spec As-built)
+            </div>
+            <div class="card-body" style="padding-bottom: 5px;">
+              <div class="delta-list">
+                <div class="delta-step">
+                  <span class="delta-num">0.</span>
+                  <span class="delta-text"><strong>Clasifico:</strong> Cambios funcionales sobre una feature activa van aquí. Bugs ➔ Flujo C. Nuevas independientes ➔ Flujo A.</span>
+                </div>
+                <div class="delta-step">
+                  <span class="delta-num">1.</span>
+                  <span class="delta-text"><strong>Leer spec original completa:</strong> Identificar posibles desvíos o vacíos acumulados y completarlos como parte de esta modificación.</span>
+                </div>
+                <div class="delta-step">
+                  <span class="delta-num">2.</span>
+                  <span class="delta-text"><strong>Discovery delta:</strong> Ejecutar <code style="font-family:var(--font-mono)">/sdd-discovery</code> acotado al cambio. Resolver pendientes y validar defaults.</span>
+                </div>
+                <div class="delta-step">
+                  <span class="delta-num">3.</span>
+                  <span class="delta-text"><strong>Modifico Spec:</strong> <code style="font-family:var(--font-mono)">/sdd-modify-spec "&lt;spec&gt;" "&lt;delta&gt;"</code> edita de forma quirúrgica. Incrementa versión y agrega changelog.</span>
+                </div>
+                <div class="delta-step">
+                  <span class="delta-num">4.</span>
+                  <span class="delta-text"><strong>Calidad:</strong> Pasada adversaria de spec ➔ Aprobación tras lectura reflexiva ➔ Semáforo de preparación con <code style="font-family:var(--font-mono)">/sdd-verify</code>.</span>
+                </div>
+                <div class="delta-step">
+                  <span class="delta-num">5.</span>
+                  <span class="delta-text"><strong>Codegen delta:</strong> <code style="font-family:var(--font-mono)">/sdd-codegen</code> por capa afectada (Datos: migración append-only). Pasada adversaria de código y commit único.</span>
+                </div>
+              </div>
+            </div>
+          </div>
+          
+          <!-- FLUJO D: GIT BRANCHING & DEPLOY -->
+          <div class="card" style="flex-grow: 1;">
+            <div class="card-header">
+              <svg viewBox="0 0 24 24"><path d="M18.8 3c-.5 0-.9.2-1.3.5-.3.3-.5.7-.5 1.3 0 .7.3 1.2.9 1.5l-2.4 2.4c-.6-.4-1.4-.4-2 0L11 6.2c.6-.3.9-.9.9-1.5 0-1-.8-1.8-1.8-1.8s-1.8.8-1.8 1.8c0 .7.4 1.2.9 1.5v6.6c-.5.3-.9.9-.9 1.5 0 1 .8 1.8 1.8 1.8s1.8-.8 1.8-1.8c0-.7-.4-1.2-.9-1.5V9.3l2.5-2.5c.3.3.7.5 1.3.5.5 0 .9-.2 1.3-.5.3-.3.5-.7.5-1.3s-.2-.9-.5-1.3c-.3-.4-.7-.6-1.2-.6z"/></svg>
+              Flujo D · Modelo de Ramas (Git Branching)
+            </div>
+            <div class="card-body" style="padding: 4px 8px; display: flex; flex-direction: column; justify-content: space-between; min-height: 0;">
+              <div class="git-diagram-container">
+                <svg viewBox="0 0 500 102" class="git-diagram">
+                  <!-- Rama main -->
+                  <line x1="20" y1="28" x2="480" y2="28" stroke="var(--accent-ok-border)" stroke-width="2" />
+                  <!-- Rama staging -->
+                  <line x1="20" y1="56" x2="480" y2="56" stroke="var(--accent-info-border)" stroke-width="2" />
+                  <!-- Feature branch path -->
+                  <path d="M 50 28 Q 85 85, 130 85 L 300 85 Q 340 85, 370 56 L 390 56 Q 420 56, 440 28" fill="none" stroke="var(--primary)" stroke-width="2" stroke-dasharray="3,3" />
+                  <!-- Hotfix branch path -->
+                  <path d="M 180 28 Q 210 5, 240 5 L 290 5 Q 320 5, 350 28" fill="none" stroke="var(--accent-bug-border)" stroke-width="2" />
+
+                  <!-- Nodos -->
+                  <circle cx="50" cy="28" r="4" fill="var(--accent-ok-border)" />
+                  <circle cx="440" cy="28" r="4" fill="var(--accent-ok-border)" />
+                  <circle cx="130" cy="85" r="4" fill="var(--primary)" />
+                  <circle cx="230" cy="85" r="4" fill="var(--primary)" />
+                  <circle cx="300" cy="85" r="4" fill="var(--primary)" />
+                  <circle cx="370" cy="56" r="4" fill="var(--accent-info-border)" />
+                  <circle cx="240" cy="5" r="4" fill="var(--accent-bug-border)" />
+
+                  <!-- Textos de Ramas -->
+                  <text x="25" y="22" font-size="7" fill="var(--accent-ok)" class="mono">main (producción estable)</text>
+                  <text x="25" y="50" font-size="7" fill="var(--accent-info)" class="mono">staging (validación cliente)</text>
+                  <text x="140" y="94" font-size="7" fill="var(--primary)" class="mono">feature/SPEC-ID</text>
+                  <text x="240" y="13" font-size="6.5" fill="var(--accent-bug)" class="mono" text-anchor="middle">hotfix/*</text>
+                  
+                  <!-- Pasos anotados -->
+                  <text x="80" y="70" font-size="6" fill="var(--text-muted)">1. checkout -b</text>
+                  <text x="205" y="78" font-size="6" fill="var(--text-muted)">2. commit único</text>
+                  <text x="340" y="70" font-size="6" fill="var(--text-muted)">3. merge a staging</text>
+                  <text x="445" y="42" font-size="6" fill="var(--text-muted)">4. merge a main</text>
+                </svg>
+              </div>
+              <div style="font-size: 7.2pt; color: var(--text-muted); line-height: 1.25; margin-top: 3px;">
+                <strong>Regla de Ramas:</strong> Queda prohibido empujar directamente a main o staging. Todo cambio va por <code style="font-family:var(--font-mono)">feature/*</code>. Al deployar a prod, actualizo el estado de la spec en <code style="font-family:var(--font-mono)">INDEX.md</code> a <strong>Implemented</strong> y limpio ramas.
+              </div>
+            </div>
+          </div>
+          
+        </div>
+        
+        <!-- COLUMNA DERECHA: FLUJO C (BUGS) & RIESGOS/ANTIPATRONES -->
+        <div class="col">
+          
+          <!-- FLUJO C: TRATAMIENTO DE BUGS -->
+          <div class="card" style="flex-shrink: 0;">
+            <div class="card-header">
+              <svg viewBox="0 0 24 24"><path d="M20 8h-2.81c-.45-.78-1.07-1.45-1.82-1.96L17 4.41 15.59 3l-2.17 2.17C12.96 5.06 12.49 5 12 5c-.49 0-.96.06-1.41.17L8.41 3 7 4.41l1.62 1.63C7.88 6.55 7.26 7.22 6.81 8H4v2h2.09c-.05.33-.09.66-.09 1v1H4v2h2v1c0 .34.04.67.09 1H4v2h2.81c1.04 1.79 2.97 3 5.19 3s4.15-1.21 5.19-3H20v-2h-2.09c.05-.33.09-.66.09-1v-1h2v-2h-2v-1c0-.34-.04-.67-.09-1H20V8zm-6 8h-4v-2h4v2zm0-4h-4v-2h4v2z"/></svg>
+              Flujo C · Gestión de Bugs
+            </div>
+            <div class="card-body" style="padding: 0 0 5px 0;">
+              <table class="table-dense" style="margin-bottom: 4px;">
+                <thead>
+                  <tr>
+                    <th style="width: 25%;">Clase de Bug</th>
+                    <th style="width: 38%;">Definición</th>
+                    <th style="width: 37%;">Procedimiento</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  <tr>
+                    <td><span class="bug-type-tag bug-type-a">Tipo A — Código</span></td>
+                    <td>El código no cumple lo que la spec dice. La spec es correcta.</td>
+                    <td>Corregir <strong>solo código</strong> (fix mínimo + test regresión).</td>
+                  </tr>
+                  <tr>
+                    <td><span class="bug-type-tag bug-type-b">Tipo B — Spec</span></td>
+                    <td>Spec con ambigüedades, omisiones o casos borde no contemplados.</td>
+                    <td>Actualizar <strong>primero la spec</strong> (vN+1), luego código.</td>
+                  </tr>
+                  <tr>
+                    <td><span class="bug-type-tag bug-type-c">Tipo C — Negocio</span></td>
+                    <td>El sistema cumple spec pero negocio cambió de parecer.</td>
+                    <td><strong>No es bug</strong>. Reclasificar como feature (Flujo A o B).</td>
+                  </tr>
+                </tbody>
+              </table>
+              
+              <div style="padding: 0 8px;">
+                <div class="bug-protocol-box">
+                  <div class="bug-protocol-title">
+                    <svg width="10" height="10" viewBox="0 0 24 24" fill="currentColor"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm1 15h-2v-6h2v6zm0-8h-2V7h2v2z"/></svg>
+                    Protocolo de Fix Mínimo (Regla de Cierre)
+                  </div>
+                  <ul class="bug-protocol-list">
+                    <li>1. Crear el archivo <code style="font-family:var(--font-mono)">sdd/bugs/bugfix-NNN.md</code> en estado <strong>Abierto</strong>.</li>
+                    <li>2. <strong>Regla de oro: Escribo el test de regresión ANTES de tocar código</strong>.</li>
+                    <li>3. Desarrollar el fix mínimo necesario (sin refactorizaciones de paso).</li>
+                    <li>4. Cerrar: Test verde + spec actualizada (si es B). Commit con prefijo <code style="font-family:var(--font-mono)">fix(bugfix-NNN):</code></li>
+                  </ul>
+                </div>
+              </div>
+            </div>
+          </div>
+          
+          <!-- RIESGOS Y ANTIPATRONES -->
+          <div class="card" style="flex-grow: 1;">
+            <div class="card-header">
+              <svg viewBox="0 0 24 24"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm1 15h-2v-2h2v2zm0-4h-2V7h2v6z"/></svg>
+              Zonas de Riesgo & Antipatrones
+            </div>
+            <div class="card-body" style="display: flex; flex-direction: column; justify-content: space-between; min-height: 0; padding-bottom: 4px;">
+              <div class="risks-grid">
+                
+                <!-- Zonas de Riesgo -->
+                <div class="risk-box personal">
+                  <div class="risk-box-title">
+                    <svg viewBox="0 0 24 24"><path d="M12 5.9c1.16 0 2.1.94 2.1 2.1s-.94 2.1-2.1 2.1-2.1-.94-2.1-2.1.94-2.1 2.1-2.1m0 9c2.63 0 5.55 1.28 6 1.9v.2H6v-.2c.45-.62 3.37-1.9 6-1.9M12 4C9.79 4 8 5.79 8 8s1.79 4 4 4 4-1.79 4-4-1.79-4-4-4zm0 9c-2.67 0-8 1.34-8 4v3h16v-3c0-2.66-5.33-4-8-4z"/></svg>
+                    Zonas de Riesgo del Autor
+                  </div>
+                  <ul class="risk-list">
+                    <li><strong>Ansiedad:</strong> Apuro por avanzar y cerrar feedback sin reflexionar bien.</li>
+                    <li><strong>Cierre Prematuro:</strong> Aceptación superficial de hallazgos para "seguir".</li>
+                    <li><strong>Sub-especificar:</strong> Criterios de aceptación vagos y olvido de casos borde.</li>
+                    <li><strong>Evasión:</strong> "Es estándar/luego se ve" usado para no tomar decisiones hoy.</li>
+                    <li><strong>Cansancio:</strong> Trabajar de noche multiplica los desvíos procesales.</li>
+                  </ul>
+                </div>
+
+                <!-- Antipatrones -->
+                <div class="risk-box antipatterns">
+                  <div class="risk-box-title">
+                    <svg viewBox="0 0 24 24"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm1 15h-2v-2h2v2zm0-4h-2V7h2v6z"/></svg>
+                    Antipatrones a Evitar
+                  </div>
+                  <ul class="risk-list">
+                    <li><strong>Vibe Coding:</strong> Escribir código sin una spec aprobada previa.</li>
+                    <li><strong>Spec Retroactiva:</strong> Escribir la spec después de haber codeado.</li>
+                    <li><strong>Saltear Adversaria:</strong> Omitir la pasada por ser "un cambio menor".</li>
+                    <li><strong>Codegen sin freno:</strong> Generar capas juntas sin validar tabla comparativa.</li>
+                    <li><strong>Fix Silencioso:</strong> Corregir un bug sin su <code>bugfix-NNN.md</code> ni test.</li>
+                  </ul>
+                </div>
+
+              </div>
+              <div style="font-size: 7pt; color: var(--text-muted); text-align: center; border-top: 1px solid var(--border-color); padding-top: 3px; margin-top: 3px; line-height: 1;">
+                "Velocidad del solo-emprendedor con la disciplina del proceso formal."
+              </div>
+            </div>
+          </div>
+          
+        </div>
+        
+      </div>
+      
+      <!-- Footer de impresión -->
+      <div class="print-footer">
+        <div>Martin Bortagaray — sdd-toolkit</div>
+        <div>DORSO (HOJA 2) — Operaciones y Calidad</div>
+        <div>Versión: 20260602-v11</div>
+      </div>
+      
+    </div>
+
+  </div>
+
+  <script>
+    // SCRIPT PARA TOGGLEAR TEMA (PREVIO DE IMPRESIÓN EN PANTALLA)
+    const toggleThemeBtn = document.getElementById('toggleThemeBtn');
+    const body = document.body;
+
+    toggleThemeBtn.addEventListener('click', () => {
+      body.classList.toggle('light-preview');
+      const isLight = body.classList.contains('light-preview');
+      if (isLight) {
+        toggleThemeBtn.innerHTML = `
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="5"/><line x1="12" y1="1" x2="12" y2="3"/><line x1="12" y1="21" x2="12" y2="23"/><line x1="4.22" y1="4.22" x2="5.64" y2="5.64"/><line x1="18.36" y1="18.36" x2="19.78" y2="19.78"/><line x1="1" y1="12" x2="3" y2="12"/><line x1="21" y1="12" x2="23" y2="12"/><line x1="4.22" y1="19.78" x2="5.64" y2="18.36"/><line x1="18.36" y1="5.64" x2="19.78" y2="4.22"/></svg>
+          Tema Oscuro (Pantalla)
+        `;
+      } else {
+        toggleThemeBtn.innerHTML = `
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/></svg>
+          Vista de Impresión (Claro)
+        `;
+      }
+    });
+  </script>
+</body>
+</html>
