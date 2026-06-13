@@ -1,6 +1,6 @@
 # Prompt — Generación de Código por Capas (Fase 6)
 
-> **Versión:** 20260607-v3
+> **Versión:** 20260610-v5 · historia en `/CHANGELOG.md`
 > **Uso:** Después de que la spec pasó verificación pre-generación (`prompts/06-spec-verification.prompt.md`) con veredicto VERDE o AMARILLO aceptado. Se ejecuta una vez por capa, con contexto incremental.
 > **Dónde se ejecuta:** Vía el comando `/sdd-codegen` en Claude Code (preferido), o en conversación nueva por capa en Claude.ai (WORKFLOW.md sección 11.1, modelo híbrido v10).
 
@@ -17,7 +17,7 @@ Este prompt se ejecuta **4 veces por feature**, una por capa:
 | 3 — API / Capa de acceso | Endpoints, rutas, validaciones de entrada | Código de Capas 1 y 2 aprobados |
 | 4 — UI | Componentes, páginas, flujos de interfaz | Código de Capas 1, 2 y 3 aprobados |
 
-**No pasar a la siguiente capa hasta completar el checklist de verificación entre capas** (WORKFLOW.md sección 6.4). El prompt de pasada adversaria de código (`prompts/05-adversarial-code.prompt.md`) se ejecuta después de cada capa, antes de tildar el checklist.
+**No pasar a la siguiente capa hasta completar el checklist de verificación entre capas** (WORKFLOW.md sección 7.4). El prompt de pasada adversaria de código (`prompts/05-adversarial-code.prompt.md`) se ejecuta después de cada capa, antes de tildar el checklist.
 
 ---
 
@@ -42,6 +42,8 @@ Este prompt se ejecuta **4 veces por feature**, una por capa:
    - Código generado y aprobado de todas las capas anteriores.
    - Schema real de la base de datos (dump del schema vivo o migraciones ejecutadas).
 
+   **Carga selectiva en modificaciones (hay CHANGE-SET; WORKFLOW.md 8.3.2):** en vez de los 6 documentos foundacionales, cargar según el delta — siempre `CONVENTIONS.md` + `PRINCIPLES.md`; `DOMAIN_MODEL.md` si el delta toca Capa 1 o 2; `ARCHITECTURE.md` si toca Capa 2 o 3 o introduce integraciones; `GLOSSARY.md` solo si el delta introduce términos nuevos; `PRODUCT.md` solo en T3. En builds iniciales se carga todo, como siempre.
+
 4. Reemplazar los placeholders `{CAPA}`, `{NUMERO-CAPA}`, `{SPEC-ID}` y `{SPEC-VERSION}` en el prompt antes de pegar.
 
 5. Pegar el prompt (solo el bloque delimitado por ` ``` `) y enviar.
@@ -57,7 +59,7 @@ CONTEXTO QUE TE PASO:
 - Spec aprobada de la feature.
 - Setup foundacional del proyecto: ARCHITECTURE, DOMAIN_MODEL, CONVENTIONS, PRINCIPLES, GLOSSARY.
 - Specs dependientes declaradas en sección 12 de la spec (primer nivel directo).
-[Si es una MODIFICACIÓN agregar: - CHANGE-SET de /sdd-modify-spec (delta ADDED/MODIFIED/REMOVED con capa por ítem). Si NO te paso CHANGE-SET, es un build inicial: generá la capa completa.]
+[Si es una MODIFICACIÓN agregar: - CHANGE-SET de /sdd-modify-spec (delta ADDED/MODIFIED/REMOVED con capa por ítem y tier en el header). Si NO te paso CHANGE-SET, es un build inicial: generá la capa completa. Si durante la generación detectás que el delta toca modelo de datos, reglas de negocio o seguridad que el tier declarado no admite, PARÁ y avisame: el tier debe subir (válvula de escape, WORKFLOW.md 8.3.2).]
 [A partir de Capa 2 agregar: - Código de capas anteriores ya generadas y aprobadas.]
 [A partir de Capa 2 agregar: - Schema real de la base de datos (migraciones ejecutadas).]
 
@@ -168,7 +170,7 @@ Hacé esto:
 - Describí el gap encontrado con cita textual de la spec y del documento que entra en conflicto.
 - Esperá mi decisión antes de continuar.
 
-Esto es crítico. Un gap ignorado en Capa 1 se propaga a Capa 4. El costo de corregirlo tarde es alto (WORKFLOW.md sección 7.3.1).
+Esto es crítico. Un gap ignorado en Capa 1 se propaga a Capa 4. El costo de corregirlo tarde es alto (WORKFLOW.md sección 8.3.1).
 
 ¿Listo para empezar? Confirmame que tenés todo el contexto cargado y ejecutá el Paso 0 (tabla comparativa).
 ```
@@ -181,9 +183,9 @@ Esto es crítico. Un gap ignorado en Capa 1 se propaga a Capa 4. El costo de cor
 
 1. **Revisar la tabla comparativa** antes de confirmar. Si falta algún requerimiento en la tabla, pedirle al LLM que lo agregue antes de generar código.
 
-2. **Revisar código y tests** con el checklist de WORKFLOW.md sección 6.4.
+2. **Revisar código y tests** con el checklist de WORKFLOW.md sección 7.4.
 
-3. **Ejecutar pasada adversaria de código** con `prompts/05-adversarial-code.prompt.md` en conversación nueva.
+3. **Ejecutar pasada adversaria de código según tier** (WORKFLOW.md 8.3.2): en modificaciones **T1**, se reemplaza por checks inline en la misma sesión (tests + typecheck/build + revisión del diff contra `CONVENTIONS.md`); en **T2**, subagente con `prompts/05-adversarial-code.prompt.md` acotado al diff y contexto selectivo; en **T3 y builds iniciales**, pasada completa en conversación nueva/subagente.
 
 4. **Procesar decisiones técnicas tomadas por defecto.** Para cada una: aceptar o pedir cambio quirúrgico. Si alguna decisión "técnica" esconde una decisión de producto, modificar la spec primero.
 
@@ -192,7 +194,7 @@ Esto es crítico. Un gap ignorado en Capa 1 se propaga a Capa 4. El costo de cor
    - Gap de producto (decisión no tomada): volver a Fase 2 (discovery adicional) o decidir ahora y documentar en spec.
    - Gap de arquitectura: modificar ARCHITECTURE.md y evaluar impacto en specs anteriores.
 
-6. **No commitees por capa.** El commit es uno solo, cuando la feature completa pasó la verificación de las 4 capas (un commit por feature, no por capa ni por archivo; ver WORKFLOW.md sección 7.5).
+6. **No commitees por capa.** El commit es uno solo, cuando la feature completa pasó la verificación de las 4 capas **y la prueba manual del autor** (gate previo al commit, WORKFLOW.md sección 7.5): un commit por feature, no por capa ni por archivo (granularidad en sección 7.6).
 
 7. **Pasar a la siguiente capa** adjuntando el código aprobado como contexto adicional.
 

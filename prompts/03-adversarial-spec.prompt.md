@@ -1,6 +1,6 @@
 # Prompt — Pasada Adversaria de Spec (Fase 4)
 
-> **Versión:** 20260602-v2
+> **Versión:** 20260610-v3 · historia en `/CHANGELOG.md`
 > **Uso:** Después de Fase 3 (Redacción del draft) y antes de Fase 5 (Aprobación). Es el prompt que ejecuta el rol Adversario de la IA (WORKFLOW.md sección 3) sobre una spec de feature.
 > **Dónde se ejecuta:** Vía el comando `/sdd-adversarial-spec` en Claude Code (corre en subagente con contexto limpio), o en conversación nueva en Claude.ai. NUNCA en la conversación donde se redactó la spec (WORKFLOW.md sección 11.1, modelo híbrido v10).
 
@@ -9,8 +9,14 @@
 ## Cuándo usar este prompt
 
 - **Pasada 1:** sobre spec en estado Draft, recién salida de Fase 3. Después de procesar hallazgos, la spec pasa a Review.
-- **Pasada 2:** sobre spec en estado Review, después de incorporar los cambios de Pasada 1. Solo si Pasada 1 dejó dudas o si el draft fue muy modificado.
-- **Máximo 2 pasadas** (WORKFLOW.md sección 11.2). Si después de Pasada 2 siguen apareciendo hallazgos estructurales serios, la spec tiene problemas de fondo. Parar y reconsiderar.
+- **Pasada 2 — condicional (WORKFLOW.md 13.2, v14):** solo se ejecuta si la Pasada 1 produjo **al menos un hallazgo bloqueante** (contradicción real, gap operativo concreto, violación al setup foundacional, decisión implícita sin marcar). Si la Pasada 1 fue limpia o solo dejó hallazgos descartables/estilísticos, NO hay Pasada 2: se pasa directo a Fase 5.
+- **Máximo 2 pasadas** (WORKFLOW.md sección 13.2). Si después de Pasada 2 siguen apareciendo hallazgos estructurales serios, la spec tiene problemas de fondo. Parar y reconsiderar.
+
+**Modificaciones de specs existentes (vienen de `/sdd-modify-spec` con CHANGE-SET y tier, WORKFLOW.md 8.3.2):**
+
+- **Tier T1 (cosmético):** este prompt NO se ejecuta. Excepción codificada de Regla 4: no hay riesgo de diseño que auditar. El riesgo de implementación lo cubren tests + checks inline + gate de prueba manual.
+- **Tier T2 (lógica acotada):** se ejecuta en **modo acotado al delta** — la spec completa se lee como contexto de coherencia, pero los hallazgos se reportan solo sobre lo que el delta introduce o toca (ver bloque MODO ACOTADO del prompt). Contexto selectivo según el CHANGE-SET (ver "Cómo usar").
+- **Tier T3 (estructural):** pasada completa, igual que una spec nueva.
 
 ---
 
@@ -24,6 +30,8 @@
    - Specs declaradas en la sección 12 "Dependencias y supuestos" de la spec a revisar (primer nivel directo, no transitivas).
    - `templates/feature-spec.guide.md` del toolkit (referencia de qué va en cada sección).
 
+   **Carga selectiva en modificaciones T2 (WORKFLOW.md 8.3.2):** en vez de los 6 documentos foundacionales, cargar según el CHANGE-SET — siempre `CONVENTIONS.md` + `PRINCIPLES.md`; `DOMAIN_MODEL.md` si el delta toca Capa 1 o 2; `ARCHITECTURE.md` si toca Capa 2 o 3 o introduce integraciones; `GLOSSARY.md` solo si el delta introduce términos nuevos. Adjuntar también el **CHANGE-SET**. En T3 y en specs nuevas se carga todo, como siempre.
+
 3. Identificar si es Pasada 1 o Pasada 2 (el placeholder `{PASADA}` del prompt).
 
 4. Pegar el prompt (solo el bloque delimitado por ` ``` `) y enviar.
@@ -36,7 +44,7 @@
 Necesito que actúes como Adversario en la Fase 4 del ciclo SDD (Spec-Driven Development).
 
 CONTEXTO:
-Te paso una spec de feature en estado {Draft / Review} para que la revises críticamente. Esta es la Pasada {PASADA} de un máximo de 2 (WORKFLOW.md sección 11.2).
+Te paso una spec de feature en estado {Draft / Review} para que la revises críticamente. Esta es la Pasada {PASADA} de un máximo de 2 (WORKFLOW.md sección 13.2).
 
 Adjunté también:
 - Setup foundacional del proyecto (PRODUCT, ARCHITECTURE, DOMAIN_MODEL, CONVENTIONS, GLOSSARY, PRINCIPLES) — los archivos que existan.
@@ -57,7 +65,17 @@ Leé esta sub-sección antes de generar cualquier hallazgo. Si un hallazgo que v
 
 Excepción: solo re-marques un hallazgo ya cerrado si tenés nuevo criterio basado en información que la decisión anterior no tuvo en cuenta. En ese caso, explicitá cuál es la información nueva.
 
-Esto evita el loop adversario infinito donde cada pasada vuelve a marcar lo mismo (WORKFLOW.md sección 11.3).
+Esto evita el loop adversario infinito donde cada pasada vuelve a marcar lo mismo (WORKFLOW.md sección 13.3).
+
+MODO ACOTADO AL DELTA (solo si te pasé un CHANGE-SET con Tier T2):
+
+Si esta revisión es sobre una MODIFICACIÓN de una spec existente (te adjunté un CHANGE-SET con tier T2), tu alcance cambia:
+
+- Leé la spec completa como contexto de coherencia, pero reportá SOLO hallazgos que el delta introduce o toca: problemas dentro de los ítems ADDED/MODIFIED/REMOVED, o incoherencias NUEVAS entre el delta y el resto de la spec / el setup foundacional / las dependencias.
+- NO reportes problemas pre-existentes de la spec que el delta no toca: esa spec ya fue aprobada con su propia pasada adversaria en su momento. Si encontrás un problema pre-existente grave (contradicción real o riesgo de seguridad), mencionalo en UNA línea al final bajo "FUERA DE SCOPE", sin desarrollarlo.
+- Prestá especial atención a la PROPAGACIÓN: ítems del delta que invalidan comportamiento declarado en secciones que el CHANGE-SET no lista (ej: una condición nueva en sección 7 que contradice un criterio de aceptación existente en sección 8). Eso SÍ es hallazgo, y de los importantes.
+
+Si NO te pasé CHANGE-SET (spec nueva o tier T3), ignorá este bloque: la revisión es completa.
 
 LO QUE QUIERO QUE BUSQUES (en orden de prioridad):
 
@@ -144,7 +162,7 @@ Terminá con UNA pregunta crítica: ¿qué decisión importante sobre esta featu
 
 1. **No procesar hallazgos en caliente.** Leelos todos primero. Cabeza fresca.
 
-2. **Clasificar hallazgos antes de iterar** (WORKFLOW.md sección 11.1):
+2. **Clasificar hallazgos antes de iterar** (WORKFLOW.md sección 13.1):
    - Sólidos para iterar: contradicciones reales, gaps operativos concretos, violaciones a setup foundacional, decisiones implícitas no marcadas.
    - Zona gris: discutir antes de decidir.
    - Descartar: sugerencias estilísticas, casos teóricos improbables, sobre-especificación.

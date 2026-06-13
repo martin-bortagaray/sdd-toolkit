@@ -39,6 +39,13 @@ Para clasificar, leé la spec afectada en `sdd/specs/` y compará comportamiento
 3. Verificá que el test **pasa** y se incorpora a la suite de la feature afectada.
 4. Referenciá el test (nombre + archivo) en el `bugfix-NNN.md`.
 
-## Paso 5 — Cierre
+## Paso 5 — Prueba manual ANTES de cerrar y commitear
 
-Pasá el artefacto a **Cerrado** solo con: fix verificado, test de regresión en verde y en la suite, spec actualizada si era Tipo B. Para commitear usá `/sdd-commit` (detecta el `bugfix-NNN` y arma el prefijo `fix(bugfix-NNN):`).
+El test de regresión automático prueba que el caso exacto no vuelve, pero no reemplaza que yo reproduzca el bug y confirme el arreglo en la experiencia real.
+
+1. **Armá un plan de prueba manual** a partir de los **pasos de reproducción** y el **criterio de aceptación del fix** del `bugfix-NNN.md`: la prueba es reproducir el caso original y confirmar que ahora se comporta como se espera. Pasos numerados, con precondición y resultado esperado.
+2. **Esperá mi confirmación explícita** de que reproduje el caso y el bug ya no ocurre. Si todavía falla, no cerramos ni commiteamos: seguimos en fix.
+
+## Paso 6 — Cierre
+
+Pasá el artefacto a **Cerrado** solo con: fix verificado, test de regresión en verde y en la suite, **prueba manual confirmada por mí**, spec actualizada si era Tipo B. Para commitear usá `/sdd-commit` (detecta el `bugfix-NNN`, arma el prefijo `fix(bugfix-NNN):` y vuelve a ofrecer el gate de prueba manual como red de seguridad).

@@ -10,7 +10,9 @@ Vas a ejecutar la **Fase 6 (Generación)** del ciclo SDD en tu rol de **Generado
 1. Leé el prompt maestro: `${CLAUDE_PLUGIN_ROOT}/prompts/04-codegen-layer.prompt.md`. Aplicá sus 8 reglas de generación.
 2. Identificá spec y capa desde **$ARGUMENTS**. La spec debe estar **Approved** y haber pasado `/sdd-verify` con veredicto VERDE o AMARILLO aceptado. Si no, frená y avisame.
 3. Leé: la spec completa, `sdd/foundation/` (ARCHITECTURE, DOMAIN_MODEL, CONVENTIONS, PRINCIPLES, GLOSSARY) y specs dependientes de sección 12.
-   - **Si esto es una modificación** (la spec viene de `/sdd-modify-spec`): cargá también el **CHANGE-SET** (delta `ADDED/MODIFIED/REMOVED`). Activa la Regla 9 del prompt: regenerás solo los ítems del delta y preservás el resto del código existente. Sin CHANGE-SET = build inicial = capa completa.
+   - **Si esto es una modificación** (la spec viene de `/sdd-modify-spec`): cargá también el **CHANGE-SET** (delta `ADDED/MODIFIED/REMOVED` con **tier** en el header). Activa la Regla 9 del prompt: regenerás solo los ítems del delta y preservás el resto del código existente. Sin CHANGE-SET = build inicial = capa completa.
+   - **Carga selectiva en modificaciones (WORKFLOW 8.3.2):** en vez de todo `sdd/foundation/`, cargá CONVENTIONS+PRINCIPLES siempre; DOMAIN_MODEL si el delta toca Capa 1/2; ARCHITECTURE si toca Capa 2/3 o integraciones; GLOSSARY solo con términos nuevos; PRODUCT solo T3.
+   - **Válvula de escape:** si durante la generación detectás que el delta toca modelo/reglas/seguridad que su tier no admite, **pará y avisame**: el tier sube, se actualiza el CHANGE-SET y se ejecutan los pasos salteados (ej: adversaria de spec) antes de continuar.
 4. **A partir de Capa 2:** leé también el código ya aprobado de capas anteriores y el **schema real de la base de datos** (migraciones en `sql/migrations/` o dump vivo). El modelo conceptual solo no alcanza — necesitás los nombres y tipos exactos desplegados.
 
 > Recordá el mapeo de capas a tu arquitectura: en Next.js + Supabase, "Capa 3 — API/Acceso" puede ser RLS + funciones en Supabase, no endpoints FastAPI. Eso lo define `ARCHITECTURE.md`, no este comando.
@@ -35,4 +37,18 @@ Si la spec dice X pero el setup dice algo incompatible, un requerimiento es ambi
 
 ## Paso 5 — Antes de cerrar la capa
 
-No tildes la capa hasta: revisar mis decisiones por defecto, correr `/sdd-adversarial-code` (pasada adversaria en subagente) y procesar sus hallazgos, y que los tests pasen. El **commit es por feature completa y verificada**, no por capa suelta (usá `/sdd-commit`). Después seguí con la capa siguiente.
+No tildes la capa hasta: revisar mis decisiones por defecto, ejecutar la **verificación adversaria según el tier** y procesar sus hallazgos, y que los tests pasen. Según el tier (WORKFLOW 8.3.2):
+
+- **T1 (modificación cosmética):** checks inline en esta misma sesión — tests de la capa + typecheck/build + revisión del diff contra `CONVENTIONS.md`. Sin subagente.
+- **T2:** `/sdd-adversarial-code` con subagente **acotado al diff** y contexto selectivo.
+- **T3 y builds iniciales:** `/sdd-adversarial-code` completo (subagente, contexto limpio).
+
+Después seguí con la capa siguiente.
+
+## Paso 6 — Cierre de la feature: prueba manual ANTES del commit
+
+El **commit es por feature completa y verificada**, no por capa suelta. Antes de commitear, con todas las capas cerradas y los tests automáticos en verde:
+
+1. **Armá un plan de prueba manual** a partir de los criterios de aceptación (sección 8) y casos borde (sección 9) de la spec — en una modificación, acotado a lo que tocó el CHANGE-SET. Pasos concretos, numerados, con datos/precondición y resultado esperado.
+2. **Esperá mi confirmación explícita** de que probé y funciona. Los tests automáticos validan que el código cumple la spec; la prueba manual valida que la experiencia real es la esperada. No son lo mismo.
+3. **Recién con mi OK**, commiteá con `/sdd-commit` (que vuelve a ofrecer el gate de prueba manual como red de seguridad). Si algo falla en la prueba, no commitees: volvemos a iteración de código.

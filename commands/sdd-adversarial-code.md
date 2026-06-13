@@ -9,12 +9,22 @@ Vas a ejecutar la **pasada adversaria de código** sobre una capa recién genera
 
 Esta pasada valida que **el código cumple la spec**, NO que la spec es correcta. SÍ valida: cobertura de criterios de aceptación con tests, convenciones, principios/seguridad, consistencia con el modelo, casos de error de la spec, sobre-ingeniería. NO valida si el criterio de aceptación captura bien la necesidad real del negocio (riesgo de **validación circular**, WORKFLOW 2.6). Si tenés dudas sobre la spec en sí, esto no las resuelve.
 
+## Paso 0 — Gate de tier (solo modificaciones, WORKFLOW 8.3.2)
+
+Si la spec viene de `/sdd-modify-spec`, leé el `Tier` del CHANGE-SET antes de lanzar nada:
+
+- **T1:** NO lances el subagente. Esta pasada se reemplaza por **checks inline** que ejecutás vos en esta sesión: (a) tests de la capa pasan, (b) typecheck/build limpio, (c) revisión del diff contra `CONVENTIONS.md`. Reportá los tres resultados. El gate de prueba manual sigue siendo obligatorio antes del commit.
+- **T2:** lanzá el subagente **acotado al diff**: recibe el diff de la capa (no todo el código), las secciones de la spec que el CHANGE-SET toca + el CHANGE-SET, CONVENTIONS+PRINCIPLES siempre, y DOMAIN_MODEL/ARCHITECTURE solo según las capas tocadas. Hallazgos solo sobre el código del delta y su interacción con el existente.
+- **T3 o sin CHANGE-SET (build inicial):** pasada completa (Paso 1 tal cual).
+
+Si cualquier hallazgo revela que el cambio excede su tier (toca modelo/reglas/seguridad), es **bloqueante**: el tier sube y se ejecutan los pasos salteados (válvula de escape).
+
 ## Paso 1 — Lanzá el subagente adversario
 
 Identificá spec y capa desde **$ARGUMENTS**. Usá la tool **Agent** (subagent_type: `general-purpose`) con un prompt que le ordene:
 
 1. Leer el prompt canónico `${CLAUDE_PLUGIN_ROOT}/prompts/05-adversarial-code.prompt.md` y ejecutarlo (rol revisor adversario, las 8 categorías en orden de prioridad).
-2. Leer como contexto: el código generado de esta capa, la spec completa (versión aprobada), el setup foundacional de `sdd/foundation/` y las specs dependientes de sección 12.
+2. Leer como contexto: el código generado de esta capa, la spec completa (versión aprobada), el setup foundacional de `sdd/foundation/` y las specs dependientes de sección 12 — en modificaciones T2, el contexto acotado del Paso 0.
 3. Asumir la spec como contrato dado (no cuestionarla). Buscar desvíos, decisiones implícitas, violaciones de convenciones/principios, inconsistencias con el modelo, bugs lógicos, casos borde no cubiertos, sobre-ingeniería.
 4. No felicitar, no suavizar, no inventar hallazgos. Cerrar con la pregunta: ¿qué riesgo operativo concreto introduce este código si se mergea tal cual?
 

@@ -1,6 +1,6 @@
 # CODEGEN PROTOCOL — Protocolo de Generación de Código por Capas
 
-> **Versión:** 20260607-v5
+> **Versión:** 20260610-v7 · historia en `/CHANGELOG.md`
 > **Toolkit:** sdd-toolkit
 > **Propósito:** Referencia rápida para usar durante Fase 6 (generación de código). No es un prompt para la IA. Es el checklist operativo del autor para ejecutar Fase 6 correctamente.
 
@@ -11,7 +11,8 @@
 - [ ] La spec tiene estado `Approved`.
 - [ ] El prompt `06-spec-verification.prompt.md` fue ejecutado con veredicto **VERDE** o **AMARILLO aceptado conscientemente** (con decisión registrada en sección 10.1 de la spec).
 - [ ] El INDEX del proyecto (`specs/INDEX.md`) tiene la spec en estado `Approved`.
-- [ ] **Si es una modificación** (la spec viene de `/sdd-modify-spec`): tenés el **CHANGE-SET** a mano (delta `ADDED/MODIFIED/REMOVED` con capa por ítem). Solo se generan las capas listadas en el CHANGE-SET; las demás no se tocan. Build inicial = sin CHANGE-SET = las 4 capas completas.
+- [ ] **Si es una modificación** (la spec viene de `/sdd-modify-spec`): tenés el **CHANGE-SET** a mano (delta `ADDED/MODIFIED/REMOVED` con capa por ítem y **tier en el header**, WORKFLOW.md sección 8.3.2). Solo se generan las capas listadas en el CHANGE-SET; las demás no se tocan. Build inicial = sin CHANGE-SET = las 4 capas completas.
+- [ ] **Si es una modificación:** el `/sdd-verify` se corrió en el modo del tier (express T1 / delta T2 / completo T3) y el chequeo D3 confirmó que el tier declarado es consistente con el contenido del CHANGE-SET.
 
 ---
 
@@ -32,16 +33,24 @@ Para cada capa (1 → 2 → 3 → 4):
   3. REVISAR CÓDIGO Y TESTS
      Ejecutar checklist de verificación entre capas (abajo).
 
-  4. PASADA ADVERSARIA
-     Ejecutar prompt 05-adversarial-code.prompt.md en conversación nueva (o subagente).
+  4. VERIFICACIÓN ADVERSARIA SEGÚN TIER (WORKFLOW.md 8.3.2)
+     T3 y builds iniciales: prompt 05-adversarial-code.prompt.md en conversación nueva (o subagente).
+     Modificación T2: subagente acotado al diff, contexto selectivo.
+     Modificación T1: checks inline en la misma sesión (tests + typecheck/build + diff vs CONVENTIONS).
      Procesar hallazgos: bloqueantes antes de avanzar, no bloqueantes a DEBT.md.
+     Si un hallazgo revela que el delta excede su tier: tier sube + ejecutar pasos salteados (válvula de escape).
 
   5. PASAR A SIGUIENTE CAPA
      Adjuntar código de esta capa como contexto adicional en la siguiente.
 
-Al completar las 4 capas (no capa por capa; ver WORKFLOW.md sección 7.5):
+Al completar las 4 capas (no capa por capa; ver WORKFLOW.md sección 7.6):
 
-  COMMITEAR la feature completa y verificada.
+  PRUEBA MANUAL (gate, WORKFLOW.md sección 7.5):
+     Armar plan de prueba manual desde criterios de aceptación (sección 8) y
+     casos borde (sección 9) de la spec — en modificación, acotado al CHANGE-SET.
+     Probar el cambio a mano. Sin confirmación de que funciona, NO se commitea.
+
+  COMMITEAR la feature completa, verificada y probada manualmente.
   Un solo commit por feature, con referencia a spec ID y versión.
   Formato: feat(<spec-id>): <descripción de la feature>
 ```
@@ -63,7 +72,7 @@ Ejecutar después de revisar el código y antes de la pasada adversaria. **No ti
 - [ ] Decisiones técnicas tomadas por defecto revisadas. Cada una aceptada o reemplazada explícitamente.
 - [ ] No hay sobre-ingeniería: todo lo generado tiene justificación en spec o convenciones.
 - [ ] Tests de esta capa generados, ejecutados y pasan.
-- [ ] Pasada adversaria de código ejecutada (en conversación separada).
+- [ ] Verificación adversaria ejecutada según tier: pasada completa (T3/builds), subagente acotado al diff (T2), o checks inline — tests + typecheck + diff vs CONVENTIONS (T1).
 - [ ] Hallazgos de pasada adversaria procesados (bloqueantes resueltos, no bloqueantes a DEBT.md o descartados).
 
 ### Capa 1 — Modelo de datos
@@ -138,7 +147,8 @@ Ver WORKFLOW.md sección 8.3.1:
 ## Al terminar Fase 6
 
 - [ ] Las 4 capas tienen todos los ítems del checklist tildados.
-- [ ] El commit de la feature (completa y verificada) está en el branch `feature/<SPEC-ID>`.
+- [ ] **Prueba manual del autor realizada y confirmada** (gate previo al commit, WORKFLOW.md sección 7.5): seguí el plan de prueba derivado de los criterios de aceptación y casos borde y el cambio funciona en la experiencia real.
+- [ ] El commit de la feature (completa, verificada y probada manualmente) está en el branch `feature/<SPEC-ID>`.
 - [ ] Mergear a staging para validación del cliente:
   ```
   git checkout staging && git pull origin staging

@@ -46,7 +46,26 @@ Analizá los archivos staged para elegir el prefijo más apropiado:
 | Tests | `test:` |
 | Mantenimiento / config | `chore:` |
 
-## Paso 4 — Redactar el mensaje y pedir confirmación
+## Paso 4 — Verificación manual ANTES de commitear (gate)
+
+**Regla:** un cambio que toca código no se commitea hasta que yo lo probé manualmente y confirmé que funciona. Los tests automáticos no reemplazan esta prueba: validan que el código cumple la spec, no que la experiencia real es la esperada.
+
+### Cuándo aplica el gate
+
+- **Aplica** cuando el commit incluye código: prefijos `feat(spec-NNN):`, `fix(bugfix-NNN):`, `feat(db):`, `feat(nombre-feature):`, o cualquier mezcla con código.
+- **NO aplica** (saltá el gate directo al Paso 5) cuando el commit es **solo documentación o artefactos del toolkit sin código**: `docs(sdd):`, `docs:`, `chore:`, o cambios que solo tocan `sdd/` / `.md`.
+- **Override manual:** si `$ARGUMENTS` contiene `sin-prueba` o `skip-test`, saltá el gate, pero avisame explícitamente que se commiteó **sin verificación manual** y por qué (lo dejo registrado conscientemente).
+
+### Qué hacer cuando aplica
+
+1. **Derivá los pasos de prueba** del artefacto que se está commiteando, sin inventar:
+   - `feat(spec-NNN)` o modificación → leé la spec staged. Tomá los **criterios de aceptación (sección 8)** y los **casos borde (sección 9)**. En una modificación, restringí los pasos a lo que el **CHANGE-SET** tocó (no toda la feature).
+   - `fix(bugfix-NNN)` → leé el `bugfix-NNN.md`. Tomá los **pasos de reproducción** y el **criterio de aceptación del fix**: la prueba es reproducir el caso original y confirmar que ahora se comporta bien.
+2. **Presentame un plan de prueba manual concreto y ejecutable**, no genérico. Para cada paso: qué hacer, con qué datos/precondición, y **qué resultado esperar**. Numerado. Si hace falta levantar el entorno (servidor, seed de datos), incluilo como precondición.
+3. **Esperá mi confirmación explícita** de que probé y funciona (ej: "probado, OK"). No commitees antes.
+4. **Si reporto que algo falla:** NO commitees. Según el flujo, eso vuelve a iteración de código (codegen) o abre un bug nuevo. Frená y avisame.
+
+## Paso 5 — Redactar el mensaje y pedir confirmación
 
 Sugerí un mensaje de commit completo siguiendo el formato:
 
@@ -58,7 +77,7 @@ Usá el mismo idioma que predomina en el proyecto (detectalo de los archivos de 
 
 Mostrá el mensaje sugerido claramente y esperá confirmación explícita antes de commitear. Si el usuario propone un mensaje diferente, usá el suyo.
 
-## Paso 5 — Ejecutar el commit
+## Paso 6 — Ejecutar el commit
 
 Hacé el commit con el mensaje confirmado usando:
 
@@ -68,7 +87,7 @@ git commit -m "mensaje aquí"
 
 Confirmá que el commit se creó con `git log --oneline -1`.
 
-## Paso 6 — Push (opcional)
+## Paso 7 — Push (opcional)
 
 - Si el usuario pasó "push" en los argumentos (`$ARGUMENTS` contiene "push") → hacé el push directamente sin preguntar.
 - Si no → preguntá: "¿Hacemos push también?" y esperá respuesta.

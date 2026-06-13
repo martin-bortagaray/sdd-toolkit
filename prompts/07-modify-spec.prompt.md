@@ -1,6 +1,6 @@
 # Prompt — Modificación de Spec Existente (Fase 3 sobre feature ya implementada)
 
-> **Versión:** 20260607-v2
+> **Versión:** 20260610-v3 · historia en `/CHANGELOG.md`
 > **Uso:** Cuando una feature ya implementada (o una spec as-built) necesita agregar o cambiar funcionalidad. Es el rol Redactor (WORKFLOW.md sección 3) aplicado a una spec que **ya existe**, no a una nueva. Cubre el flujo de WORKFLOW.md sección 8.3 (Modificar spec).
 > **Dónde se ejecuta:** Claude Code (preferido) o conversación nueva con contexto limpio.
 
@@ -62,7 +62,20 @@ Antes de editar, leé la spec existente completa y respondeme en 3-5 líneas:
 
 Si encontrás que la spec existente está incompleta o no captura bien el comportamiento actual: marcámelo. Completar/corregir esa base es parte de esta modificación (espíritu de WORKFLOW.md Regla 5). No construyas el delta encima de una descripción as-built floja sin avisarme.
 
-PASO 2 — EDICIÓN QUIRÚRGICA:
+PASO 2 — CLASIFICACIÓN DEL TIER DE LA MODIFICACIÓN (WORKFLOW.md sección 8.3.2):
+
+Antes de editar, clasificá el delta en un tier y proponémelo con justificación. El tier determina qué pasos del ciclo se ejecutan después (adversaria, verify, adversaria de código).
+
+- T1 — Cosmético/presentación: el delta NO toca el modelo de datos (sección 6), NO toca reglas de negocio (sección 7), NO toca superficie de seguridad (auth, permisos, datos sensibles), NO introduce entidades, flujos ni integraciones. El comportamiento observable cambia solo en presentación: layout, textos, colores, orden visual, formato de salida. Puede tocar cualquier capa de código (un layout de PDF vive en Capa 2): lo que define T1 es la naturaleza del cambio, no la capa.
+- T2 — Lógica acotada: toca comportamiento (secciones 4/7/8/9) en funciones existentes, pero NO la sección 6, NO entidades/flujos/integraciones nuevas, NO seguridad.
+- T3 — Estructural: toca la sección 6, introduce entidad/flujo/integración nueva, o toca superficie de seguridad.
+
+Reglas de clasificación:
+- Si dudás entre dos tiers, proponé el superior (espejo de la regla de bugs: si dudo entre A y B, es B).
+- La justificación tiene que citar los criterios objetivos ("no toca sección 6 porque...", "no hay superficie de seguridad porque..."). "Es un cambio chico" no es una justificación.
+- Esperá mi confirmación del tier antes de editar (Modo B: vos proponés, yo decido). El tier confirmado va al header del CHANGE-SET (Bloque 3) y a la entrada del changelog.
+
+PASO 3 — EDICIÓN QUIRÚRGICA:
 
 - Editá SOLO las secciones afectadas por el delta. No reescribas secciones que no cambian.
 - Para cada sección que tocás, mantené la coherencia con el resto de la spec y con el setup foundacional.
@@ -70,14 +83,14 @@ PASO 2 — EDICIÓN QUIRÚRGICA:
 - Si el delta toca el modelo de datos (sección 6): describí el cambio de schema. Recordá que en código se traduce a una NUEVA migración append-only (nunca editar una migración ejecutada).
 - Casos borde (sección 9) y criterios de aceptación (sección 8): agregá los que el delta introduce. No borres los existentes salvo que el delta los invalide explícitamente (y si los invalida, decímelo).
 
-PASO 3 — VERSIÓN Y CHANGELOG:
+PASO 4 — VERSIÓN Y CHANGELOG:
 
 - Subí la versión de la spec: nueva entrada con formato AAAAMMDD-vN (incrementá N respecto a la versión actual).
 - Actualizá el campo "Versión" y "Fecha última modificación" de la sección 1 (Metadata).
-- Agregá una entrada al changelog (sección 15) que diga: qué secciones cambiaron, qué se agregó/modificó, y por qué. Sé concreto: el changelog es la trazabilidad del cambio.
+- Agregá una entrada al changelog (sección 15) que diga: qué secciones cambiaron, qué se agregó/modificó, por qué, y el **tier confirmado** del cambio. Sé concreto: el changelog es la trazabilidad del cambio, incluido qué camino del proceso recorrió.
 - Si la spec estaba en estado "As-built", proponé pasarla a "Implemented" con la nueva versión (decisión final del autor).
 
-PASO 4 — DECISIONES POR DEFECTO (sección 14):
+PASO 5 — DECISIONES POR DEFECTO (sección 14):
 
 Si durante la edición tomaste alguna decisión operativa menor (formato, orden, terminología), listala en sección 14 con estado "Pendiente de validación". NUNCA decisiones de producto. Si no hubo, escribilo literal.
 
@@ -88,13 +101,16 @@ Si durante la edición descubrís que el delta requiere una decisión de product
 OUTPUT FINAL — tres bloques separados por delimitador visual:
 
 Bloque 1 — RESUMEN DEL CAMBIO:
+   - Tier confirmado y su justificación.
    - Secciones modificadas (lista).
    - Qué se agregó / cambió / quitó en cada una.
    - Versión nueva de la spec.
    - Si detectaste debilidades en la spec existente que corregiste de paso.
-   - Hasta 3 puntos a revisar en la pasada adversaria (Fase 4).
+   - Hasta 3 puntos a revisar en la pasada adversaria (Fase 4) — omitir si el tier es T1 (la pasada se omite, WORKFLOW.md 8.3.2).
 
-Bloque 2 — SPEC MODIFICADA COMPLETA (markdown), lista para guardar reemplazando el archivo existente.
+Bloque 2 — EDICIONES APLICADAS:
+   - Si estás corriendo en Claude Code (tenés acceso al archivo): aplicá las ediciones quirúrgicas DIRECTAMENTE sobre el archivo de la spec con tu herramienta de edición, y en este bloque reportá la lista de ediciones aplicadas (sección tocada + qué cambió, 1-2 líneas por edición). NO re-emitas la spec completa: ya está en el disco; re-emitir cientos de líneas que no cambiaron es puro costo de output sin valor.
+   - Solo si estás en una conversación sin acceso al archivo (Claude.ai): emití la spec modificada completa en markdown, lista para guardar reemplazando el archivo existente.
 
 Bloque 3 — CHANGE-SET ESTRUCTURADO (delta machine-readable para el codegen):
 
@@ -102,6 +118,7 @@ Bloque 3 — CHANGE-SET ESTRUCTURADO (delta machine-readable para el codegen):
 
    ```
    CHANGE-SET — {SPEC-ID} {VERSION-ANTERIOR} → {VERSION-NUEVA}
+   Tier: {T1 | T2 | T3} — {justificación en una línea contra los criterios de WORKFLOW.md 8.3.2}
 
    ## ADDED
    - [Capa N | Sección X, ítem Y] <texto preciso de lo que se agrega>
@@ -121,7 +138,7 @@ Bloque 3 — CHANGE-SET ESTRUCTURADO (delta machine-readable para el codegen):
 
 NO hagas pasada adversaria en este paso. Eso es Fase 4, con otro prompt.
 
-¿Listo? Empezá por el Paso 0 (verificaciones) y el Paso 1 (lectura crítica).
+¿Listo? Empezá por el Paso 0 (verificaciones), el Paso 1 (lectura crítica) y el Paso 2 (propuesta de tier). No edites hasta que yo confirme el tier.
 ```
 
 ---

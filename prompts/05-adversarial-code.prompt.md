@@ -1,10 +1,18 @@
 # Prompt — Pasada adversaria de código
 
-> **Versión:** 20260602-v4
+> **Versión:** 20260610-v5 · historia en `/CHANGELOG.md`
 > **Uso:** Después de generar una capa de código contra una spec aprobada, antes de pasar a la siguiente capa.
 > **Dónde se ejecuta:** Vía el comando `/sdd-adversarial-code` en Claude Code (corre en subagente con contexto limpio), o en conversación nueva en Claude.ai. NUNCA en la conversación donde se generó el código (WORKFLOW.md sección 11.1, modelo híbrido v10).
 
 ---
+
+## Cuándo se ejecuta según el tier (modificaciones, WORKFLOW.md 8.3.2)
+
+En **builds iniciales y modificaciones T3**, este prompt se ejecuta completo, como siempre. En modificaciones con CHANGE-SET:
+
+- **T1 (cosmético): este prompt NO se ejecuta.** Se reemplaza por **checks inline** en la misma sesión de generación: tests de la capa + typecheck/build + revisión del diff contra `CONVENTIONS.md`. El valor del subagente es la independencia de contexto, y sobre un diff cosmético esa independencia compra poco; el riesgo real lo cubren los tests y el gate de prueba manual (que no se relaja en ningún tier).
+- **T2 (lógica acotada): se ejecuta acotado al diff, con contexto selectivo.** El subagente recibe: el diff de la capa (no todo el código), las secciones de la spec que el CHANGE-SET toca + el CHANGE-SET, `CONVENTIONS.md` + `PRINCIPLES.md` siempre, y `DOMAIN_MODEL.md`/`ARCHITECTURE.md` solo según las capas tocadas (8.3.2). Los hallazgos se reportan solo sobre el código del delta y su interacción con el código existente que toca.
+- **Válvula de escape:** si la revisión revela que el cambio toca modelo/reglas/seguridad que el tier no admite, el hallazgo es bloqueante y el tier sube (WORKFLOW.md 8.3.2).
 
 ## Cómo usar este prompt
 
@@ -18,6 +26,8 @@
    - Feature spec completa (versión aprobada).
    - Specs dependientes (primer nivel directo, las que aparezcan en sección "Dependencias" de la spec).
    - Código generado de la capa que estás revisando.
+
+   **En modificaciones T2:** aplicá la carga selectiva de arriba en vez de la lista completa.
 3. Reemplazá los placeholders `{...}` del prompt.
 4. Pegá el prompt completo y enviá.
 
@@ -107,8 +117,8 @@ Terminá con UNA pregunta crítica: ¿qué riesgo operativo concreto introduce e
    - **Modificar spec:** si el "desvío" en realidad revela un gap o ambigüedad de la spec. Subir versión.
    - **Modificar setup foundacional:** si el problema afecta a más de una feature.
    - **Descartar:** si después de procesarlo, decidís que el hallazgo es flojo o no aplica.
-3. Clasificá hallazgos en bloqueantes / no bloqueantes según protocolo del WORKFLOW.md sección 6.4.1.
-4. Una vez procesados todos, ejecutás el checklist completo de verificación entre capas (sección 6.4) antes de pasar a la siguiente capa.
+3. Clasificá hallazgos en bloqueantes / no bloqueantes según protocolo del WORKFLOW.md sección 7.4.1.
+4. Una vez procesados todos, ejecutás el checklist completo de verificación entre capas (sección 7.4) antes de pasar a la siguiente capa.
 
 ---
 

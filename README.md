@@ -33,6 +33,7 @@ Si querés entender el proceso:
 1. `docs/process-overview.md` — vista rápida del flujo completo.
 2. `workflow/WORKFLOW.md` — el documento maestro con reglas y antipatrones.
 3. `docs/artifacts-usage-guide.md` — qué artefacto usar en cada momento.
+4. `docs/cheatsheet.html` — **Guía de referencia visual interactiva** (ideal para imprimir en A4 doble faz y tener en el escritorio).
 
 Si querés ejecutar el proceso en un proyecto nuevo:
 

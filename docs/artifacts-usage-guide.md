@@ -1,7 +1,7 @@
 # Guía de uso de artefactos del toolkit SDD
 
 > **Toolkit:** sdd-toolkit
-> **Versión:** 20260602-v3
+> **Versión:** 20260610-v5
 > **Propósito:** Referencia rápida de qué artefacto usar en cada momento del proceso y catálogo completo del toolkit.
 
 Este documento es complemento del WORKFLOW.md y de los diagramas de flujo. Tiene dos vistas:
@@ -57,14 +57,14 @@ Durante todo el ciclo, los siguientes artefactos están como referencia constant
 
 ### Modificación de feature existente (agregar o cambiar funcionalidad en una spec Implemented/As-built)
 
-Variante del ciclo cuando el cambio es de producto (no un bug) sobre una feature que ya existe. Re-entra al ciclo acotado al delta. Protocolo en `WORKFLOW.md` sección 8.3.
+Variante del ciclo cuando el cambio es de producto (no un bug) sobre una feature que ya existe. Re-entra al ciclo acotado al delta y **clasificado por tier** (T1 cosmético / T2 lógica acotada / T3 estructural — `WORKFLOW.md` sección 8.3.2): el tier, derivado del CHANGE-SET con regla de duda hacia arriba, determina qué pasos se ejecutan y con cuánto contexto. Protocolo en `WORKFLOW.md` sección 8.3.
 
 | Momento | Prompt que ejecuto | Templates / archivos que adjunto | Output |
 |---------|-------------------|----------------------------------|--------|
 | **Discovery del delta** | `01-discovery.prompt.md` | Setup foundacional + spec existente + dependencias. | Documento de discovery acotado al cambio. |
-| **Modificación de la spec** | `07-modify-spec.prompt.md` | Spec existente + output del discovery del delta + setup foundacional + dependencias + `feature-spec.guide.md`. | Spec editada quirúrgicamente, versión subida, changelog actualizado. Estado: vuelve a Review. |
-| **Pasada adversaria** | `03-adversarial-spec.prompt.md` | Spec modificada + setup + dependencias + guide. | Hallazgos. La Regla 4 no se relaja por ser "solo un cambio". |
-| **Verificación + codegen del delta** | `06-spec-verification.prompt.md` → `04`/`05` | Spec modificada + código existente. | Solo se regeneran las capas que el delta toca. |
+| **Modificación de la spec** | `07-modify-spec.prompt.md` | Spec existente + output del discovery del delta + setup foundacional + dependencias + `feature-spec.guide.md`. | Tier propuesto y confirmado + spec editada quirúrgicamente (en Claude Code, directo sobre el archivo, sin re-emitirla), versión subida, changelog con tier, CHANGE-SET con tier en el header. Estado: vuelve a Review. |
+| **Pasada adversaria — según tier** | `03-adversarial-spec.prompt.md` | Spec modificada + CHANGE-SET + contexto selectivo (8.3.2). | **T1: se omite** (excepción codificada de Regla 4). T2: modo acotado al delta. T3: completa. Pasada 2 solo si la 1 tuvo bloqueantes (13.2). |
+| **Verificación + codegen del delta** | `06-spec-verification.prompt.md` (modo express T1 / delta T2 / completo T3) → `04`/`05` | Spec modificada + CHANGE-SET + código existente. | Chequeos D1–D3 (D3 verifica el tier contra el contenido). Solo se regeneran las capas que el delta toca. Adversaria de código: checks inline T1 / acotada al diff T2 / completa T3. El gate de prueba manual no se relaja en ningún tier. |
 
 ### Tratamiento de bugs (se ejecuta cuando aparece un bug en producción o en testing post-implementación)
 
@@ -170,7 +170,7 @@ Estos templates se usan principalmente durante Fase 0 paso 2. Definen la estruct
 |-----------|------|---------------|----------------|
 | `.claude-plugin/` + `commands/` | Plugin de Claude Code | Instalado en Claude Code. Un comando `/sdd-*` por fase. | Ejecuta el proceso desde Claude Code: cada comando lee su prompt canónico de `prompts/` (fuente única de verdad) y carga el contexto del proyecto automáticamente. Las pasadas adversarias corren en subagente con contexto limpio. |
 
-### Documentación del proceso (5 artefactos)
+### Documentación del proceso (8 artefactos)
 
 | Artefacto | Tipo | Cuándo se usa | Para qué sirve |
 |-----------|------|---------------|----------------|
@@ -179,6 +179,8 @@ Estos templates se usan principalmente durante Fase 0 paso 2. Definen la estruct
 | `docs/flow-fase-0.svg` | Documento de referencia | Cuando se ejecuta Fase 0. | Diagrama de flujo paso a paso de Fase 0. |
 | `docs/flow-ciclo-feature.svg` | Documento de referencia | Cuando se ejecuta el ciclo de una feature. | Diagrama de flujo paso a paso del ciclo de feature (Fases 1-5). |
 | `docs/flow-codegen-deploy.svg` | Documento de referencia | Cuando se ejecuta Fase 6 y deploy. | Diagrama de flujo paso a paso de codegen por capas + deploy a staging y producción. |
+| `docs/PLAYBOOK.md` | Documento de referencia | Guía de bolsillo paso a paso para tener de referencia. | Versión resumida en markdown para imprimir en fichas o compilar con `md-to-pdf`. |
+| `docs/cheatsheet.html` | Documento de referencia | Como guía visual interactiva en el navegador o impresa en papel. | Hoja de referencia rápida de 2 páginas (A4 Apaisado), con diagramas de flujo Git, reglas, comandos y matriz de bugs. |
 | `docs/artifacts-usage-guide.md` | Documento de referencia | Cuando se necesita consultar qué artefacto usar en cada momento. | Este mismo documento. |
 
 ---
@@ -215,3 +217,5 @@ A diferencia de los otros templates, `design-system.template.md` NO se instancia
 | 20260524-v1 | 2026-05-24 | Versión inicial. |
 | 20260526-v2 | 2026-05-26 | Agregado flujo de tratamiento de bugs en Vista 1. Agregado `templates/bugfix.template.md` en catálogo Vista 2. Actualizado conteo de artefactos a 26. |
 | 20260602-v3 | 2026-06-02 | Agregado `prompts/07-modify-spec.prompt.md` al catálogo (Vista 2) y nueva sub-vista "Modificación de feature existente" (Vista 1). Agregado el plugin de Claude Code al catálogo. Notas operativas actualizadas: el plugin elimina el adjuntado manual de archivos y resuelve la "conversación nueva" de las pasadas adversarias vía subagente (WORKFLOW v10, modelo híbrido). Removido el total exacto de artefactos, pendiente de recuento. |
+| 20260607-v4 | 2026-06-07 | Agregado `docs/cheatsheet.html` y `docs/PLAYBOOK.md` al catálogo de documentación del proceso. |
+| 20260610-v5 | 2026-06-10 | Sub-vista "Modificación de feature existente" actualizada al modelo de **tiers** (WORKFLOW v14, 8.3.2): tier en el flujo de modificación, pasada adversaria/verify/adversaria de código ruteadas por tier, edición quirúrgica directa sobre el archivo (sin re-emitir la spec), chequeos D1–D3. Corregido el header de versión que había quedado en v3 con changelog en v4. |
