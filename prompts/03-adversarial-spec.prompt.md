@@ -153,36 +153,3 @@ CIERRE:
 
 Terminá con UNA pregunta crítica: ¿qué decisión importante sobre esta feature NO está tomada explícitamente y va a aparecer recién cuando empiece la generación de código en Fase 6?
 ```
-
----
-
-> **Nota: lo que sigue NO es parte del prompt. Es para mí, no para copiar en la conversación con la IA.**
-
-## Después de la pasada adversaria
-
-1. **No procesar hallazgos en caliente.** Leelos todos primero. Cabeza fresca.
-
-2. **Clasificar hallazgos antes de iterar** (WORKFLOW.md sección 13.1):
-   - Sólidos para iterar: contradicciones reales, gaps operativos concretos, violaciones a setup foundacional, decisiones implícitas no marcadas.
-   - Zona gris: discutir antes de decidir.
-   - Descartar: sugerencias estilísticas, casos teóricos improbables, sobre-especificación.
-
-3. **Para cada hallazgo aceptado:** procesarlo y actualizar la spec.
-
-4. **Documentar en sub-sección 10.2** de la spec todos los hallazgos procesados, con resolución (aceptado, descartado, modificado) y justificación. Esto es crítico para Pasada 2 (evita re-marcado).
-
-5. **Subir versión de la spec** (`YYYYMMDD-vN+1`) y agregar entrada al changelog (sección 15).
-
-6. **Estado:** la spec pasa de Draft a Review después de procesar Pasada 1. Permanece en Review durante Pasada 2 (si aplica) y hasta Fase 5.
-
----
-
-## Notas operativas
-
-- **Calidad de hallazgos, no cantidad.** Aplicar criterio de WORKFLOW.md sección 13.1. Una pasada que devuelve 20 hallazgos donde 15 son sugerencias estilísticas no es mejor que una de 5 hallazgos sustantivos.
-
-- **Si el adversario marca muy poco:** probablemente la spec es buena, o el adversario no buscó bien. Verificá leyéndola vos. Si encontrás cosas que el adversario no marcó, considerá repetir con prompt reforzado.
-
-- **Si el adversario marca contradicción con setup foundacional:** primero verificá si es real (releer ambos documentos). A veces el LLM marca "contradicción" cuando son matices que no se contradicen. Si es real, decidí: ¿corrijo la spec, o corrijo el setup foundacional? (WORKFLOW.md sección 7.1).
-
-- **No iterar hallazgos repetidos entre pasadas:** la sub-sección 10.2 te protege de esto si la mantenés actualizada. Si el adversario re-marca algo ya cerrado, es señal de que olvidaste documentarlo en 10.2 o de que el adversario ignoró la instrucción. En ambos casos, descartá el hallazgo y verificá la sub-sección.

@@ -191,34 +191,3 @@ Si LISTO PARA INICIAR: podés proceder a Fase 6 con `prompts/04-codegen-layer.pr
 
 VEREDICTO FINAL: [VERDE — listo para Fase 6 / AMARILLO — advertencias, decidir conscientemente / ROJO — bloqueado, resolver antes de iniciar]
 ```
-
----
-
-> **Nota: lo que sigue NO es parte del prompt. Es para mí, no para copiar en la conversación con la IA.**
-
-## Después de la verificación
-
-### Si el veredicto es VERDE
-Procedé a Fase 6 con `prompts/04-codegen-layer.prompt.md`.
-
-### Si el veredicto es AMARILLO
-Leé cada advertencia. Para cada una decidí:
-- **Resolver antes de generar:** modificá la spec (sube versión), volvé a ejecutar este prompt.
-- **Aceptar conscientemente:** registrá en sección 10.1 de la spec la decisión de avanzar con la advertencia y por qué la aceptás. Procedé a Fase 6.
-
-No avancés con AMARILLO por inercia. La decisión de aceptar una advertencia tiene que ser explícita.
-
-### Si el veredicto es ROJO
-Resolvé los bloqueantes antes de continuar. Según la naturaleza del bloqueante:
-- **Bloqueante formal (F1-F8):** modificá la spec (sube versión) y volvé a ejecutar.
-- **Bloqueante de codegen (C1-C6):** puede requerir volver a Fase 2 (discovery adicional) si el problema es falta de información del negocio, o solo modificar la spec si es gap de redacción.
-
----
-
-## Notas operativas
-
-- **Este prompt no reemplaza la pasada adversaria de spec (Fase 4).** Son distintos: la pasada adversaria busca problemas de contenido y diseño; este verifica preparación operativa para generación.
-
-- **Si el veredicto es VERDE pero tenés dudas:** las dudas sobre la spec se resuelven acá, antes de generar. Una vez que empezás Fase 6, cambiar la spec tiene costo (volver a generar capas, ver WORKFLOW.md sección 8.3.1).
-
-- **Si una advertencia se repite en varias capas:** es señal de que el problema está en la spec, no en el código. Resolverlo en la spec antes de generar.

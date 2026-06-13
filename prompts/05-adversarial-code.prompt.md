@@ -106,25 +106,3 @@ RESTRICCIONES:
 CIERRE:
 Terminá con UNA pregunta crítica: ¿qué riesgo operativo concreto introduce este código si se mergea tal cual está?
 ```
-
----
-
-## Después de la pasada adversaria
-
-1. Procesá los hallazgos uno por uno. NO los aceptes todos por inercia.
-2. Para cada hallazgo, decidí:
-   - **Iterar código:** error técnico claro, lo corregís pidiendo cambio quirúrgico al LLM Generador (en la conversación original).
-   - **Modificar spec:** si el "desvío" en realidad revela un gap o ambigüedad de la spec. Subir versión.
-   - **Modificar setup foundacional:** si el problema afecta a más de una feature.
-   - **Descartar:** si después de procesarlo, decidís que el hallazgo es flojo o no aplica.
-3. Clasificá hallazgos en bloqueantes / no bloqueantes según protocolo del WORKFLOW.md sección 7.4.1.
-4. Una vez procesados todos, ejecutás el checklist completo de verificación entre capas (sección 7.4) antes de pasar a la siguiente capa.
-
----
-
-## Notas operativas
-
-- **Conversación limpia:** la pasada adversaria del código NUNCA se hace en la conversación donde se generó. El LLM tiene sesgo a defender lo que escribió.
-- **Si la pasada adversaria devuelve "todo está bien":** desconfiá. O el código es trivial, o el adversario no buscó bien. Repetir con prompt reforzado.
-- **Si la pasada adversaria devuelve más de 20 hallazgos serios:** probablemente la capa tiene problemas estructurales. Considerá descartar la generación y volver a generar con prompt mejorado, en vez de iterar.
-- **Si tenés dudas sobre la spec en sí:** este prompt no las va a resolver. Esas dudas se trabajan en Fase 4 con pasada adversaria de spec o con consulta a experto de dominio. Ver WORKFLOW.md sección 2.6 sobre riesgo de validación circular.

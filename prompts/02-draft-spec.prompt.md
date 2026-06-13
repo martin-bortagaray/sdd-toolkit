@@ -226,33 +226,3 @@ NO hagas pasada adversaria en este paso. Eso es Fase 4, con otro prompt.
 
 ¿Listo? Empezá ejecutando el Paso 0 (las tres verificaciones).
 ```
-
----
-
-> **Nota: lo que sigue NO es parte del prompt. Es para mí, no para copiar en la conversación con la IA.**
-
-## Después de la redacción
-
-1. **Lectura crítica del draft.** No "le doy una mirada". Lectura completa con cabeza fresca (Regla 3).
-
-2. **Validar la sección 14 (Decisiones por defecto):** cada una se valida o se reemplaza. Si hay decisiones de producto en esa sección (no debería, pero por las dudas), eso es señal de que algo se saltó.
-
-3. **Si todo cierra:** la spec queda en estado Draft, lista para Fase 4 (pasada adversaria con `prompts/03-adversarial-spec.prompt.md`).
-
-4. **Actualizar el INDEX del proyecto:** agregar una fila a `specs/INDEX.md` con el ID, dominio, título, estado Draft, versión y fecha.
-
-5. **Si encuentro problemas serios en el draft:** puedo volver a Fase 2 para discovery adicional, o pedir re-redacción con instrucciones específicas. El draft inicial no es sagrado.
-
-6. **No commitear todavía.** La spec se commitea recién cuando está en estado Approved. Durante Draft y Review vive como archivo local.
-
----
-
-## Notas operativas
-
-- **Tiempo esperado:** la redacción en sí toma minutos para el LLM. La lectura crítica posterior puede llevar 20-40 minutos según complejidad.
-
-- **Por qué conversación separada del discovery:** los roles Interrogador y Redactor están definidos como distintos en WORKFLOW.md sección 3. Si los mezclás en la misma conversación, el LLM tiene sesgo a "completar" lo que él mismo preguntó, perdiendo distancia crítica.
-
-- **Si el LLM se desvía mucho del template:** parar y reformular el prompt apuntando a la regla específica violada. No iterar varias veces con instrucciones genéricas.
-
-- **Si después de la redacción la spec se ve "muy parecida al discovery":** eso suele ser buena señal. La redacción es traducir las decisiones del discovery al formato del template. Si está muy distinta, posiblemente el LLM agregó decisiones que no le pediste.

@@ -235,37 +235,3 @@ Segundo bloque — Brief + instrucciones (lo que el autor va a usar):
 
 ¿Listo? Empezá ejecutando el Paso 0 (verificaciones) y después Paso 1 (proponer lista de pantallas).
 ```
-
----
-
-> **Nota: lo que sigue NO es parte del prompt. Es para mí, no para copiar en la conversación con la IA.**
-
-## Después de generar el brief
-
-1. **Copiar el brief** generado por el prompt.
-
-2. **Abrir Claude Design** y pegar el brief.
-
-3. **Iterar con Claude Design** hasta tener un prototipo navegable de las pantallas aprobadas. Mantener el design system declarado en el brief.
-
-4. **Guardar el output** en `docs/prototype/` del repo del proyecto:
-   - URL compartible (si Claude Design lo permite).
-   - Export del prototipo si está disponible.
-   - Screenshots de cada pantalla principal (mínimo).
-   - Una breve nota markdown describiendo qué incluye el prototipo y qué versión del brief usó.
-
-5. **El prototipo es input para:**
-   - La propuesta comercial al cliente (mostrar el producto visualmente).
-   - El primer discovery de feature (Fase 2 del ciclo) cuando arranque desarrollo. Las decisiones del prototipo informan las specs, aunque las specs gobiernan en caso de conflicto.
-
----
-
-## Notas operativas
-
-- **No sobre-iterar en Claude Design.** El prototipo es exploración visual, no implementación final. Si pasás más de 1 hora iterando una pantalla, parar. El detalle fino se resuelve en la spec de esa feature, no en el prototipo.
-
-- **El prototipo es referencia histórica.** Una vez que arranca desarrollo y se redactan las specs, el prototipo queda como referencia visual inicial, no se mantiene actualizado. Si una spec cambia algo respecto al prototipo, gana la spec (regla "prototipo informa, spec gobierna").
-
-- **Si Claude Design genera algo muy distinto al design system declarado:** parar la iteración y verificar el brief. Probablemente algún elemento del design system no quedó claro en el brief.
-
-- **Si el cliente pide cambios significativos al prototipo durante la propuesta:** esos cambios afectan al alcance del proyecto. Documentar los cambios y evaluar si afectan al setup foundacional o al roadmap. Si afectan, actualizar antes de avanzar.

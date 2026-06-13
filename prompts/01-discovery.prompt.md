@@ -156,31 +156,3 @@ NO HAGAS REDACCIÓN DE SPEC EN ESTE PASO. Solo recolección y estructuración de
 
 ¿Listo para empezar el discovery? Confirmame que tenés el contexto cargado y arrancá con la primera sección.
 ```
-
----
-
-> **Nota: lo que sigue NO es parte del prompt. Es para mí, no para copiar en la conversación con la IA.**
-
-## Después del discovery
-
-1. **Guardar el output** del discovery en una nota local (no en el repo todavía — la spec se commitea recién cuando está aprobada).
-
-2. **Procesar los pendientes:** si hay decisiones marcadas como [PENDIENTE] que requieren consulta externa, ese es momento de salir a consultar antes de avanzar a Fase 3.
-
-3. **Validar las decisiones por defecto** que la IA tuvo que tomar (sección 4 del output). Cada una se valida o se reemplaza. Si hay decisiones de producto en esa sección, eso es señal de que en el discovery se saltó una pregunta.
-
-4. **Revisar los puntos críticos** identificados (sección 6 del output). Esos son los lugares donde la spec va a quedar débil si no los abordo antes de Fase 3.
-
-5. **Pasar a Fase 3:** redacción del draft de spec, usando el output del discovery como input del siguiente prompt (`prompts/02-draft-spec.prompt.md`).
-
----
-
-## Notas operativas
-
-- **Tiempo esperado:** entre 20 y 90 minutos según complejidad. Si estoy haciendo discovery en 5 minutos, probablemente estoy esquivando preguntas. Si me lleva más de 2 horas seguidas, probablemente conviene cortar y retomar con cabeza fresca.
-
-- **Cansancio:** este es un trabajo de decisión, no mecánico. Hacerlo cuando tengo cabeza disponible. Es preferible posponer el discovery una noche que hacerlo apurado y aprobar después una spec con decisiones flojas.
-
-- **Cuando la IA me pregunte algo y no sepa qué responder:** decir "ayudame a pensarlo" sin culpa. Ese es el uso correcto del proceso. Forzar una decisión que no tengo es peor que dejarla pendiente.
-
-- **Si la sesión se vuelve abrumadora:** puedo cortar en cualquier sección, decir "pausamos acá, sigamos mañana", y el output se genera con lo que tenga hasta el momento. Al retomar, le paso el output parcial al prompt y le indico desde dónde sigo.

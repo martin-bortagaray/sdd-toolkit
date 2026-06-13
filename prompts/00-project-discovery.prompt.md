@@ -191,38 +191,3 @@ NO HAGAS REDACCIÓN DEL SETUP FOUNDACIONAL EN ESTE PASO. Solo recolección y est
 
 ¿Listo para empezar el discovery inicial del proyecto? Confirmame que tenés la idea de producto cargada y arrancá con la primera pregunta de calibración.
 ```
-
----
-
-> **Nota: lo que sigue NO es parte del prompt. Es para mí, no para copiar en la conversación con la IA.**
-
-## Después del discovery inicial
-
-1. **Guardar el output** del discovery en una nota local. La carpeta del proyecto todavía no existe formalmente.
-
-2. **Procesar los pendientes:** si hay decisiones marcadas como [PENDIENTE] que requieren consulta externa (experto de dominio, socio, validación con usuarios), ese es momento de salir a consultar antes de avanzar al prompt 00b.
-
-3. **Validar las decisiones por defecto** que la IA tuvo que tomar (sección 4 del output). Cada una se valida o se reemplaza. Si hay decisiones de producto/arquitectura/dominio en esa sección, eso es señal de que en el discovery se saltó una pregunta.
-
-4. **Revisar los cuestionamientos de viabilidad** (sección 5 del output). Si la IA detectó problemas en el proyecto, decidir qué hacer:
-   - Resolver el problema y actualizar las respuestas.
-   - Aceptar el problema conscientemente y documentarlo como riesgo.
-   - Pausar el proyecto si el problema es estructural.
-
-5. **Revisar los puntos críticos** identificados (sección 7 del output). Esos son los lugares donde el setup foundacional va a quedar débil si no se abordan antes de redactar.
-
-6. **Pasar al prompt 00b:** redacción del setup foundacional + roadmap, usando este output como input.
-
----
-
-## Notas operativas
-
-- **Tiempo esperado:** entre 1 y 4 horas según tamaño del proyecto. Si lo hacés en 15 minutos, probablemente estás esquivando preguntas. Si te lleva más de 4 horas seguidas, conviene cortar y retomar con cabeza fresca.
-
-- **Este es un trabajo de decisión estratégica.** Hacerlo cuando tengo energía y tiempo. Es preferible posponer el discovery una semana que hacerlo apurado y producir un setup foundacional débil que paga costos en cada feature posterior.
-
-- **Cuando la IA me pregunte algo y no sepa qué responder:** decir "ayudame a pensarlo" sin culpa. Ese es el uso correcto del proceso. Para un proyecto entero, hay muchas decisiones que no se pueden tomar sin pensar.
-
-- **Si la sesión se vuelve abrumadora:** podés cortar en cualquier bloque, decir "pausamos acá, sigamos mañana", y el output se genera con lo que tengas hasta el momento. Al retomar, le pasás el output parcial al prompt y le indicás desde qué bloque sigue.
-
-- **Consulta a experto de dominio:** para proyectos donde el dominio no es tu especialidad (ej: el proyecto agro con tu hermano agrónomo), es esperable que muchas respuestas del Bloque 3 (Dominio y entidades) queden como [PENDIENTE]. Eso es correcto. Resolvelas antes de pasar al prompt 00b.
