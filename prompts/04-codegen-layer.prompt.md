@@ -2,7 +2,7 @@
 
 > **Versión:** 20260610-v5 · historia en `/CHANGELOG.md`
 > **Uso:** Después de que la spec pasó verificación pre-generación (`prompts/06-spec-verification.prompt.md`) con veredicto VERDE o AMARILLO aceptado. Se ejecuta una vez por capa, con contexto incremental.
-> **Dónde se ejecuta:** Vía el comando `/sdd-codegen` en Claude Code (preferido), o en conversación nueva por capa en Claude.ai (WORKFLOW.md sección 11.1, modelo híbrido v10).
+> **Dónde se ejecuta:** Vía el comando `/sdd-codegen` en Claude Code. La generación escribe los archivos directamente con herramientas (Write/Edit), así que esta fase requiere Claude Code; el camino Claude.ai del modelo híbrido (WORKFLOW.md §11.1) aplica a las fases de pensamiento (1–3), no a la generación.
 
 ---
 
