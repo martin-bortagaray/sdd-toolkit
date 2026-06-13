@@ -137,15 +137,10 @@ PASO 0 — ANTES DE GENERAR:
 PASO 1 — GENERACIÓN DE CÓDIGO:
 
 Después de mi confirmación de la tabla:
-- Generá el código completo de esta capa.
-- Incluí los tests de la capa en el mismo output (ver "QUÉ GENERAR EN ESTA CAPA").
-- Organizá el output por archivos, con ruta completa de cada archivo según CONVENTIONS.md.
-
-Formato del output de código:
-
-```archivo: <ruta/completa/del/archivo.py>
-[contenido del archivo]
-```
+- Escribí cada archivo de código y de tests directamente en disco con las herramientas Write/Edit, en la ruta que define CONVENTIONS.md. NO vuelques el contenido de los archivos en el chat.
+- Archivos nuevos: usá Write. Archivos existentes (modificación con CHANGE-SET): usá Edit con cambios quirúrgicos, sin reescribir el archivo entero.
+- Incluí los tests de la capa (ver "QUÉ GENERAR EN ESTA CAPA"), también escritos en disco.
+- Al terminar, reportá solo la lista de archivos creados/modificados (ruta + una línea de qué hace cada uno). El código ya quedó en disco; no lo repitas en el chat.
 
 PASO 2 — DECISIONES IMPLÍCITAS:
 
