@@ -24,13 +24,7 @@ Antes de editar, leé la spec completa y decime si refleja con precisión el com
 
 ## Paso 4 — Clasificá el tier y esperá mi confirmación
 
-Proponeme el **tier de la modificación** (WORKFLOW 8.3.2) con justificación contra los criterios objetivos — "es un cambio chico" no es justificación:
-
-- **T1 — Cosmético:** no toca modelo de datos (sección 6), ni reglas de negocio (sección 7), ni seguridad, ni introduce entidades/flujos/integraciones. Solo presentación (layout, textos, colores, orden, formato de salida).
-- **T2 — Lógica acotada:** toca comportamiento (secciones 4/7/8/9) en funciones existentes, sin sección 6, sin entidades/flujos nuevos, sin seguridad.
-- **T3 — Estructural:** toca sección 6, entidad/flujo/integración nueva, o seguridad.
-
-**Si dudás entre dos tiers, proponé el superior.** No edites hasta que yo confirme el tier (Modo B). El tier determina qué pasos del ciclo se ejecutan después y va al header del CHANGE-SET + changelog de la spec.
+Proponeme el **tier de la modificación** (T1/T2/T3) según los criterios objetivos de `${CLAUDE_PLUGIN_ROOT}/protocols/tier-routing.md`, con justificación contra esos criterios — "es un cambio chico" no es justificación. **Si dudás entre dos, proponé el superior.** No edites hasta que yo confirme el tier (Modo B). El tier va al header del CHANGE-SET + changelog y determina los pasos siguientes.
 
 ## Paso 5 — Editá, versioná, documentá
 
@@ -45,10 +39,4 @@ Proponeme el **tier de la modificación** (WORKFLOW 8.3.2) con justificación co
 
 Entregá tres bloques: (1) resumen del cambio (tier confirmado + justificación, secciones tocadas, qué cambió, versión nueva, debilidades corregidas, hasta 3 puntos para Fase 4 — omitir si es T1), (2) la lista de **ediciones aplicadas al archivo** (sección + qué cambió; la spec completa NO se re-emite), y (3) el **CHANGE-SET estructurado** — el delta machine-readable con `Tier` en el header y secciones `ADDED / MODIFIED / REMOVED`, cada ítem etiquetado con la capa que toca. El CHANGE-SET no es el changelog: es la señal que el resto del ciclo consume (scope del codegen + ruteo por tier). **No commitees** todavía.
 
-Siguiente paso **según el tier** (WORKFLOW 8.3.2):
-
-- **T1:** directo a `/sdd-verify` (modo express) → `/sdd-codegen` de las capas del CHANGE-SET (adversaria de código reemplazada por checks inline). La adversaria de spec se omite (excepción codificada de Regla 4).
-- **T2:** `/sdd-adversarial-spec` acotada al delta (pasada 2 solo si la 1 tuvo bloqueantes) → `/sdd-verify` (modo delta) → `/sdd-codegen` con adversaria de código acotada al diff.
-- **T3:** `/sdd-adversarial-spec` completa → `/sdd-verify` completo → `/sdd-codegen` con adversaria de código completa.
-
-En todos los tiers: `/sdd-codegen` recibe el **CHANGE-SET como contexto** y antes del commit exige la **prueba manual** acotada a lo que el CHANGE-SET tocó (gate, WORKFLOW.md 7.5 — no se relaja en ningún tier). **Válvula de escape:** si en cualquier paso aparece evidencia de que el delta excede su tier, el tier sube, se actualiza el CHANGE-SET y se ejecutan los pasos salteados antes de continuar.
+Siguiente paso **según el tier**: la matriz (adversaria de spec, modo de verify, adversaria de código) está en `${CLAUDE_PLUGIN_ROOT}/protocols/tier-routing.md`. En todos los tiers: `/sdd-codegen` recibe el **CHANGE-SET como contexto** y antes del commit exige la **prueba manual** acotada a lo que el CHANGE-SET tocó (gate, WORKFLOW.md 7.5 — no se relaja en ningún tier). **Válvula de escape:** si en cualquier paso el delta excede su tier, el tier sube, se actualiza el CHANGE-SET y se ejecutan los pasos salteados antes de continuar.

@@ -11,7 +11,7 @@ Esta pasada valida que **el código cumple la spec**, NO que la spec es correcta
 
 ## Paso 0 — Gate de tier (solo modificaciones, WORKFLOW 8.3.2)
 
-Si la spec viene de `/sdd-modify-spec`, leé el `Tier` del CHANGE-SET antes de lanzar nada:
+Si la spec viene de `/sdd-modify-spec`, leé el `Tier` del CHANGE-SET y rutea según `${CLAUDE_PLUGIN_ROOT}/protocols/tier-routing.md` antes de lanzar nada:
 
 - **T1:** NO lances el subagente. Esta pasada se reemplaza por **checks inline** que ejecutás vos en esta sesión: (a) tests de la capa pasan, (b) typecheck/build limpio, (c) revisión del diff contra `CONVENTIONS.md`. Reportá los tres resultados. El gate de prueba manual sigue siendo obligatorio antes del commit.
 - **T2:** lanzá el subagente **acotado al diff**: recibe el diff de la capa (no todo el código), las secciones de la spec que el CHANGE-SET toca + el CHANGE-SET, CONVENTIONS+PRINCIPLES siempre, y DOMAIN_MODEL/ARCHITECTURE solo según las capas tocadas. Hallazgos solo sobre el código del delta y su interacción con el existente.
