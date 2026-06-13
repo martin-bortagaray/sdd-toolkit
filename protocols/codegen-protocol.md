@@ -164,21 +164,9 @@ Ver WORKFLOW.md sección 8.3.1:
 
 ## Reglas que no se relajan bajo ninguna circunstancia
 
-1. **No saltar la pasada adversaria de código** por "es una capa simple".
+1. **No saltar la pasada adversaria de código** por "es una capa simple". Única excepción codificada: modificaciones **T1** (WORKFLOW.md 8.3.2), donde se **reemplaza** —no se omite— por checks inline (tests + typecheck + diff vs `CONVENTIONS.md`). La diferencia: T1 es una regla con criterio objetivo verificado por D3, no una sensación de "es simple".
 2. **No pasar a la siguiente capa hasta que el checklist esté completo.**
 3. **No commitear hasta que los tests pasen.**
 4. **No modificar el código sin modificar la spec primero** si el cambio es de producto.
 5. **No sobre-ingenieriar.** Si no está en la spec, no va.
 6. **No pushear directo a main.** Todo pasa por rama de feature o hotfix.
-
----
-
-## Changelog
-
-| Versión | Fecha | Cambios |
-|---------|-------|---------|
-| 20260523-v1 | 2026-05-23 | Versión inicial. |
-| 20260523-v2 | 2026-05-23 | Agregados pasos de merge a staging y producción en "Al terminar Fase 6". Agregada regla 6 (no pushear directo a main). Coherente con WORKFLOW.md sección 9.6. |
-| 20260525-v3 | 2026-05-25 | Corrección de referencias cruzadas residuales del renumerado v7→v8 del WORKFLOW. Línea 106: "sección 7.2" → "sección 8.2". Línea 113: "sección 7.3.1" → "sección 8.3.1". Línea 118: "sección 7.3.1" → "sección 8.3.1". |
-| 20260602-v4 | 2026-06-02 | Granularidad de commits corregida a "un commit por feature" (resolución de la contradicción §7.5 vs §11.6 del WORKFLOW a favor de §7.5): el paso COMMITEAR sale del loop por capa y pasa a ejecutarse al completar las 4 capas. Actualizado el checklist "Al terminar Fase 6". Mención de subagente como opción para las pasadas adversarias (WORKFLOW v10/v11). |
-| 20260607-v5 | 2026-06-07 | Soporte de modificaciones acotadas al delta vía CHANGE-SET (pareja de 04-codegen-layer v3 y 07-modify-spec v2). Agregado ítem en "Antes de empezar Fase 6" y dos ítems en el checklist "Siempre": no tocar filas "Sin cambios — no regenerar", y chequeo de RIESGO DE PROPAGACIÓN entre capas. |

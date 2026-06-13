@@ -209,13 +209,3 @@ Esto es crítico. Un gap ignorado en Capa 1 se propaga a Capa 4. El costo de cor
 - **Si el LLM pide aclaraciones sobre la spec:** eso es señal de que la spec tiene ambigüedad. Resolverla en la spec primero, no en el chat. Ver WORKFLOW.md sección 7.3.
 
 - **Tests primero o después:** el prompt pide tests en el mismo output que el código de producción. Si preferís separar (generar código, revisar, después tests), podés adaptar el Paso 1 para pedirlo en dos rondas. Lo que no es negociable es que los tests existan antes de pasar a la siguiente capa.
-
----
-
-## Changelog
-
-| Versión | Fecha | Cambios |
-|---------|-------|---------|
-| 20260523-v1 | 2026-05-23 | Versión inicial. |
-| 20260602-v2 | 2026-06-02 | Header "Dónde se ejecuta" actualizado al modelo híbrido v10 (comando `/sdd-codegen`). Nota operativa "Después de cada capa": corregido a "no commitees por capa" — el commit es uno por feature completa y verificada, resolviendo la contradicción §7.5 vs §11.6 a favor de §7.5. |
-| 20260607-v3 | 2026-06-07 | Soporte de modificaciones acotadas al delta. Nueva Regla 9 (regenerar solo el delta, preservar el resto cuando hay CHANGE-SET). Columna "Estado en el cambio" en la tabla comparativa (Regla 2). CHANGE-SET agregado como input opcional en CONTEXTO. Paso 0 lee el CHANGE-SET. Cierra el hueco de scope en capas 2–4: antes el prompt pedía "generá la capa completa" también en modificaciones, sin instrucción de preservar lo existente; ahora el comportamiento queda tan acotado como ya lo estaba la Capa 1 por append-only. Pareja de 07-modify-spec.prompt.md v2. |

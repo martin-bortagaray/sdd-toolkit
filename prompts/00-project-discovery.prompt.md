@@ -1,6 +1,6 @@
 # Prompt — Discovery Inicial del Proyecto (Fase 0)
 
-> **Versión:** 20260524-v1
+> **Versión:** 20260524-v1 · historia en `/CHANGELOG.md`
 > **Uso:** Una sola vez al inicio de cada proyecto nuevo. Es el primer paso de Fase 0 del ciclo SDD.
 > **Dónde se ejecuta:** En conversación nueva dentro del proyecto, con contexto limpio.
 
@@ -226,11 +226,3 @@ NO HAGAS REDACCIÓN DEL SETUP FOUNDACIONAL EN ESTE PASO. Solo recolección y est
 - **Si la sesión se vuelve abrumadora:** podés cortar en cualquier bloque, decir "pausamos acá, sigamos mañana", y el output se genera con lo que tengas hasta el momento. Al retomar, le pasás el output parcial al prompt y le indicás desde qué bloque sigue.
 
 - **Consulta a experto de dominio:** para proyectos donde el dominio no es tu especialidad (ej: el proyecto agro con tu hermano agrónomo), es esperable que muchas respuestas del Bloque 3 (Dominio y entidades) queden como [PENDIENTE]. Eso es correcto. Resolvelas antes de pasar al prompt 00b.
-
----
-
-## Changelog
-
-| Versión | Fecha | Cambios |
-|---------|-------|---------|
-| 20260524-v1 | 2026-05-24 | Versión inicial. |

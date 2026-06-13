@@ -188,15 +188,6 @@ Resolvé los bloqueantes antes de continuar. Según la naturaleza del bloqueante
 
 - **Este prompt no reemplaza la pasada adversaria de spec (Fase 4).** Son distintos: la pasada adversaria busca problemas de contenido y diseño; este verifica preparación operativa para generación.
 
-- **Si el veredicto es VERDE pero tenés dudas:** las dudas sobre la spec se resuelven acá, antes de generar. Una vez que empezás Fase 6, cambiar la spec tiene costo (volver a generar capas, ver WORKFLOW.md sección 7.3.1).
+- **Si el veredicto es VERDE pero tenés dudas:** las dudas sobre la spec se resuelven acá, antes de generar. Una vez que empezás Fase 6, cambiar la spec tiene costo (volver a generar capas, ver WORKFLOW.md sección 8.3.1).
 
 - **Si una advertencia se repite en varias capas:** es señal de que el problema está en la spec, no en el código. Resolverlo en la spec antes de generar.
-
----
-
-## Changelog
-
-| Versión | Fecha | Cambios |
-|---------|-------|---------|
-| 20260523-v1 | 2026-05-23 | Versión inicial. |
-| 20260602-v2 | 2026-06-02 | Header "Dónde se ejecuta" actualizado al modelo híbrido v10: ejecutable vía comando `/sdd-verify` en Claude Code, o Claude.ai en conversación nueva. |

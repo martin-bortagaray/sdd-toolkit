@@ -132,20 +132,15 @@ NO hagas pasada adversaria en este paso. Eso es Fase 4, con otro prompt.
 
 1. **Lectura crítica de la spec modificada** completa, no solo del delta (Regla 3). Un cambio puede romper coherencia con secciones que no tocaste.
 2. **Validar la sección 14** (decisiones por defecto).
-3. **Pasada adversaria** (`03-adversarial-spec.prompt.md` / `/sdd-adversarial-spec`) sobre la spec modificada. La Regla 4 no se relaja por ser "solo un cambio".
+3. **Pasada adversaria según tier** (WORKFLOW.md 8.3.2): **T1 la omite** (excepción codificada de Regla 4 — no hay riesgo de diseño que auditar); **T2** corre `/sdd-adversarial-spec` acotada al delta con contexto selectivo; **T3** la corre completa. En T2/T3, la pasada 2 solo se ejecuta si la pasada 1 tuvo bloqueantes (WORKFLOW.md 13.2).
 4. **Actualizar el INDEX** del proyecto si cambió el estado de la spec.
-5. **Verificación pre-generación** (`/sdd-verify`) antes de generar el código del delta.
-6. **Codegen del delta** (`/sdd-codegen`): solo las capas que el cambio toca. Si el delta no afecta el modelo de datos, no se regenera Capa 1. **Pasale el CHANGE-SET (Bloque 3) como contexto:** es lo que hace que el codegen regenere solo los ítems ADDED/MODIFIED y preserve el resto del código existente, en vez de reconstruir la capa completa.
+5. **Verificación pre-generación** (`/sdd-verify`) en el modo del tier: **express** para T1, **delta** para T2, **completo** para T3.
+6. **Codegen del delta** (`/sdd-codegen`): solo las capas que el cambio toca. Si el delta no afecta el modelo de datos, no se regenera Capa 1. **Pasale el CHANGE-SET (Bloque 3) como contexto:** es lo que hace que el codegen regenere solo los ítems ADDED/MODIFIED y preserve el resto del código existente, en vez de reconstruir la capa completa. El tier del header decide además la adversaria de código: checks inline en T1, subagente acotado en T2, completo en T3.
 
 ## Notas operativas
 
 - **Specs as-built:** la primera modificación de cada spec reverse-engineered suele revelar que la descripción as-built tiene huecos. Es esperable. Completar esa base es parte del trabajo, no una distracción.
 - **No infles el changelog ni la spec.** El cambio se documenta con densidad: qué y por qué, sin relleno.
 - **Si el delta crece:** si al editar descubrís que el "cambio chico" toca media spec, pará y reconsiderá si no es en realidad una feature nueva o un cambio que debía ir al setup foundacional.
-
-## Changelog
-
-| Versión | Fecha | Cambios |
-|---------|-------|---------|
-| 20260602-v1 | 2026-06-02 | Versión inicial. Cubre el flujo de WORKFLOW.md sección 8.3 (Modificar spec) con foco en specs Implemented y As-built. |
-| 20260607-v2 | 2026-06-07 | Agregado Bloque 3 — CHANGE-SET ESTRUCTURADO (delta machine-readable con secciones ADDED/MODIFIED/REMOVED y etiqueta de capa por ítem). Cierra el hueco de scope en codegen de capas 2–4: el codegen consume el change-set para regenerar solo lo que cambió y preservar el resto. Inspirado en el modelo de delta specs de OpenSpec, adaptado al modelo de spec-única-viva del toolkit (no se crea carpeta de cambio separada). |
+- **Válvula de escape del tier (WORKFLOW.md 8.3.2):** el tier es una hipótesis, no un permiso. Si en cualquier paso posterior (adversaria, verify, codegen, prueba manual) aparece evidencia de que el delta toca modelo de datos, reglas de negocio o seguridad: el tier sube en el acto, se actualiza el header del CHANGE-SET, se ejecutan los pasos salteados antes de continuar, y la re-clasificación queda en el changelog de la spec.
+- **Antipatrón:** clasificar hacia abajo por ansiedad o cansancio. Si la justificación del tier no cita los criterios objetivos, la clasificación está mal hecha.

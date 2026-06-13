@@ -1,6 +1,6 @@
 # Prompt — Diseño de Prototipo UI (Fase 0)
 
-> **Versión:** 20260524-v1
+> **Versión:** 20260524-v1 · historia en `/CHANGELOG.md`
 > **Uso:** Tercer y último paso de Fase 0 del ciclo SDD. Se ejecuta después del prompt 00b-setup-foundation.
 > **Dónde se ejecuta:** Flujo híbrido en dos sesiones separadas:
 > 1. **Sesión 1 — Claude.ai:** generación del brief estructurado.
@@ -269,11 +269,3 @@ Segundo bloque — Brief + instrucciones (lo que el autor va a usar):
 - **Si Claude Design genera algo muy distinto al design system declarado:** parar la iteración y verificar el brief. Probablemente algún elemento del design system no quedó claro en el brief.
 
 - **Si el cliente pide cambios significativos al prototipo durante la propuesta:** esos cambios afectan al alcance del proyecto. Documentar los cambios y evaluar si afectan al setup foundacional o al roadmap. Si afectan, actualizar antes de avanzar.
-
----
-
-## Changelog
-
-| Versión | Fecha | Cambios |
-|---------|-------|---------|
-| 20260524-v1 | 2026-05-24 | Versión inicial. |

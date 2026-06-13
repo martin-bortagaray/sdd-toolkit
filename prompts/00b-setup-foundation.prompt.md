@@ -1,6 +1,6 @@
 # Prompt — Redacción de Setup Foundacional + Roadmap (Fase 0)
 
-> **Versión:** 20260524-v1
+> **Versión:** 20260524-v1 · historia en `/CHANGELOG.md`
 > **Uso:** Segundo paso de Fase 0 del ciclo SDD. Se ejecuta después del prompt 00-project-discovery y antes del prompt 00c-design-prototype.
 > **Dónde se ejecuta:** En conversación nueva dentro del proyecto, con contexto limpio. NO en la misma conversación del discovery inicial.
 
@@ -305,11 +305,3 @@ NO hagas pasada adversaria en este paso. Si surgen problemas en revisión, vuelv
   - Error de redacción (estructura mal aplicada): pedir corrección quirúrgica al LLM.
   - Error de contenido (decisión mal interpretada): puede requerir volver al discovery.
   - Error estructural (faltó cubrir algo importante): puede requerir extender el discovery con preguntas adicionales antes de regenerar.
-
----
-
-## Changelog
-
-| Versión | Fecha | Cambios |
-|---------|-------|---------|
-| 20260524-v1 | 2026-05-24 | Versión inicial. |

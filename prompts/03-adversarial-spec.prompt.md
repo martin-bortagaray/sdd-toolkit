@@ -161,19 +161,10 @@ Terminá con UNA pregunta crítica: ¿qué decisión importante sobre esta featu
 
 ## Notas operativas
 
-- **Calidad de hallazgos, no cantidad.** Aplicar criterio de WORKFLOW.md sección 11.1. Una pasada que devuelve 20 hallazgos donde 15 son sugerencias estilísticas no es mejor que una de 5 hallazgos sustantivos.
+- **Calidad de hallazgos, no cantidad.** Aplicar criterio de WORKFLOW.md sección 13.1. Una pasada que devuelve 20 hallazgos donde 15 son sugerencias estilísticas no es mejor que una de 5 hallazgos sustantivos.
 
 - **Si el adversario marca muy poco:** probablemente la spec es buena, o el adversario no buscó bien. Verificá leyéndola vos. Si encontrás cosas que el adversario no marcó, considerá repetir con prompt reforzado.
 
 - **Si el adversario marca contradicción con setup foundacional:** primero verificá si es real (releer ambos documentos). A veces el LLM marca "contradicción" cuando son matices que no se contradicen. Si es real, decidí: ¿corrijo la spec, o corrijo el setup foundacional? (WORKFLOW.md sección 7.1).
 
 - **No iterar hallazgos repetidos entre pasadas:** la sub-sección 10.2 te protege de esto si la mantenés actualizada. Si el adversario re-marca algo ya cerrado, es señal de que olvidaste documentarlo en 10.2 o de que el adversario ignoró la instrucción. En ambos casos, descartá el hallazgo y verificá la sub-sección.
-
----
-
-## Changelog
-
-| Versión | Fecha | Cambios |
-|---------|-------|---------|
-| 20260523-v1 | 2026-05-23 | Versión inicial. |
-| 20260602-v2 | 2026-06-02 | Header "Dónde se ejecuta" actualizado al modelo híbrido v10: ejecutable vía comando `/sdd-adversarial-spec` en Claude Code, que corre en subagente con contexto limpio (cumple la regla de conversación nueva sin cambiar de herramienta). |
