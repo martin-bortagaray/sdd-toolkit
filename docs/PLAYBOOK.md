@@ -224,9 +224,13 @@ claude plugin list                                                # verificar
 
 **Actualizar** (después de editar el toolkit)
 ```
-claude plugin marketplace update sdd-toolkit
+# 1. Si agregaste/cambiaste comandos: subí "version" en .claude-plugin/plugin.json (ej. 1.0.0 → 1.1.0)
+# 2. git commit && git push     (el marketplace de directorio snapshotea el commit)
+claude plugin marketplace update sdd-toolkit       # 3. refresca el marketplace
+claude plugin update sdd-toolkit@sdd-toolkit       # 4. recopia el plugin instalado
 ```
-- [ ] Si instalaste desde GitHub: `git commit && git push` **antes** del update. Reiniciar la sesión.
+- [ ] **Crítico — bump de versión:** el plugin instalado es una **copia cacheada**; `plugin update` se fija en el número de `version`, no en el contenido. Si no subís la versión, dice "already at the latest version" y **no toma los comandos nuevos** aunque reinicies. Para cambios de solo contenido (editar un prompt/comando existente, sin agregar comandos) el bump no es estrictamente necesario, pero ante la duda, subila.
+- [ ] **Reiniciar** la sesión de Claude Code al final. Verificar con `/sdd`.
 
 ---
 
