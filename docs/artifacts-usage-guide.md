@@ -1,7 +1,7 @@
 # Guía de uso de artefactos del toolkit SDD
 
 > **Toolkit:** sdd-toolkit
-> **Versión:** 20260610-v5
+> **Versión:** 20260613-v6
 > **Propósito:** Referencia rápida de qué artefacto usar en cada momento del proceso y catálogo completo del toolkit.
 
 Este documento es complemento del WORKFLOW.md y de los diagramas de flujo. Tiene dos vistas:
@@ -146,6 +146,12 @@ Estos templates se usan principalmente durante Fase 0 paso 2. Definen la estruct
 |-----------|------|---------------|----------------|
 | `templates/bugfix.template.md` | Template | Reactivo. Cuando se detecta un bug en producción o en testing post-implementación. | Esqueleto del artefacto `bugfix-XXX.md`. Estructura obligatoria para registrar clasificación, root cause, criterio de aceptación del fix y test de regresión. Numeración secuencial por proyecto. |
 
+### Template de pendientes diferidos (1 artefacto, uso reactivo)
+
+| Artefacto | Tipo | Cuándo se usa | Para qué sirve |
+|-----------|------|---------------|----------------|
+| `templates/debt.template.md` | Template | Reactivo. Cuando durante una sesión surge una idea, deuda técnica o decisión que se difiere a propósito. Se registra con `/sdd-defer` y se mantiene con `/sdd-debt-review`. | Esqueleto del `sdd/DEBT.md`: registro único y acumulativo de pendientes diferidos del proyecto, clasificados por tipo (`deuda-tecnica` / `idea-producto` / `decision-diferida`) y con estado (Abierto → Promovido / Resuelto / Descartado). Materializa la regla "lo dejo registrado obliga a una escritura" (WORKFLOW 8.7). |
+
 ### Template de ADR (1 artefacto, uso reactivo)
 
 | Artefacto | Tipo | Cuándo se usa | Para qué sirve |
@@ -218,4 +224,5 @@ A diferencia de los otros templates, `design-system.template.md` NO se instancia
 | 20260526-v2 | 2026-05-26 | Agregado flujo de tratamiento de bugs en Vista 1. Agregado `templates/bugfix.template.md` en catálogo Vista 2. Actualizado conteo de artefactos a 26. |
 | 20260602-v3 | 2026-06-02 | Agregado `prompts/07-modify-spec.prompt.md` al catálogo (Vista 2) y nueva sub-vista "Modificación de feature existente" (Vista 1). Agregado el plugin de Claude Code al catálogo. Notas operativas actualizadas: el plugin elimina el adjuntado manual de archivos y resuelve la "conversación nueva" de las pasadas adversarias vía subagente (WORKFLOW v10, modelo híbrido). Removido el total exacto de artefactos, pendiente de recuento. |
 | 20260607-v4 | 2026-06-07 | Agregado `docs/cheatsheet.html` y `docs/PLAYBOOK.md` al catálogo de documentación del proceso. |
+| 20260613-v6 | 2026-06-13 | Agregado al catálogo (Vista 2) el `templates/debt.template.md` y el comando `/sdd-defer`: registro de pendientes diferidos (`sdd/DEBT.md`). Formaliza el destino de ideas, deuda técnica y decisiones que se difieren durante una sesión (WORKFLOW 8.7, v15). |
 | 20260610-v5 | 2026-06-10 | Sub-vista "Modificación de feature existente" actualizada al modelo de **tiers** (WORKFLOW v14, 8.3.2): tier en el flujo de modificación, pasada adversaria/verify/adversaria de código ruteadas por tier, edición quirúrgica directa sobre el archivo (sin re-emitir la spec), chequeos D1–D3. Corregido el header de versión que había quedado en v3 con changelog en v4. |

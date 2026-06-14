@@ -22,6 +22,8 @@
     "./commands/sdd-codegen.md",
     "./commands/sdd-adversarial-code.md",
     "./commands/sdd-bugfix.md",
+    "./commands/sdd-defer.md",
+    "./commands/sdd-debt-review.md",
     "./commands/sdd-commit.md"
   ]
 }

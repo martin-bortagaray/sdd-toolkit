@@ -1,6 +1,6 @@
 # SDD Playbook — Guía de bolsillo
 
-> **Toolkit:** sdd-toolkit · **Basado en:** WORKFLOW v11 · **Autor:** Martin Bortagaray
+> **Toolkit:** sdd-toolkit · **Basado en:** WORKFLOW v15 · **Autor:** Martin Bortagaray
 > **Propósito:** Guía paso a paso imprimible de cada flujo del proceso SDD con los comandos del plugin de Claude Code. Cada sección es autocontenida (pensada para imprimirse como ficha).
 
 > **Nota de invocación:** todos los comandos se invocan con el prefijo del plugin: `/sdd-toolkit:<comando>` (ej. `/sdd-toolkit:sdd-discovery`). Por brevedad, en este documento los escribo sin el prefijo. Tipeá `/sdd` en Claude Code para autocompletarlos.
@@ -9,7 +9,7 @@
 
 ## 0 · Referencia rápida
 
-### Los 9 comandos
+### Los 11 comandos
 
 | Comando | Fase | Qué hace |
 |---------|------|----------|
@@ -21,6 +21,8 @@
 | `sdd-codegen` | 6 | Genera código, **una capa por vez**. |
 | `sdd-adversarial-code` | 6 | Ataca el código contra la spec (subagente). |
 | `sdd-bugfix` | §9 | Trata un bug con trazabilidad (clasifica A/B/C). |
+| `sdd-defer` | §8.7 | Registra un pendiente diferido en `DEBT.md`. Captura barata, no frena la sesión. |
+| `sdd-debt-review` | §8.7 | Revisa `DEBT.md`: actualiza el estado de cada pendiente (implementado / pendiente / promovido / descartado). |
 | `sdd-commit` | — | Commit inteligente con convención SDD. |
 
 ### Las 5 reglas no negociables
@@ -161,6 +163,24 @@ Por cada capa:
 
 **Paso 5 — Cierre**
 - [ ] Estado **Cerrado** solo con: fix verificado + test en verde + spec actualizada si era Tipo B. Commit con `sdd-commit` (prefijo `fix(bugfix-NNN):`).
+
+---
+
+## Flujo C-bis · Pendientes diferidos (DEBT.md)
+
+> Para ideas, deuda técnica o decisiones que surgen a mitad de sesión y **decido diferir a propósito**. Regla: "lo dejo registrado" obliga a una escritura concreta en `sdd/DEBT.md` — no es una frase suelta.
+
+**Registrar** → `sdd-defer "qué difiero" [tipo]`
+- [ ] Tipo: `deuda-tecnica` (refactor / hallazgo no bloqueante) · `idea-producto` (feature charlada) · `decision-diferida`.
+- [ ] **No es bug** (→ Flujo C) ni **hallazgo bloqueante** (se corrige ya, no se difiere).
+- [ ] Agrega entrada `DEBT-NNN` estado **Abierto** + fila en la tabla de índice. **No frena** lo que estabas haciendo.
+
+**Revisar / cosechar** → `sdd-debt-review [filtro opcional]`
+- [ ] Recorre las entradas no terminales; propone estado nuevo con evidencia del repo, yo confirmo.
+- [ ] Estados: **Abierto** (sigue pendiente) → **Resuelto** (ya se implementó) · **Promovido** (pasó a spec / `ROADMAP.md` / `bugfix-NNN.md`, anota destino) · **Descartado** (anota por qué).
+- [ ] Sincroniza la tabla de índice y sube versión de `DEBT.md`. Las `Abierto` son las que reclaman acción.
+
+**Promover un pendiente maduro:** `sdd-discovery` (feature), entrada de `ROADMAP.md`, o `sdd-bugfix`.
 
 ---
 

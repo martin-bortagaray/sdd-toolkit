@@ -1,6 +1,6 @@
 # WORKFLOW — Mi Proceso de Desarrollo de Software con IA
 
-> **Versión:** 20260610-v14 · historia en `/CHANGELOG.md`
+> **Versión:** 20260613-v15 · historia en `/CHANGELOG.md`
 > **Autor:** Martin Bortagaray
 > **Estado:** Review (pendiente aprobación final)
 
@@ -557,6 +557,21 @@ Si una modificación de spec afecta el modelo de datos (cambio de columna, nueva
 - Se genera una **nueva migración** que referencia la versión de spec que la requirió.
 - La migración nueva **altera** el schema existente (no reescribe la migración vieja).
 - El historial de migraciones representa la evolución real de la base de datos.
+
+### 8.7 Registro de pendientes diferidos (`DEBT.md`)
+
+Durante una sesión de trabajo aparecen ideas nuevas, deuda técnica y decisiones que conscientemente difiero para otro momento. Para que no se pierdan, cada proyecto tiene un archivo único y acumulativo `sdd/DEBT.md` (generado desde `templates/debt.template.md`).
+
+**Regla de captura — "lo dejo registrado" obliga a una escritura.** No es una frase conversacional: si algo se difiere, queda como entrada concreta en `DEBT.md`. Si no quedó en el archivo, no quedó registrado. La forma operativa de cumplir esto es el comando `/sdd-defer`.
+
+**Qué va a `DEBT.md`** (tres tipos):
+- `deuda-tecnica`: hallazgos NO bloqueantes de pasadas adversarias (7.4.1), refactors postergados, specs `Implemented` afectadas por un cambio de setup que no corrijo de inmediato (8.4).
+- `idea-producto`: funcionalidad nueva charlada a mitad de sesión y diferida. Su destino natural es el `ROADMAP.md` o el ciclo SDD vía discovery.
+- `decision-diferida`: una decisión que posterga para tomar con más contexto.
+
+**Qué NO va a `DEBT.md`:** bugs (→ `bugfix-NNN.md`, sección 9), hallazgos **bloqueantes** (se corrigen en el momento), features ya planificadas (→ `ROADMAP.md`), exclusiones de alcance de una feature (→ sección 11 de la spec).
+
+**Ciclo de vida de una entrada:** `Abierto` → `Promovido` (a spec / roadmap / bugfix, anotando destino) | `Resuelto` | `Descartado` (anotando por qué). El estado de cada entrada se mantiene al día con la revisión periódica `/sdd-debt-review`, que recorre el registro, propone el estado nuevo de cada pendiente con evidencia del repo y sincroniza la tabla de índice. Las referencias a `DEBT.md` en 7.4.1 y 8.4 apuntan a este registro.
 
 ---
 
