@@ -1,6 +1,6 @@
 {
   "name": "sdd-toolkit",
-  "version": "1.0.0",
+  "version": "1.1.0",
   "description": "Proceso SDD (Spec Driven Development) de Martin Bortagaray como comandos de Claude Code. Ejecuta el ciclo de feature por fases y el tratamiento de bugs, con las reglas no negociables del WORKFLOW.",
   "author": {
     "name": "Martin Bortagaray"
