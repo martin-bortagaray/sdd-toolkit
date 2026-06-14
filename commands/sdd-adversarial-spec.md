@@ -16,10 +16,10 @@ Vas a ejecutar la **Fase 4 (Pasada adversaria de spec)** del ciclo SDD. El rol A
 Usá la tool **Agent** (subagent_type: `general-purpose`) con un prompt que le ordene:
 
 1. Leer el prompt canónico `${CLAUDE_PLUGIN_ROOT}/prompts/03-adversarial-spec.prompt.md` y ejecutarlo al pie de la letra (rol Adversario, las 10 categorías de hallazgos en orden de prioridad).
-2. Leer como contexto: la spec objetivo (`sdd/specs/<ID>.md`), el setup foundacional de `sdd/foundation/`, las specs dependientes de primer nivel declaradas en la sección 12 de la spec, y la guía `${CLAUDE_PLUGIN_ROOT}/templates/feature-spec.guide.md`. **En modificaciones T2, carga selectiva (WORKFLOW 8.3.2):** el CHANGE-SET + siempre `CONVENTIONS.md` y `PRINCIPLES.md`; `DOMAIN_MODEL.md` solo si el delta toca Capa 1/2; `ARCHITECTURE.md` solo si toca Capa 2/3 o integraciones; `GLOSSARY.md` solo si hay términos nuevos. En T3/specs nuevas: todo.
+2. Leer como contexto: la spec objetivo (`sdd/specs/<ID>.md`), el setup foundacional de `sdd/foundation/`, las specs dependientes de primer nivel declaradas en la sección 12 de la spec. La guía `${CLAUDE_PLUGIN_ROOT}/templates/feature-spec.guide.md` es **opcional**: cargala solo si hace falta el detalle de qué va en cada sección — la taxonomía de casos borde que se audita ya está embebida en el prompt canónico. **En modificaciones T2, carga selectiva (WORKFLOW 8.3.2):** el CHANGE-SET + siempre `CONVENTIONS.md` y `PRINCIPLES.md`; `DOMAIN_MODEL.md` solo si el delta toca Capa 1/2; `ARCHITECTURE.md` solo si toca Capa 2/3 o integraciones; `GLOSSARY.md` solo si hay términos nuevos. En T3/specs nuevas: todo.
 3. **En modificaciones T2:** activar el MODO ACOTADO AL DELTA del prompt canónico — hallazgos solo sobre lo que el delta introduce o toca (con foco en propagación); problemas pre-existentes en una línea bajo "FUERA DE SCOPE".
 4. Respetar las restricciones: no felicitar nada, no suavizar, no inventar hallazgos para llenar categorías, no re-marcar lo ya cerrado en 10.2.
-5. Devolver los hallazgos agrupados por las 10 categorías + la pregunta crítica de cierre.
+5. Devolver solo las categorías con hallazgos + una línea final de cobertura (qué categorías quedaron sin hallazgos) + la pregunta crítica de cierre.
 
 Indicale al subagente que su mensaje final es el reporte de hallazgos (no un resumen humano).
 

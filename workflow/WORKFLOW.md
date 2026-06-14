@@ -1,6 +1,6 @@
 # WORKFLOW — Mi Proceso de Desarrollo de Software con IA
 
-> **Versión:** 20260613-v15 · historia en `/CHANGELOG.md`
+> **Versión:** 20260614-v16 · historia en `/CHANGELOG.md`
 > **Autor:** Martin Bortagaray
 > **Estado:** Review (pendiente aprobación final)
 
@@ -512,7 +512,7 @@ En modificaciones, los subagentes (adversarias) y el codegen cargan documentos f
 - **`GLOSSARY.md`:** si el delta introduce términos nuevos del dominio.
 - **`PRODUCT.md`:** solo T3.
 
-Los builds iniciales (sin CHANGE-SET) cargan todo, como siempre (sección 7.2).
+Los builds iniciales (sin CHANGE-SET) cargan todo para la pasada de spec y el codegen, como siempre (sección 7.2). **Excepción — pasada adversaria de código:** corre una vez por capa, y en cualquier build (inicial o modificación) carga solo el foundation y las secciones de spec que la capa bajo revisión toca, según la matriz por capa de `protocols/tier-routing.md`. Recargar los 6 documentos en cada una de las 4 capas multiplica el costo sin agregar señal; la independencia de contexto (separación del generador) se conserva igual.
 
 #### Válvula de escape — el tier es una hipótesis, no un permiso
 

@@ -1,6 +1,6 @@
 # Prompt — Pasada Adversaria de Spec (Fase 4)
 
-> **Versión:** 20260610-v3 · historia en `/CHANGELOG.md`
+> **Versión:** 20260614-v4 · historia en `/CHANGELOG.md`
 > **Uso:** Después de Fase 3 (Redacción del draft) y antes de Fase 5 (Aprobación). Es el prompt que ejecuta el rol Adversario de la IA (WORKFLOW.md sección 3) sobre una spec de feature.
 > **Dónde se ejecuta:** Vía el comando `/sdd-adversarial-spec` en Claude Code (corre en subagente con contexto limpio), o en conversación nueva en Claude.ai. NUNCA en la conversación donde se redactó la spec (WORKFLOW.md sección 11.1, modelo híbrido v10).
 
@@ -28,7 +28,7 @@
    - La spec a revisar (`<spec-id>.md` en su versión actual).
    - Setup foundacional del proyecto que exista: `PRODUCT.md`, `ARCHITECTURE.md`, `DOMAIN_MODEL.md`, `CONVENTIONS.md`, `GLOSSARY.md`, `PRINCIPLES.md`.
    - Specs declaradas en la sección 12 "Dependencias y supuestos" de la spec a revisar (primer nivel directo, no transitivas).
-   - `templates/feature-spec.guide.md` del toolkit (referencia de qué va en cada sección).
+   - `templates/feature-spec.guide.md` del toolkit — **opcional**. Solo si necesitás el detalle de qué va en cada sección. La taxonomía de 10 casos borde que esta pasada audita ya está embebida en la categoría 6 del prompt; no cargues la guide solo por eso.
 
    **Carga selectiva en modificaciones T2 (WORKFLOW.md 8.3.2):** en vez de los 6 documentos foundacionales, cargar según el CHANGE-SET — siempre `CONVENTIONS.md` + `PRINCIPLES.md`; `DOMAIN_MODEL.md` si el delta toca Capa 1 o 2; `ARCHITECTURE.md` si toca Capa 2 o 3 o introduce integraciones; `GLOSSARY.md` solo si el delta introduce términos nuevos. Adjuntar también el **CHANGE-SET**. En T3 y en specs nuevas se carga todo, como siempre.
 
@@ -49,7 +49,7 @@ Te paso una spec de feature en estado {Draft / Review} para que la revises crít
 Adjunté también:
 - Setup foundacional del proyecto (PRODUCT, ARCHITECTURE, DOMAIN_MODEL, CONVENTIONS, GLOSSARY, PRINCIPLES) — los archivos que existan.
 - Specs declaradas como dependencias en la sección 12 de la spec a revisar (primer nivel directo).
-- La guide del toolkit (feature-spec.guide.md) que define qué va en cada sección de una spec.
+- Opcionalmente, la guide del toolkit (feature-spec.guide.md) si necesitás el detalle de qué va en cada sección.
 
 TU TRABAJO:
 
@@ -138,7 +138,7 @@ Listá hallazgos agrupados por las 10 categorías, en orden. Para cada categorí
   - Por qué es un problema.
   - Sugerencia quirúrgica de resolución. NO propongas reescritura completa.
 
-- Si NO encontraste hallazgos en una categoría: decilo explícitamente. Ejemplo: "Categoría 7 (Decisiones implícitas): sin hallazgos."
+- Reportá SOLO las categorías con hallazgos. Al final, agregá UNA línea que liste por número las categorías que revisaste y quedaron sin hallazgos (ej: "Revisadas sin hallazgos: 2, 3, 8, 9") — constancia de que cubriste las 10 sin gastar un párrafo por categoría vacía.
 
 RESTRICCIONES:
 

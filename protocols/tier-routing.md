@@ -22,9 +22,24 @@
 | Adversaria de código | **Checks inline** (tests + typecheck + diff vs `CONVENTIONS.md`) | Subagente acotado al diff | Subagente completo |
 | Gate de prueba manual (§7.5) | **Sí** | Sí | Sí |
 
-## Carga selectiva de foundation (modificaciones)
+## Carga selectiva de foundation
 
-Siempre `CONVENTIONS.md` + `PRINCIPLES.md`. `DOMAIN_MODEL.md` si el delta toca Capa 1/2. `ARCHITECTURE.md` si toca Capa 2/3 o introduce integraciones. `GLOSSARY.md` solo con términos nuevos. `PRODUCT.md` solo en T3. (Builds iniciales: se carga todo.)
+### Pasada adversaria de spec (modificaciones)
+
+Siempre `CONVENTIONS.md` + `PRINCIPLES.md`. `DOMAIN_MODEL.md` si el delta toca Capa 1/2. `ARCHITECTURE.md` si toca Capa 2/3 o introduce integraciones. `GLOSSARY.md` solo con términos nuevos. `PRODUCT.md` solo en T3. (Specs nuevas / T3: se carga todo.)
+
+### Pasada adversaria de código (todos los builds, por capa)
+
+La pasada adversaria de código corre **una vez por capa**. No recarga el foundation completo ni la spec completa en cada capa: carga solo lo que la capa bajo revisión toca. Vale para **builds iniciales y modificaciones** por igual (la independencia de contexto se conserva; lo que se acota es el volumen, no la separación del generador).
+
+| Capa bajo revisión | Foundation a cargar | Secciones de spec |
+|---|---|---|
+| 1 — Modelo de datos | `DOMAIN_MODEL`, `CONVENTIONS`, `PRINCIPLES` | §6, §7, §9 |
+| 2 — Lógica de negocio | `DOMAIN_MODEL`, `ARCHITECTURE`, `CONVENTIONS`, `PRINCIPLES` | §4, §7, §8, §9, §12 |
+| 3 — API / acceso | `ARCHITECTURE`, `CONVENTIONS`, `PRINCIPLES` | §4, §5, §8, §9, §12 |
+| 4 — UI | `CONVENTIONS`, `DESIGN_SYSTEM` (si existe), `PRINCIPLES` | §4, §5, §8, §13 |
+
+Transversal a todas las capas: `GLOSSARY.md` solo si la capa usa/introduce términos nuevos; specs dependientes de §12, solo las relevantes a la capa. **`PRODUCT.md` no se carga en la pasada de código** (es racional de producto, no contrato de implementación). En modificaciones T2, además: acotado al diff de la capa, no a todo su código.
 
 ## Válvula de escape
 

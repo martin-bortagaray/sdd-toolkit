@@ -34,16 +34,16 @@ Al terminar Fase 0, crear `INDEX.md` del proyecto usando `templates/project-inde
 | **Fase 1 — Definir necesidad** | Ninguno. Escribo notas crudas. | Ninguno. | Notas internas, sin formato. |
 | **Fase 2 — Discovery de feature** | `01-discovery.prompt.md` | Setup foundacional completo del proyecto (6 archivos). Specs Approved que sean dependencias directas (primer nivel). | Documento estructurado por secciones con respuestas + pendientes + decisiones por defecto + lista de dependencias. |
 | **Fase 3 — Redacción de spec** | `02-draft-spec.prompt.md` | Output de Fase 2 + setup foundacional + dependencias + `feature-spec.template.md` + `feature-spec.guide.md` + `INDEX.md` (para asignar ID). | Spec en estado Draft. Archivo `specs/<SPEC-ID>.md`. Actualizo INDEX. |
-| **Fase 4 — Pasada adversaria de spec** | `03-adversarial-spec.prompt.md` | Spec Draft + setup foundacional + dependencias + `feature-spec.guide.md`. | Hallazgos clasificados (bloqueantes / mejoras / preguntas). Yo proceso hallazgos y actualizo la spec. Estado: Review. |
+| **Fase 4 — Pasada adversaria de spec** | `03-adversarial-spec.prompt.md` | Spec Draft + setup foundacional + dependencias. `feature-spec.guide.md` opcional (la taxonomía de casos borde ya está en el prompt). | Hallazgos clasificados (bloqueantes / mejoras / preguntas). Yo proceso hallazgos y actualizo la spec. Estado: Review. |
 | **Fase 5 — Aprobación + verificación** | `06-spec-verification.prompt.md` | Spec Approved + setup foundacional + dependencias + `feature-spec.guide.md`. | Veredicto VERDE / AMARILLO / ROJO con checklist completo. |
 | **Fase 6 — Codegen Capa 1 (Datos)** | `04-codegen-layer.prompt.md` con `{CAPA}` = "Modelo de datos" | Spec Approved + setup foundacional + dependencias. | Código + tests + tabla comparativa + decisiones técnicas tomadas. |
-| **Fase 6 — Pasada adversaria Capa 1** | `05-adversarial-code.prompt.md` | Código generado + spec + setup. | Hallazgos clasificados. Yo proceso bloqueantes inmediatamente, no bloqueantes a `DEBT.md`. |
+| **Fase 6 — Pasada adversaria Capa 1** | `05-adversarial-code.prompt.md` | Código de la capa + contexto acotado a la capa (matriz capa→foundation/secciones en `tier-routing.md`; sin `PRODUCT.md`). | Hallazgos clasificados. Yo proceso bloqueantes inmediatamente, no bloqueantes a `DEBT.md`. |
 | **Fase 6 — Codegen Capa 2 (Negocio)** | `04-codegen-layer.prompt.md` con `{CAPA}` = "Lógica de negocio" | Lo anterior + código aprobado de Capa 1 + schema real de DB. | Idem Capa 1 pero para lógica de negocio. |
-| **Fase 6 — Pasada adversaria Capa 2** | `05-adversarial-code.prompt.md` | Código de Capa 2 + spec + setup. | Idem. |
+| **Fase 6 — Pasada adversaria Capa 2** | `05-adversarial-code.prompt.md` | Código de Capa 2 + contexto acotado a la capa (matriz en `tier-routing.md`). | Idem. |
 | **Fase 6 — Codegen Capa 3 (API)** | `04-codegen-layer.prompt.md` con `{CAPA}` = "API / Capa de acceso" | Lo anterior + código aprobado de Capas 1 y 2. | Idem Capa 1 pero para API. |
-| **Fase 6 — Pasada adversaria Capa 3** | `05-adversarial-code.prompt.md` | Código de Capa 3 + spec + setup. | Idem. |
+| **Fase 6 — Pasada adversaria Capa 3** | `05-adversarial-code.prompt.md` | Código de Capa 3 + contexto acotado a la capa (matriz en `tier-routing.md`). | Idem. |
 | **Fase 6 — Codegen Capa 4 (UI)** | `04-codegen-layer.prompt.md` con `{CAPA}` = "UI" | Lo anterior + código aprobado de Capas 1, 2, 3 + `design-system.template.md`. | Idem Capa 1 pero para UI. |
-| **Fase 6 — Pasada adversaria Capa 4** | `05-adversarial-code.prompt.md` | Código de Capa 4 + spec + setup. | Idem. |
+| **Fase 6 — Pasada adversaria Capa 4** | `05-adversarial-code.prompt.md` | Código de Capa 4 + contexto acotado a la capa (matriz en `tier-routing.md`). | Idem. |
 | **Deploy a staging** | No es prompt. Comandos git. | Ninguno. | Feature en ambiente staging. Cliente notificado para validar. |
 | **Cliente valida en staging** | No aplica. Es un waitstate. | Ninguno. | Feedback del cliente: aprueba o pide ajustes. |
 | **Deploy a producción** | No es prompt. Comandos git. | Ninguno. | Feature en producción. Actualizo INDEX (Approved → Implemented). |

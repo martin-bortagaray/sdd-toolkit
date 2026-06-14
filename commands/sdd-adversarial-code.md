@@ -24,9 +24,9 @@ Si cualquier hallazgo revela que el cambio excede su tier (toca modelo/reglas/se
 Identificá spec y capa desde **$ARGUMENTS**. Usá la tool **Agent** (subagent_type: `general-purpose`) con un prompt que le ordene:
 
 1. Leer el prompt canónico `${CLAUDE_PLUGIN_ROOT}/prompts/05-adversarial-code.prompt.md` y ejecutarlo (rol revisor adversario, las 8 categorías en orden de prioridad).
-2. Leer como contexto: el código generado de esta capa, la spec completa (versión aprobada), el setup foundacional de `sdd/foundation/` y las specs dependientes de sección 12 — en modificaciones T2, el contexto acotado del Paso 0.
+2. Leer como contexto **acotado a la capa bajo revisión**, según la matriz "Carga selectiva de foundation → Pasada adversaria de código" de `${CLAUDE_PLUGIN_ROOT}/protocols/tier-routing.md`: el código generado de esta capa, solo los docs de foundation que la capa toca, solo las secciones de spec relevantes a la capa (no la spec completa ni todo `sdd/foundation/`), y las specs dependientes de §12 relevantes. `PRODUCT.md` no se carga en esta pasada. Esto aplica también a builds iniciales — recargar todo el foundation en cada una de las 4 capas multiplica el costo sin agregar señal. En modificaciones T2, además acotado al diff (Paso 0).
 3. Asumir la spec como contrato dado (no cuestionarla). Buscar desvíos, decisiones implícitas, violaciones de convenciones/principios, inconsistencias con el modelo, bugs lógicos, casos borde no cubiertos, sobre-ingeniería.
-4. No felicitar, no suavizar, no inventar hallazgos. Cerrar con la pregunta: ¿qué riesgo operativo concreto introduce este código si se mergea tal cual?
+4. No felicitar, no suavizar, no inventar hallazgos. Reportar solo las categorías con hallazgos + una línea final de cobertura (qué categorías quedaron sin hallazgos). Cerrar con la pregunta: ¿qué riesgo operativo concreto introduce este código si se mergea tal cual?
 
 El mensaje final del subagente es el reporte de hallazgos.
 

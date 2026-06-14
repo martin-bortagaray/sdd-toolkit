@@ -1,6 +1,6 @@
 # Prompt — Pasada adversaria de código
 
-> **Versión:** 20260610-v5 · historia en `/CHANGELOG.md`
+> **Versión:** 20260614-v6 · historia en `/CHANGELOG.md`
 > **Uso:** Después de generar una capa de código contra una spec aprobada, antes de pasar a la siguiente capa.
 > **Dónde se ejecuta:** Vía el comando `/sdd-adversarial-code` en Claude Code (corre en subagente con contexto limpio), o en conversación nueva en Claude.ai. NUNCA en la conversación donde se generó el código (WORKFLOW.md sección 11.1, modelo híbrido v10).
 
@@ -17,17 +17,18 @@ En **builds iniciales y modificaciones T3**, este prompt se ejecuta completo, co
 ## Cómo usar este prompt
 
 1. Abrí conversación nueva en Claude.ai (o herramienta equivalente).
-2. Cargá los archivos en este orden:
-   - `CONVENTIONS.md`
-   - `ARCHITECTURE.md`
-   - `DOMAIN_MODEL.md`
-   - `PRINCIPLES.md`
-   - `GLOSSARY.md`
-   - Feature spec completa (versión aprobada).
-   - Specs dependientes (primer nivel directo, las que aparezcan en sección "Dependencias" de la spec).
-   - Código generado de la capa que estás revisando.
+2. Cargá **solo el contexto que la capa bajo revisión toca** — no el foundation completo ni la spec completa. Esta pasada corre una vez por capa; recargar todo en cada capa multiplica el costo sin agregar señal. Matriz por capa:
 
-   **En modificaciones T2:** aplicá la carga selectiva de arriba en vez de la lista completa.
+   | Capa | Foundation a cargar | Secciones de spec |
+   |---|---|---|
+   | 1 — Modelo de datos | `DOMAIN_MODEL`, `CONVENTIONS`, `PRINCIPLES` | §6, §7, §9 |
+   | 2 — Lógica de negocio | `DOMAIN_MODEL`, `ARCHITECTURE`, `CONVENTIONS`, `PRINCIPLES` | §4, §7, §8, §9, §12 |
+   | 3 — API / acceso | `ARCHITECTURE`, `CONVENTIONS`, `PRINCIPLES` | §4, §5, §8, §9, §12 |
+   | 4 — UI | `CONVENTIONS`, `DESIGN_SYSTEM` (si existe), `PRINCIPLES` | §4, §5, §8, §13 |
+
+   Más, siempre: el **código generado de la capa que estás revisando** y las specs dependientes de §12 relevantes a la capa. Transversal: `GLOSSARY.md` solo si la capa usa/introduce términos nuevos. **`PRODUCT.md` no se carga en esta pasada** (es racional de producto, no contrato de implementación).
+
+   **En modificaciones T2:** acotado al diff de la capa (no a todo su código) y a las secciones que el CHANGE-SET toca.
 3. Reemplazá los placeholders `{...}` del prompt.
 4. Pegá el prompt completo y enviá.
 
@@ -94,7 +95,7 @@ Listá hallazgos numerados, agrupados por las 8 categorías. Para cada hallazgo:
 - Por qué es un problema.
 - NO propongas reescritura. Sugerencia quirúrgica.
 
-Si no encontrás problemas en alguna categoría, decilo explícitamente. NO inventes hallazgos para llenar categorías vacías.
+Reportá SOLO las categorías en las que encontraste hallazgos. NO inventes hallazgos para llenar categorías vacías. Cerrá con UNA línea que liste por número las categorías que revisaste y quedaron sin hallazgos (ej: "Revisadas sin hallazgos: 3, 5, 7, 8") — así queda constancia de que cubriste las 8 sin gastar un párrafo por categoría vacía.
 
 RESTRICCIONES:
 - No felicites nada del código. No me digas qué está bien.
