@@ -1,6 +1,6 @@
 # WORKFLOW — Mi Proceso de Desarrollo de Software con IA
 
-> **Versión:** 20260614-v16 · historia en `/CHANGELOG.md`
+> **Versión:** 20260619-v17 · historia en `/CHANGELOG.md`
 > **Autor:** Martin Bortagaray
 > **Estado:** Review (pendiente aprobación final)
 
@@ -490,8 +490,8 @@ El tier se deriva **mecánicamente del CHANGE-SET** (qué secciones de la spec t
 
 | Paso | T1 | T2 | T3 |
 |------|----|----|----|
-| Discovery del delta | Sí (acotado) | Sí | Sí |
-| `/sdd-modify-spec` (cirugía + versión + CHANGE-SET) | Sí | Sí | Sí |
+| Discovery del delta | Opcional — el delta se enuncia en 1 línea (ver carril rápido) | Sí | Sí |
+| `/sdd-modify-spec` (cirugía + versión + CHANGE-SET) | Cirugía mínima — 1 línea de changelog; CHANGE-SET opcional | Sí | Sí |
 | `/sdd-adversarial-spec` — Pasada 1 | **No** (excepción de Regla 4) | Sí, acotada al delta | Sí, completa |
 | `/sdd-adversarial-spec` — Pasada 2 | No | Solo si P1 tuvo bloqueantes (13.2) | Solo si P1 tuvo bloqueantes (13.2) |
 | `/sdd-verify` | Modo express (delta) | Modo delta | Completo |
@@ -501,6 +501,24 @@ El tier se deriva **mecánicamente del CHANGE-SET** (qué secciones de la spec t
 | Commit único (`/sdd-commit`) | Sí | Sí | Sí |
 
 El gate de prueba manual **no se relaja en ningún tier**: en T1 es justamente la red principal, porque el riesgo de un cambio cosmético es de implementación y experiencia, no de diseño.
+
+#### T1 — carril rápido (fast-lane)
+
+El tier T1 ya omite la pasada adversaria de spec (eje *rigor*); el carril rápido reduce además la **ceremonia** y los **gates de confirmación** (eje *proceso*), porque en un cambio de pura presentación no hay diseño que documentar ni decisión de producto que validar. Es un refinamiento del mismo principio de proporcionalidad: los tiers v14 bajaron el rigor del T1 pero la ceremonia del `/sdd-modify-spec` seguía corriendo completa.
+
+**Test de entrada (objetivo; todo debe cumplirse):**
+
+- Es T1 por los criterios de la tabla de clasificación (no toca §6, §7, seguridad, entidades, flujos ni integraciones).
+- No cambia ningún contrato ya documentado (requerimiento, criterio de aceptación, regla de negocio o nota de §13): solo agrega o refina presentación.
+- **No toca un componente compartido ni un artefacto foundacional.** Si el fix natural sería editar un componente o estilo compartido que afecta a otras features, NO es carril rápido: es modificación foundacional (§8.4) o sube de tier. Un **override local** en la feature sí califica.
+
+**Flujo del carril rápido (3 puntos de confirmación, no 6):**
+
+1. **Una sola aprobación al inicio:** la IA propone en un único mensaje el tier T1 + el enfoque + el delta enunciado en una línea. El autor confirma (Modo B, una vez).
+2. Discovery y CHANGE-SET son **opcionales**; la edición de spec se reduce a **una línea de changelog** (más una nota de sección solo si el cambio llena un hueco real de documentación). El verify queda en modo express o se absorbe en los checks inline.
+3. Código → **checks inline** (tests + typecheck + diff vs `CONVENTIONS.md`) → **gate de prueba manual** → commit.
+
+**Innegociables (no se relajan en el carril rápido):** el **gate de prueba manual** —es la red principal de un cambio cosmético— y la **válvula de escape**: si aparece evidencia de que el delta toca lógica, §6, seguridad o un componente compartido, sube de tier o pasa a §8.4 en el acto.
 
 #### Carga selectiva de contexto en modificaciones
 

@@ -22,6 +22,10 @@
 | Adversaria de código | **Checks inline** (tests + typecheck + diff vs `CONVENTIONS.md`) | Subagente acotado al diff | Subagente completo |
 | Gate de prueba manual (§7.5) | **Sí** | Sí | Sí |
 
+## T1 — carril rápido
+
+T1 ya omite la adversaria de spec; el carril rápido reduce también la **ceremonia**. **Entrada (todo debe cumplirse):** es T1 por los criterios de arriba, no cambia ningún contrato ya documentado (RF/CA/regla/nota §13), y **no toca un componente compartido/foundacional** (si el fix sería editar algo compartido → §8.4 o sube de tier; un override **local** sí califica). **Flujo:** una sola aprobación al inicio (tier + enfoque + delta en 1 línea) → discovery/CHANGE-SET **opcionales**, spec = **1 línea de changelog** (+ nota de sección solo si llena un hueco de doc) → código → checks inline → gate de prueba manual → commit. **Innegociables:** gate de prueba manual y válvula de escape. Detalle en `workflow/WORKFLOW.md` §8.3.2.
+
 ## Carga selectiva de foundation
 
 ### Pasada adversaria de spec (modificaciones)
