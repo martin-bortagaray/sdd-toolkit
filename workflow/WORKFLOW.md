@@ -1,6 +1,6 @@
 # WORKFLOW — Mi Proceso de Desarrollo de Software con IA
 
-> **Versión:** 20260619-v17 · historia en `/CHANGELOG.md`
+> **Versión:** 20260815-v18 · historia en `/CHANGELOG.md`
 > **Autor:** Martin Bortagaray
 > **Estado:** Review (pendiente aprobación final)
 
@@ -794,6 +794,8 @@ Modelo **híbrido** (desde v10). Las fases de pensamiento puro (sin código) pue
 | Adversario (código) | Fase 6 | Claude Code, en subagente con contexto limpio (`/sdd-adversarial-code`) |
 
 **Contexto limpio sin cambiar de herramienta:** la regla de "conversación nueva" para las pasadas adversarias (sección 3) se cumple en Claude Code lanzando un **subagente dedicado** — arranca con contexto propio, aislado del rol que redactó la spec o generó el código. No requiere abrir otra ventana ni otra herramienta.
+
+**Modelo del subagente adversario (desde v18):** los subagentes de las dos pasadas adversarias (`/sdd-adversarial-spec` y `/sdd-adversarial-code`) corren en **Sonnet** por defecto, fijado en la propia llamada a la tool `Agent` de cada comando. La pasada adversaria es razonamiento estructurado (contradicciones, ambigüedades, decisiones no marcadas, desvíos de spec) donde Sonnet rinde a una fracción del costo y la latencia de Opus; la de código además corre ×4 capas, así que es el costo dominante del ciclo y donde más pesa el cambio. **No afecta el modelo de la sesión principal** — solo el del subagente. El default es una hipótesis de calidad-costo, no un dogma: si al medir una pasada real Sonnet se pierde hallazgos que Opus sí encuentra, se sube a `opus` en la línea correspondiente del comando (espíritu de Regla 5 — revisar la decisión cuando aparezca evidencia). Como el subagente arranca con contexto limpio de otro modelo distinto del generador, esto además agrega una capa de **independencia de modelo** sobre la independencia de contexto que ya daba la separación.
 
 **Empaquetado:** el proceso está disponible como plugin de Claude Code (`sdd-toolkit`), instalable desde el repo del toolkit. Cada comando `/sdd-*` lee su prompt canónico de `prompts/` (fuente única de verdad) y carga el contexto del proyecto automáticamente.
 
