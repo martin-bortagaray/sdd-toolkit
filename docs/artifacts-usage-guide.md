@@ -1,7 +1,7 @@
 # Guía de uso de artefactos del toolkit SDD
 
 > **Toolkit:** sdd-toolkit
-> **Versión:** 20261101-v8
+> **Versión:** 20261101-v9
 > **Propósito:** Referencia rápida de qué artefacto usar en cada momento del proceso y catálogo completo del toolkit.
 
 Este documento es complemento del WORKFLOW.md y de los diagramas de flujo. Tiene dos vistas:
@@ -196,12 +196,13 @@ Estos templates se usan principalmente durante Fase 0 paso 2. Definen la estruct
 | Artefacto | Tipo | Cuándo se usa | Para qué sirve |
 |-----------|------|---------------|----------------|
 | `docs/process-overview.md` | Documento de referencia | Cuando se necesita una vista rápida del proceso. | Mermaid simplificado del proceso completo. Renderiza inline en GitHub. |
-| `docs/process-diagram.svg` | Documento de referencia | Cuando se necesita la vista detallada del proceso. | SVG completo con los 21 artefactos del proceso, colores por categoría, información operativa por paso. |
-| `docs/flow-fase-0.svg` | Documento de referencia | Cuando se ejecuta Fase 0. | Diagrama de flujo paso a paso de Fase 0. |
-| `docs/flow-ciclo-feature.svg` | Documento de referencia | Cuando se ejecuta el ciclo de una feature. | Diagrama de flujo paso a paso del ciclo de feature (Fases 1-5). |
-| `docs/flow-codegen-deploy.svg` | Documento de referencia | Cuando se ejecuta Fase 6 y deploy. | Diagrama de flujo paso a paso de codegen por capas + deploy a staging y producción. |
+| `docs/process-diagram.svg` | Documento de referencia | Cuando se necesita la vista detallada del proceso. | Mapa del proceso (WORKFLOW v20): Fase 0, ciclo en Modo Flow con tracks y gates, bugs, deploy, gobierno e inventario. Generado por `_build_diagrams.py`. |
+| `docs/flow_fase_0_inicio_proyecto.svg` | Documento de referencia | Cuando se ejecuta Fase 0. | Diagrama de flujo paso a paso de Fase 0. |
+| `docs/flow_ciclo_feature.svg` | Documento de referencia | Cuando se ejecuta el ciclo de una feature. | Ciclo en Modo Flow: clasificación por track, recorrido y gates de cada track, implementación autónoma, revisión de código y prueba manual. Generado por `_build_diagrams.py`. |
+| `docs/flow_codegen_y_deploy.svg` | Documento de referencia | Cuando se ejecuta Fase 6 y deploy. | Fase 6 en MODO FEATURE (tests primero, gate automático por capa, una revisión de código, G4) + deploy a staging y producción. Generado por `_build_diagrams.py`. |
+| `docs/_build_diagrams.py` | Script | Cuando cambia el proceso. | Genera los tres SVG anteriores desde datos (`python docs/_build_diagrams.py`). Se edita el script, no el SVG. |
 | `docs/PLAYBOOK.md` | Documento de referencia | Guía de bolsillo paso a paso para tener de referencia. | Versión resumida en markdown para imprimir en fichas o compilar con `md-to-pdf`. |
-| `docs/cheatsheet.html` | Documento de referencia | Como guía visual interactiva en el navegador o impresa en papel. | Hoja de referencia rápida de 2 páginas (A4 Apaisado), con diagramas de flujo Git, reglas, comandos y matriz de bugs. |
+| `docs/cheatsheet.html` | Documento de referencia | Como guía visual interactiva en el navegador o impresa en papel. | Hoja de referencia rápida de 2 páginas (A4 Apaisado), WORKFLOW v20: Modo Flow y tracks, reglas, comandos, flujo de modificación, ramas Git y bugs. |
 | `docs/artifacts-usage-guide.md` | Documento de referencia | Cuando se necesita consultar qué artefacto usar en cada momento. | Este mismo documento. |
 
 ---
@@ -243,3 +244,4 @@ A diferencia de los otros templates, `design-system.template.md` NO se instancia
 | 20260610-v5 | 2026-06-10 | Sub-vista "Modificación de feature existente" actualizada al modelo de **tiers** (WORKFLOW v14, 8.3.2): tier en el flujo de modificación, pasada adversaria/verify/adversaria de código ruteadas por tier, edición quirúrgica directa sobre el archivo (sin re-emitir la spec), chequeos D1–D3. Corregido el header de versión que había quedado en v3 con changelog en v4. |
 | 20261101-v7 | 2026-11-01 | WORKFLOW v19 (Modo Flow): nueva sub-vista "Ciclo de feature en Modo Flow" con los 4 gates de `/sdd-feature`; la anterior pasa a "camino manual". Catálogo: `08-spec-first` agregado, frecuencia de 04/05 actualizada (una vez por feature por defecto), `tier-routing.md` agregado a protocolos. |
 | 20261101-v8 | 2026-11-01 | WORKFLOW v20: tiers T1/T2/T3 y tamaños S/M/L unificados en tracks Rápido / Estándar / Completo. Sub-vista Modo Flow con gates por track (2 / 3 / 4) y revisión adversaria solo en Estándar/Completo; sub-vista de modificación ruteada por track; flujo de bugs con `bugfix-XXX.md` condicional. Catálogo: `08-spec-first` para Rápido/Estándar, `tier-routing.md` → `track-routing.md`. |
+| 20261101-v9 | 2026-11-01 | Catálogo de documentación: nombres reales de los SVG de flujo (`flow_*`), descripciones a WORKFLOW v20, nuevo `docs/_build_diagrams.py` (generador de los SVG) y cheatsheet actualizado a v20. |

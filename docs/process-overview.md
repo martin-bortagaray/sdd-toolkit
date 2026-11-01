@@ -67,7 +67,9 @@ flowchart TD
 
 El diagrama Mermaid de arriba muestra el esqueleto del proceso. Para ver el detalle visual completo con todos los artefactos, prompts, templates, inputs y outputs:
 
-- [`process-diagram.svg`](./process-diagram.svg) — vista detallada con 21 artefactos del toolkit, colores por categoría, e información operativa por paso.
+- [`process-diagram.svg`](./process-diagram.svg) — mapa detallado (WORKFLOW v20): tracks, gates, prompts por paso, artefactos producidos, gobierno e inventario.
+- [`flow_ciclo_feature.svg`](./flow_ciclo_feature.svg) y [`flow_codegen_y_deploy.svg`](./flow_codegen_y_deploy.svg) — flujo paso a paso del Modo Flow y de Fase 6 + deploy.
+- Los tres se generan con `python docs/_build_diagrams.py` (editar el script, no el SVG).
 
 ---
 
