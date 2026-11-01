@@ -3,14 +3,14 @@ description: "SDD — Modificar una spec existente (Implemented/As-built) para a
 argument-hint: "[ID/ruta de la spec a modificar] [qué cambiar, o ruta al output del discovery del delta]"
 ---
 
-Vas a **modificar una spec que ya existe** (estado Implemented o As-built) para agregar o cambiar funcionalidad — el flujo de WORKFLOW sección 8.3. Regla fundamental: **NO tomás decisiones de producto** (ya están en el discovery del delta) y **editás con cirugía**, no reescribís la spec entera.
+Vas a **modificar una spec que ya existe** (estado Implemented o As-built) para agregar o cambiar funcionalidad — el flujo de WORKFLOW sección 8.3. Regla fundamental: **NO tomás decisiones de producto de alto impacto** (Regla 1 v20: van al discovery del delta; las de bajo impacto las decidís con recomendación y van a §14) y **editás con cirugía**, no reescribís la spec entera.
 
 ## Paso 1 — Cargá el prompt canónico y el contexto
 
 1. Leé el prompt maestro: `${CLAUDE_PLUGIN_ROOT}/prompts/07-modify-spec.prompt.md`. Es la fuente de verdad.
 2. La guía `${CLAUDE_PLUGIN_ROOT}/templates/feature-spec.guide.md` solo puntualmente (grep de la sección que tocás), no entera.
 3. Identificá desde **$ARGUMENTS**: la spec a modificar (`sdd/specs/<ID>.md`) y el cambio. Si me pasaste un output de discovery del delta, usalo. **Si me pasaste solo la descripción del cambio (camino por defecto, v19):** no me mandes a `/sdd-discovery`; hacé el discovery del delta **inline y en lote** — las decisiones de producto que el cambio deja abiertas, con opciones y tu recomendación (formato G1 de `prompts/08-spec-first.prompt.md`) — y presentalas **en el mismo mensaje** que la propuesta de tier del Paso 4. Una sola espera.
-4. Leé el setup foundacional con la carga selectiva de `tier-routing.md` (siempre CONVENTIONS + PRINCIPLES; el resto según lo que toca el cambio) y las specs dependientes de §12 relevantes.
+4. Leé el setup foundacional con la carga selectiva de `track-routing.md` (siempre CONVENTIONS + PRINCIPLES; el resto según lo que toca el cambio) y las specs dependientes de §12 relevantes.
 
 ## Paso 2 — Verificaciones (Paso 0 del prompt)
 
@@ -22,21 +22,21 @@ Vas a **modificar una spec que ya existe** (estado Implemented o As-built) para 
 
 Antes de editar, leé la spec completa y decime si refleja con precisión el comportamiento actual. **Ojo con las as-built:** suelen tener huecos por venir de ingeniería inversa. Si la base está floja, completarla es parte de este cambio (espíritu de Regla 5) — avisámelo antes de construir el delta encima.
 
-## Paso 4 — Clasificá el tier y esperá mi confirmación
+## Paso 4 — Clasificá el track y esperá mi confirmación
 
-Proponeme el **tier de la modificación** (T1/T2/T3) según los criterios objetivos de `${CLAUDE_PLUGIN_ROOT}/protocols/tier-routing.md`, con justificación contra esos criterios — "es un cambio chico" no es justificación. **Si dudás entre dos, proponé el superior.** No edites hasta que yo confirme el tier (Modo B). La propuesta de tier va **junto** con las preguntas del delta (si las hay): las respondo en un solo mensaje. El tier va al header del CHANGE-SET + changelog y determina los pasos siguientes.
+Proponeme el **track de la modificación** (Rápido / Estándar / Completo) según los criterios objetivos de `${CLAUDE_PLUGIN_ROOT}/protocols/track-routing.md`, con justificación contra esos criterios — "es un cambio chico" no es justificación. **Si dudás entre dos, proponé el superior.** No edites hasta que yo confirme el track (Modo B). La propuesta de track va **junto** con las preguntas del delta (solo las de alto impacto, Regla 1 v20): las respondo en un solo mensaje. El track va al changelog (y al header del CHANGE-SET en Estándar/Completo) y determina los pasos siguientes. En **Rápido**, la edición se reduce a una línea de changelog y el CHANGE-SET es **mínimo** (ítems + capa, sin prosa), pero existe: es lo que acota el codegen.
 
 ## Paso 5 — Editá, versioná, documentá
 
 - Editá **solo las secciones afectadas, directamente sobre el archivo** con la herramienta Edit (cambios quirúrgicos). **No re-emitas la spec completa en el chat:** ya está en el disco; reportá la lista de ediciones aplicadas. Lenguaje preciso, densidad sobre volumen.
 - Si el delta toca el modelo de datos → en código será una **nueva migración append-only** (nunca editar una ya corrida).
-- **Subí la versión** (`AAAAMMDD-vN`), actualizá la Metadata (sección 1) y agregá una **entrada de changelog** concreta: qué secciones cambiaron, qué se agregó/modificó, por qué, y el **tier confirmado**. Si estaba As-built, proponé pasarla a Implemented.
+- **Subí la versión** (`AAAAMMDD-vN`), actualizá la Metadata (sección 1) y agregá una **entrada de changelog** concreta: qué secciones cambiaron, qué se agregó/modificó, por qué, y el **track confirmado**. Si estaba As-built, proponé pasarla a Implemented.
 - Además del changelog (prosa, para humanos), preparate para emitir el **CHANGE-SET** en el cierre: el mismo delta pero estructurado (`ADDED/MODIFIED/REMOVED` + capa por ítem) para que el codegen lo consuma.
 - Sección 14: decisiones operativas por defecto, "Pendiente de validación". Si no hubo, escribilo literal.
 - Si aparece un **gap de producto** o conflicto con el setup: **PARÁ y avisame**, no lo resuelvas con tu criterio.
 
 ## Paso 6 — Cierre
 
-Entregá tres bloques: (1) resumen del cambio (tier confirmado + justificación, secciones tocadas, qué cambió, versión nueva, debilidades corregidas, hasta 3 puntos para Fase 4 — omitir si es T1), (2) la lista de **ediciones aplicadas al archivo** (sección + qué cambió; la spec completa NO se re-emite), y (3) el **CHANGE-SET estructurado** — el delta machine-readable con `Tier` en el header y secciones `ADDED / MODIFIED / REMOVED`, cada ítem etiquetado con la capa que toca. El CHANGE-SET no es el changelog: es la señal que el resto del ciclo consume (scope del codegen + ruteo por tier). **No commitees** todavía.
+Entregá tres bloques: (1) resumen del cambio (track confirmado + justificación, secciones tocadas, qué cambió, versión nueva, debilidades corregidas, hasta 3 puntos para Fase 4 — omitir si es Rápido), (2) la lista de **ediciones aplicadas al archivo** (sección + qué cambió; la spec completa NO se re-emite), y (3) el **CHANGE-SET estructurado** — el delta machine-readable con `Track` en el header y secciones `ADDED / MODIFIED / REMOVED`, cada ítem etiquetado con la capa que toca. El CHANGE-SET no es el changelog: es la señal que el resto del ciclo consume (scope del codegen + ruteo por track; mínimo en Rápido). **No commitees** todavía.
 
-Siguiente paso **según el tier**: la matriz (adversaria de spec, modo de verify, adversaria de código) está en `${CLAUDE_PLUGIN_ROOT}/protocols/tier-routing.md`. En todos los tiers: `/sdd-codegen` recibe el **CHANGE-SET como contexto** y antes del commit exige la **prueba manual** acotada a lo que el CHANGE-SET tocó (gate, WORKFLOW.md 7.5 — no se relaja en ningún tier). **Válvula de escape:** si en cualquier paso el delta excede su tier, el tier sube, se actualiza el CHANGE-SET y se ejecutan los pasos salteados antes de continuar.
+Siguiente paso **según el track**: la matriz (revisión de spec, modo de verify, revisión de código, gates) está en `${CLAUDE_PLUGIN_ROOT}/protocols/track-routing.md`. En todos los tracks: `/sdd-codegen` recibe el **CHANGE-SET como contexto** y antes del commit exige la **prueba manual** acotada a lo que el CHANGE-SET tocó (gate, WORKFLOW.md 7.5 — no se relaja en ningún track). **Válvula de escape:** si en cualquier paso el delta excede su track, el track sube, se actualiza el CHANGE-SET y se ejecutan los pasos salteados antes de continuar.

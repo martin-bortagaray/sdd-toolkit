@@ -18,7 +18,7 @@ Un conjunto de prompts, templates y documentos de gobierno que estructura el pro
 workflow/        → WORKFLOW.md, el documento que gobierna todo el proceso
 prompts/         → 11 prompts del proceso (Fase 0 + ciclo de feature + modificación + spec-first)
 templates/       → 12 templates para instanciar proyectos y specs
-protocols/       → Protocolos operativos (codegen)
+protocols/       → Protocolos operativos (codegen, track-routing)
 docs/            → Documentación del proceso (diagramas, guías)
 commands/        → Comandos del plugin de Claude Code (uno por fase)
 .claude-plugin/  → Manifiestos del plugin y del marketplace
@@ -58,8 +58,8 @@ Comandos disponibles:
 
 | Comando | Fase | Qué hace |
 |---------|------|----------|
-| **`/sdd-feature`** | **2→6 + commit** | **Modo Flow (por defecto): ciclo completo de punta a punta, solo frena en 4 gates humanos.** Feature nueva o modificación. |
-| `/sdd-discovery` | 2 | Discovery sección por sección (modo profundo, features L) |
+| **`/sdd-feature`** | **2→6 + commit** | **Modo Flow (por defecto): ciclo completo de punta a punta. Clasifica el trabajo por riesgo en un track (Rápido / Estándar / Completo) y solo frena en los gates humanos de ese track (2 / 3 / 4).** Feature nueva o modificación. |
+| `/sdd-discovery` | 2 | Discovery sección por sección (modo profundo, track Completo) |
 | `/sdd-spec` | 3 | Redacción del draft de spec nueva (rol Redactor) |
 | `/sdd-modify-spec` | 3 (sobre feature existente) | Modificar una spec Implemented/As-built (agregar/cambiar funcionalidad) |
 | `/sdd-adversarial-spec` | 4 | Pasada adversaria de spec (subagente, contexto limpio) |
@@ -77,4 +77,4 @@ El modelo de roles→herramientas es **híbrido** desde WORKFLOW v10 (ver secci�
 
 ## Versión
 
-WORKFLOW v19 (noviembre 2026) · plugin 1.2.0. El toolkit evoluciona con experiencia de uso real. Historia centralizada en `CHANGELOG.md`.
+WORKFLOW v20 (noviembre 2026) · plugin 1.3.0. El toolkit evoluciona con experiencia de uso real. Historia centralizada en `CHANGELOG.md`.

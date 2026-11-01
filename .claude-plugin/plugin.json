@@ -1,7 +1,7 @@
 {
   "name": "sdd-toolkit",
-  "version": "1.2.0",
-  "description": "Proceso SDD (Spec Driven Development) de Martin Bortagaray como comandos de Claude Code. /sdd-feature ejecuta el ciclo completo en Modo Flow (4 gates humanos); los comandos por fase quedan como camino manual. Incluye tratamiento de bugs y las reglas no negociables del WORKFLOW.",
+  "version": "1.3.0",
+  "description": "Proceso SDD (Spec Driven Development) de Martin Bortagaray como comandos de Claude Code. /sdd-feature clasifica cada trabajo en un track (Rápido / Estándar / Completo) y ejecuta el ciclo completo en Modo Flow con 2, 3 o 4 gates humanos; los comandos por fase quedan como camino manual. Incluye tratamiento de bugs y las reglas del WORKFLOW.",
   "author": {
     "name": "Martin Bortagaray"
   },

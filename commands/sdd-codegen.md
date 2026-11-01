@@ -14,9 +14,9 @@ Vas a ejecutar la **Fase 6 (Generación)** del ciclo SDD en tu rol de **Generado
 1. Leé el prompt maestro: `${CLAUDE_PLUGIN_ROOT}/prompts/04-codegen-layer.prompt.md`. Aplicá sus reglas de generación y el modo que corresponda (MODO FEATURE / MODO CAPA).
 2. Identificá spec y capa desde **$ARGUMENTS**. La spec debe estar **Approved** y haber pasado el checklist de verificación pre-codegen (revisión unificada de `/sdd-feature` o `/sdd-verify`) con veredicto VERDE o AMARILLO aceptado. Si no, frená y avisame.
 3. Leé: la spec completa, `sdd/foundation/` (ARCHITECTURE, DOMAIN_MODEL, CONVENTIONS, PRINCIPLES, GLOSSARY) y specs dependientes de sección 12.
-   - **Si esto es una modificación** (la spec viene de `/sdd-modify-spec`): cargá también el **CHANGE-SET** (delta `ADDED/MODIFIED/REMOVED` con **tier** en el header). Activa la Regla 9 del prompt: regenerás solo los ítems del delta y preservás el resto del código existente. Sin CHANGE-SET = build inicial = capa completa.
-   - **Carga selectiva en modificaciones:** no cargues todo `sdd/foundation/`; seguí la matriz de `${CLAUDE_PLUGIN_ROOT}/protocols/tier-routing.md` según lo que toca el CHANGE-SET.
-   - **Válvula de escape:** si durante la generación detectás que el delta toca modelo/reglas/seguridad que su tier no admite, **pará y avisame**: el tier sube, se actualiza el CHANGE-SET y se ejecutan los pasos salteados (ej: adversaria de spec) antes de continuar.
+   - **Si esto es una modificación** (la spec viene de `/sdd-modify-spec`): cargá también el **CHANGE-SET** (delta `ADDED/MODIFIED/REMOVED` con **track** en el header). **Una modificación siempre trae CHANGE-SET** — en track Rápido es mínimo (lo arma el orquestador en la aprobación única). Activa la Regla 9 del prompt: regenerás solo los ítems del delta y preservás el resto del código existente. Sin CHANGE-SET = feature nueva = capas del plan completas.
+   - **Carga selectiva en modificaciones:** no cargues todo `sdd/foundation/`; seguí la matriz de `${CLAUDE_PLUGIN_ROOT}/protocols/track-routing.md` según lo que toca el CHANGE-SET.
+   - **Válvula de escape:** si durante la generación detectás que el delta toca algo que su track no admite, **pará y avisame**: el track sube, se actualiza el CHANGE-SET y se ejecutan los pasos salteados (ej: adversaria de spec) antes de continuar.
 4. **A partir de Capa 2:** leé también el código ya aprobado de capas anteriores y el **schema real de la base de datos** (migraciones en `sql/migrations/` o dump vivo). El modelo conceptual solo no alcanza — necesitás los nombres y tipos exactos desplegados.
 
 > Recordá el mapeo de capas a tu arquitectura: en Next.js + Supabase, "Capa 3 — API/Acceso" puede ser RLS + funciones en Supabase, no endpoints FastAPI. Eso lo define `ARCHITECTURE.md`, no este comando.
@@ -45,13 +45,13 @@ Si la spec dice X pero el setup dice algo incompatible, un requerimiento es ambi
 
 **MODO FEATURE:** con todas las capas en verde, ejecutá la verificación adversaria **una sola vez sobre el diff completo** (`/sdd-adversarial-code <ID>` sin capa). Bloqueantes → los corregís y re-corrés el gate automático; no bloqueantes → `DEBT.md`. Solo frenás si una corrección requiere decisión de producto.
 
-En ambos modos, en modificaciones rutea por tier (`${CLAUDE_PLUGIN_ROOT}/protocols/tier-routing.md`: checks inline en T1, subagente acotado al diff en T2, completo en T3).
+En ambos modos, la revisión de código rutea por track (`${CLAUDE_PLUGIN_ROOT}/protocols/track-routing.md`: checks inline en Rápido de pura presentación, subagente acotado al diff en Rápido con lógica y modificaciones Estándar, diff completo en features nuevas Estándar y Completo).
 
 ## Paso 6 — Cierre de la feature: prueba manual ANTES del commit
 
 El **commit es por feature completa y verificada**, no por capa suelta. Antes de commitear, con todas las capas cerradas y los tests automáticos en verde:
 
-1. **Armá un plan de prueba manual** a partir de los criterios de aceptación (sección 8) y casos borde (sección 9) de la spec — en una modificación, acotado a lo que tocó el CHANGE-SET. Pasos concretos, numerados, con datos/precondición y resultado esperado.
+1. **Armá un plan de prueba manual** a partir de los criterios de aceptación (sección 8) y casos borde (sección 9) de la spec — en una modificación, acotado al delta. Pasos concretos, numerados, con datos/precondición y resultado esperado. **Acotado (WORKFLOW §7.5, v20):** los criterios ya cubiertos por tests automáticos se listan con su test y no se repiten a mano; a mano va lo que los tests no cubren (experiencia/visual, integraciones reales, flujos no automatizados) más al menos un recorrido del happy path en el entorno real.
 2. **Esperá mi confirmación explícita** de que probé y funciona. Los tests automáticos validan que el código cumple la spec; la prueba manual valida que la experiencia real es la esperada. No son lo mismo.
 3. **Mi OK es la autorización del commit:** commiteá directo con la convención de `/sdd-commit` (`feat(<ID>): …`), sin volver a preguntarme por el gate ni por el mensaje. `ok push` → también pusheás. Si algo falla en la prueba, no commitees: volvemos a iteración de código.
 

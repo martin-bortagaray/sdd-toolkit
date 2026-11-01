@@ -369,10 +369,10 @@ Para CRUDs simples, features de backend puro, o features sin interfaz compleja, 
 ## 14. Decisiones tomadas por defecto por la IA
 
 **Qué va:**
-Lista de decisiones que la IA en rol Redactor tomó por su cuenta porque no estaban explícitas en el discovery con el autor.
+Lista de decisiones que la IA tomó por su cuenta porque no estaban explícitas en las respuestas del autor: operativas menores y, desde WORKFLOW v20, decisiones de producto de **bajo impacto** (textos, orden, defaults de presentación, mensajes), cada una con su recomendación. Nunca de alto impacto.
 
 **Propósito operativo:**
-Permitir al autor revisar rápidamente qué partes de la spec son decisiones suyas y cuáles son inferencias o defaults de la IA. Es barrera contra la Regla 1 del WORKFLOW (la IA nunca decide producto sin preguntar).
+Permitir al autor revisar rápidamente qué partes de la spec son decisiones suyas y cuáles son inferencias o defaults de la IA. Es la red de seguridad de la Regla 1 del WORKFLOW (v20: la IA pregunta lo de alto impacto y marca acá todo lo demás). Una decisión de alto impacto en esta sección es señal de que se saltó una pregunta.
 
 **Estructura por decisión:**
 
@@ -426,7 +426,7 @@ Estas reglas aplican a todas las secciones cuando la IA redacta una spec a parti
    - §13 se omite entera si la feature no tiene UI compleja ni pistas técnicas útiles.
    - Un requerimiento = un comportamiento, en una o dos líneas.
    - No repetir en §8 lo que ya dice §4 sin agregar verificabilidad; no repetir el foundation.
-   - Largo orientativo: **S ≈ 1 página, M ≈ 2, L ≈ 4.** Si una M pasa de 3 páginas, probablemente hay relleno o debería partirse.
+   - Largo orientativo por track (WORKFLOW §8.3.2): **mini-spec Rápido ≈ ½ página** (solo §1, §2, §4, §8, §9 aplicable, §14, §15), **Estándar ≈ 1-2 páginas, Completo ≈ 2-4.** Si una Estándar pasa de 3 páginas, probablemente hay relleno o debería partirse.
 
 5. **Consistencia con setup foundacional.** Las entidades, términos, principios y decisiones técnicas deben ser consistentes con `DOMAIN_MODEL.md`, `GLOSSARY.md`, `CONVENTIONS.md`, `PRINCIPLES.md` y `ARCHITECTURE.md`. Si la spec necesita contradecir alguno, primero se actualiza el setup foundacional, no se contradice silenciosamente.
 
@@ -440,3 +440,4 @@ Estas reglas aplican a todas las secciones cuando la IA redacta una spec a parti
 | 20260520-v2 | 2026-05-20 | Resultados de primera pasada adversaria: agregada sección 14 dedicada para decisiones por defecto de la IA (hallazgo 1.1); reestructurada sección 10 con sub-secciones 10.1 (decisiones del autor) y 10.2 (decisiones derivadas de pasadas adversarias) (hallazgo 2.1); reemplazado "sumá 50% más" por taxonomía obligatoria condicional de 10 categorías en sección 9 (hallazgo 3.1); modo obligatorio / opcional en sección 13 según complejidad de UI (hallazgo 2.2 zona gris). |
 | 20260523-v3 | 2026-05-23 | Quitada toda referencia a "Modo B" del documento, ya que es terminología interna del WORKFLOW que la IA no conoce en conversación nueva. Reemplazado por descripción directa de las situaciones. El término "Modo B" se mantiene solo en WORKFLOW.md. |
 | 20261101-v4 | 2026-11-01 | **Spec compacta** (WORKFLOW v19): sub-secciones no aplicables se omiten (una línea "No aplican: … — motivo" si hace falta constancia); en §9 las categorías no aplicables van juntas en una línea con su justificación; §13 se omite si no aporta; largo orientativo S≈1 / M≈2 / L≈4 páginas. Motivo: reducir el tiempo de lectura de la aprobación (Regla 3) sin perder la taxonomía obligatoria. |
+| 20261101-v5 | 2026-11-01 | Largo orientativo por **track** (WORKFLOW v20): mini-spec Rápido ≈ ½ página (solo §1, §2, §4, §8, §9 aplicable, §14, §15), Estándar ≈ 1-2, Completo ≈ 2-4. Reemplaza los tamaños S/M/L. |

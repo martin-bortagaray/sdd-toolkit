@@ -131,7 +131,7 @@
 
 2. **Procesar los pendientes:** si hay decisiones marcadas como [PENDIENTE] que requieren consulta externa, ese es momento de salir a consultar antes de avanzar a Fase 3.
 
-3. **Validar las decisiones por defecto** que la IA tuvo que tomar (sección 4 del output). Cada una se valida o se reemplaza. Si hay decisiones de producto en esa sección, eso es señal de que en el discovery se saltó una pregunta.
+3. **Validar las decisiones por defecto** que la IA tuvo que tomar (sección 4 del output). Cada una se valida o se reemplaza. Las de producto de bajo impacto son esperables ahí (Regla 1 v20); si hay decisiones de producto de **alto impacto** en esa sección, eso es señal de que en el discovery se saltó una pregunta.
 
 4. **Revisar los puntos críticos** identificados (sección 6 del output). Esos son los lugares donde la spec va a quedar débil si no los abordo antes de Fase 3.
 
@@ -158,9 +158,9 @@
 
 ## Después de la redacción
 
-1. **Lectura crítica del draft.** No "le doy una mirada". Lectura completa con cabeza fresca (Regla 3).
+1. **Lectura crítica del draft.** No "le doy una mirada". Lectura completa de la superficie de decisión (§4, §6, §7, §8, §10, §14) con cabeza fresca (Regla 3 v20).
 
-2. **Validar la sección 14 (Decisiones por defecto):** cada una se valida o se reemplaza. Si hay decisiones de producto en esa sección (no debería, pero por las dudas), eso es señal de que algo se saltó.
+2. **Validar la sección 14 (Decisiones por defecto):** cada una se valida o se reemplaza. Las de producto de bajo impacto son esperables ahí (Regla 1 v20); si hay decisiones de producto de **alto impacto** en esa sección (no debería, pero por las dudas), eso es señal de que algo se saltó.
 
 3. **Si todo cierra:** la spec queda en estado Draft, lista para Fase 4 (pasada adversaria con `prompts/03-adversarial-spec.prompt.md`).
 
@@ -233,7 +233,7 @@
 
 2. **Revisar código y tests** con el checklist de WORKFLOW.md sección 7.4.
 
-3. **Ejecutar pasada adversaria de código según tier** (WORKFLOW.md 8.3.2): en modificaciones **T1**, se reemplaza por checks inline en la misma sesión (tests + typecheck/build + revisión del diff contra `CONVENTIONS.md`); en **T2**, subagente con `prompts/05-adversarial-code.prompt.md` acotado al diff y contexto selectivo; en **T3 y builds iniciales**, pasada completa en conversación nueva/subagente.
+3. **Ejecutar pasada adversaria de código según track** (WORKFLOW.md 8.3.2, `protocols/track-routing.md`): en track **Rápido**, subagente acotado al diff; si el cambio es solo de presentación, se reemplaza por checks inline en la misma sesión (tests + typecheck/build + revisión del diff contra `CONVENTIONS.md`); en **Estándar**, subagente con `prompts/05-adversarial-code.prompt.md` sobre el diff de la feature (en modificación, acotado al diff del cambio) y contexto selectivo; en **Completo y builds iniciales**, pasada completa en conversación nueva/subagente.
 
 4. **Procesar decisiones técnicas tomadas por defecto.** Para cada una: aceptar o pedir cambio quirúrgico. Si alguna decisión "técnica" esconde una decisión de producto, modificar la spec primero.
 
@@ -330,18 +330,18 @@ Resolvé los bloqueantes antes de continuar. Según la naturaleza del bloqueante
 
 ## Después de la modificación
 
-1. **Lectura crítica de la spec modificada** completa, no solo del delta (Regla 3). Un cambio puede romper coherencia con secciones que no tocaste.
+1. **Lectura crítica de la spec modificada** — la superficie de decisión completa (§4, §6, §7, §8, §10, §14), no solo el delta (Regla 3 v20). Un cambio puede romper coherencia con secciones que no tocaste.
 2. **Validar la sección 14** (decisiones por defecto).
-3. **Pasada adversaria según tier** (WORKFLOW.md 8.3.2): **T1 la omite** (excepción codificada de Regla 4 — no hay riesgo de diseño que auditar); **T2** corre `/sdd-adversarial-spec` acotada al delta con contexto selectivo; **T3** la corre completa. En T2/T3, la pasada 2 solo se ejecuta si la pasada 1 tuvo bloqueantes (WORKFLOW.md 13.2).
+3. **Pasada adversaria según track** (WORKFLOW.md 8.3.2): el track **Rápido la omite** (Regla 4 v20: la revisión adversaria de spec es obligatoria solo en Estándar y Completo; en Rápido la cubren la revisión de código, los tests y la prueba manual); **Estándar** corre `/sdd-adversarial-spec` acotada al delta con contexto selectivo; **Completo** la corre completa. En Estándar/Completo, la pasada 2 solo se ejecuta si la pasada 1 tuvo bloqueantes (WORKFLOW.md 13.2).
 4. **Actualizar el INDEX** del proyecto si cambió el estado de la spec.
-5. **Verificación pre-generación** (`/sdd-verify`) en el modo del tier: **express** para T1, **delta** para T2, **completo** para T3.
-6. **Codegen del delta** (`/sdd-codegen`): solo las capas que el cambio toca. Si el delta no afecta el modelo de datos, no se regenera Capa 1. **Pasale el CHANGE-SET (Bloque 3) como contexto:** es lo que hace que el codegen regenere solo los ítems ADDED/MODIFIED y preserve el resto del código existente, en vez de reconstruir la capa completa. El tier del header decide además la adversaria de código: checks inline en T1, subagente acotado en T2, completo en T3.
+5. **Verificación pre-generación** (`/sdd-verify`) en el modo del track: **express** para Rápido, **delta** para Estándar, **completo** para Completo.
+6. **Codegen del delta** (`/sdd-codegen`): solo las capas que el cambio toca. Si el delta no afecta el modelo de datos, no se regenera Capa 1. **Pasale el CHANGE-SET (Bloque 3) como contexto:** es lo que hace que el codegen regenere solo los ítems ADDED/MODIFIED y preserve el resto del código existente, en vez de reconstruir la capa completa. El track del header decide además la adversaria de código: subagente acotado al diff (o checks inline si es solo presentación) en Rápido, acotado al diff del cambio en Estándar, completo en Completo.
 
 ## Notas operativas
 
 - **Specs as-built:** la primera modificación de cada spec reverse-engineered suele revelar que la descripción as-built tiene huecos. Es esperable. Completar esa base es parte del trabajo, no una distracción.
 - **No infles el changelog ni la spec.** El cambio se documenta con densidad: qué y por qué, sin relleno.
 - **Si el delta crece:** si al editar descubrís que el "cambio chico" toca media spec, pará y reconsiderá si no es en realidad una feature nueva o un cambio que debía ir al setup foundacional.
-- **Válvula de escape del tier (WORKFLOW.md 8.3.2):** el tier es una hipótesis, no un permiso. Si en cualquier paso posterior (adversaria, verify, codegen, prueba manual) aparece evidencia de que el delta toca modelo de datos, reglas de negocio o seguridad: el tier sube en el acto, se actualiza el header del CHANGE-SET, se ejecutan los pasos salteados antes de continuar, y la re-clasificación queda en el changelog de la spec.
-- **Antipatrón:** clasificar hacia abajo por ansiedad o cansancio. Si la justificación del tier no cita los criterios objetivos, la clasificación está mal hecha.
+- **Válvula de escape del track (WORKFLOW.md 8.3.2):** el track es una hipótesis, no un permiso. Si en cualquier paso posterior (adversaria, verify, codegen, prueba manual) aparece evidencia de que el delta toca algo que su track no admite (modelo de datos, reglas de negocio, permisos/seguridad/datos sensibles, dinero, contratos externos, algo irreversible o un componente compartido): el track sube en el acto, se actualiza el header del CHANGE-SET, se ejecutan los pasos salteados antes de continuar, y la re-clasificación queda en el changelog de la spec.
+- **Antipatrón:** clasificar hacia abajo por ansiedad o cansancio. Si la justificación del track no cita los criterios objetivos, la clasificación está mal hecha.
 

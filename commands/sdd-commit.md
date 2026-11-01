@@ -29,6 +29,7 @@ Analizá los archivos staged para elegir el prefijo más apropiado:
 | Archivos staged | Prefijo sugerido |
 |-----------------|-----------------|
 | `sdd/bugs/bugfix-NNN.md` (nuevo o modificado) + código relacionado | `fix(bugfix-NNN):` — tomá el ID exacto del nombre del archivo |
+| Fix de bug sin artefacto (Tipo A, Media/Baja, causa clara — WORKFLOW §9.3) + test de regresión | `fix(<spec-id>):` — el cuerpo del commit lleva observado vs esperado, causa y nombre del test |
 | `sdd/specs/spec-NNN-*.md` nuevo(s) + código de la misma feature | `feat(spec-NNN):` — tomá el ID del nombre del archivo |
 | Solo archivos en `sdd/specs/` o `sdd/README.md` (sin código) | `docs(sdd):` |
 | Solo `sql/migrations/` | `feat(db):` |
@@ -61,8 +62,8 @@ Analizá los archivos staged para elegir el prefijo más apropiado:
 ### Qué hacer cuando aplica
 
 1. **Derivá los pasos de prueba** del artefacto que se está commiteando, sin inventar:
-   - `feat(spec-NNN)` o modificación → leé la spec staged. Tomá los **criterios de aceptación (sección 8)** y los **casos borde (sección 9)**. En una modificación, restringí los pasos a lo que el **CHANGE-SET** tocó (no toda la feature).
-   - `fix(bugfix-NNN)` → leé el `bugfix-NNN.md`. Tomá los **pasos de reproducción** y el **criterio de aceptación del fix**: la prueba es reproducir el caso original y confirmar que ahora se comporta bien.
+   - `feat(spec-NNN)` o modificación → leé la spec staged. Tomá los **criterios de aceptación (sección 8)** y los **casos borde (sección 9)**. En una modificación, restringí los pasos al delta (no toda la feature). **Acotado (WORKFLOW §7.5, v20):** los criterios ya cubiertos por tests automáticos se listan con su test y no se repiten a mano; a mano va lo que los tests no cubren (experiencia/visual, integraciones reales, flujos no automatizados) más al menos un recorrido del happy path en el entorno real.
+   - `fix(bugfix-NNN)` → leé el `bugfix-NNN.md` (o, en un `fix(<spec-id>)` sin artefacto, la descripción del bug y el test de regresión). Si el test de regresión no ejercita el camino real, la prueba es reproducir el caso original en el entorno real y confirmar que ahora se comporta bien; si lo ejercita, un recorrido corto del flujo afectado.
 2. **Presentame un plan de prueba manual concreto y ejecutable**, no genérico. Para cada paso: qué hacer, con qué datos/precondición, y **qué resultado esperar**. Numerado. Si hace falta levantar el entorno (servidor, seed de datos), incluilo como precondición.
 3. **Esperá mi confirmación explícita** de que probé y funciona (ej: "probado, OK"). No commitees antes.
 4. **Si reporto que algo falla:** NO commitees. Según el flujo, eso vuelve a iteración de código (codegen) o abre un bug nuevo. Frená y avisame.

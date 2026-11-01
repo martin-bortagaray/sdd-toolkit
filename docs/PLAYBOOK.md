@@ -1,6 +1,6 @@
 # SDD Playbook — Guía de bolsillo
 
-> **Toolkit:** sdd-toolkit · **Basado en:** WORKFLOW v19 · **Autor:** Martin Bortagaray
+> **Toolkit:** sdd-toolkit · **Basado en:** WORKFLOW v20 · **Autor:** Martin Bortagaray
 > **Propósito:** Guía paso a paso imprimible de cada flujo del proceso SDD con los comandos del plugin de Claude Code. Cada sección es autocontenida (pensada para imprimirse como ficha).
 
 > **Nota de invocación:** todos los comandos se invocan con el prefijo del plugin: `/sdd-toolkit:<comando>` (ej. `/sdd-toolkit:sdd-discovery`). Por brevedad, en este documento los escribo sin el prefijo. Tipeá `/sdd` en Claude Code para autocompletarlos.
@@ -13,7 +13,7 @@
 
 | Comando | Fase | Qué hace |
 |---------|------|----------|
-| **`sdd-feature`** | **2→6 + commit** | **Modo Flow (por defecto): ciclo completo, solo frena en 4 gates.** Feature nueva o modificación. |
+| **`sdd-feature`** | **2→6 + commit** | **Modo Flow (por defecto): clasifica el track y recorre el ciclo; frena en 2, 3 o 4 gates según el track.** Feature nueva o modificación. |
 | `sdd-discovery` | 2 | Te interroga para extraer decisiones. No decide por vos. |
 | `sdd-spec` | 3 | Redacta el draft de una spec **nueva**. |
 | `sdd-modify-spec` | 3 (sobre feature existente) | Edita una spec **existente** (Implemented/As-built). |
@@ -28,11 +28,21 @@
 
 ### Las 5 reglas no negociables
 
-1. La IA **nunca toma decisiones de producto** sin preguntar. Aunque parezca obvio.
-2. La IA **marca cada decisión por defecto** en una sección clara, para validarla.
-3. **Leo la spec entera** antes de aprobarla. No "una mirada".
-4. **Toda spec pasa por pasada adversaria** antes de aprobarse. No se saltea.
+1. La IA **pregunta toda decisión de producto de alto impacto**: modelo de datos, reglas de negocio, permisos/seguridad, dinero, contratos externos, lo irreversible. Lo de bajo impacto lo decide con recomendación y lo marca. Si duda, pregunta.
+2. La IA **marca cada decisión por defecto** en §14, para validarla en lote.
+3. **Leo completa la superficie de decisión** (§4, §6, §7, §8, §10, §14) antes de aprobar: `leí, apruebo`. No "una mirada".
+4. **Track Estándar y Completo: revisión adversaria de spec** antes de aprobar. Track Rápido: la reemplazan la revisión de código, los tests y la prueba manual.
 5. Si una spec aprobada estaba mal: **subo versión y documento**. No corrijo en silencio.
+
+### Los 3 tracks (clasificación por riesgo, para todo trabajo)
+
+| Track | Cuándo | Gates |
+|-------|--------|:-----:|
+| **Rápido** | NO toca modelo de datos, reglas de negocio, seguridad, dinero, contratos externos, nada irreversible ni componentes compartidos. Chico. | **2** |
+| **Estándar** | Toca modelo o reglas, o agrega un flujo/entidad, sin disparadores de Completo. | **3** |
+| **Completo** | Seguridad/permisos, dinero, contrato externo, irreversible, o grande. | **4** |
+
+Si dudo entre dos, es el superior. Si aparece riesgo en el camino, el track sube (válvula de escape).
 
 ### Jerarquía de gobierno (la capa superior gobierna)
 
@@ -52,6 +62,8 @@ El código nunca contradice la spec; la spec nunca contradice el setup foundacio
    ├─ ¿Parte de una feature existente?    → sdd-feature <ID> "cambio"   ← caso dominante en gitelli
    └─ ¿Capacidad nueva e independiente?    → sdd-feature "necesidad"     (spec nueva)
 
+   En ambos casos sdd-feature propone el track (Rápido / Estándar / Completo) y lo confirmo en el primer gate.
+
 ¿El cambio se repite en varias features o es arquitectónico?
    └─ Primero el setup foundacional (sdd/foundation/), después la spec
 ```
@@ -60,36 +72,50 @@ El código nunca contradice la spec; la spec nunca contradice el setup foundacio
 
 ## Flujo 0 · Modo Flow — `sdd-feature` (camino por defecto)
 
-> Una sola invocación recorre todo el ciclo y **solo me frena en 4 gates**. Sirve para feature nueva y para modificación (le paso el ID de la spec + el cambio). Si se corta, lo vuelvo a invocar con el ID y retoma desde donde quedó.
+> Una sola invocación recorre todo el ciclo y me frena **solo en los gates de su track**. Sirve para feature nueva y para modificación (le paso el ID de la spec + el cambio). Si se corta, lo vuelvo a invocar con el ID y retoma desde donde quedó.
 
 `sdd-feature "necesidad en 1-2 líneas"`  ·  `sdd-feature <ID> "qué cambiar"`
 
-**G1 — Preguntas en lote** (Fases 2+3, spec-first)
-- [ ] La IA ya escribió el draft en `sdd/specs/<ID>.md`; lo que es decisión mía viene como `[DECIDIR-N]` con opciones y recomendación. En una modificación, acá también confirmo el tier.
-- [ ] Respondo `ok` (acepto las recomendadas) · `ok salvo 3:B, 5:<texto>` · `ayudame con N`. Nada de "es estándar".
+### Track Rápido — 2 gates
+
+**Aprobación única**
+- [ ] En un mensaje: track propuesto + justificación, enfoque, mini-spec o delta (ruta), plan corto, §14 a validar.
+- [ ] Leo la superficie de decisión y respondo **`leí, apruebo`**.
+
+*(Sin gates: tests primero → código → revisión de código sobre el diff → bloqueantes corregidos.)*
+
+**Prueba manual → commit** (igual que G4 abajo).
+
+### Track Estándar — 3 gates · Track Completo — 4 gates
+
+**G1 — Preguntas en lote** (Fases 2+3)
+- [ ] La IA ya escribió el draft en `sdd/specs/<ID>.md`; las decisiones de **alto impacto** vienen como `[DECIDIR-N]` con opciones y recomendación. Lo de bajo impacto ya está decidido en §14. Acá también confirmo el track.
+- [ ] Respondo `ok` (acepto track y recomendaciones) · `ok salvo 3:B, 5:<texto>` · `ayudame con N`. Nada de "es estándar".
+- [ ] En **Completo**, en lugar del lote: discovery sección por sección.
 
 **G2 — Aprobación de spec** (Fases 4→5)
-- [ ] La revisión unificada (adversaria + verify, subagente) ya corrió y aplicó lo que no era decisión mía.
-- [ ] Leo la spec entera (Regla 3). La ficha me da: cambios de la revisión (aplicados / descartados), decisiones nuevas, §14 a validar, semáforo.
-- [ ] Las 3 decisiones clave, el trade-off y la parte débil las nombro yo (la ficha no me las da). Si mis respuestas cambian la spec, veo el diff.
-- [ ] Respondo **`leí, apruebo`** (un `ok` suelto no aprueba) → **Approved** + INDEX al día (lo hace la IA). En features **S**, acá también viene el plan (G3 fusionado).
+- [ ] La revisión unificada (adversaria + verify, subagente) ya corrió y aplicó lo que no era decisión mía; lo que define comportamiento quedó en §14.
+- [ ] Leo la **superficie de decisión** (§4, §6, §7, §8, §10, §14). La ficha me da: cambios de la revisión, decisiones nuevas, §14 a validar (⚠ las que rozaron el alto impacto), semáforo.
+- [ ] Las 3 decisiones clave, el trade-off y la parte débil las nombro yo. Si mis respuestas cambian la spec, veo el diff.
+- [ ] Respondo **`leí, apruebo`** (un `ok` suelto no aprueba) → **Approved** + INDEX al día. En **Estándar**, acá también viene el plan (G3 fusionado).
 
-**G3 — Plan único** (Fase 6)
+**G3 — Plan único** (solo Completo)
 - [ ] Una tabla para todas las capas: requerimiento → capa → archivos → test. `plan ok`.
 
-*(Sin gates: tests de CA primero → capas 1→4 con gate automático tests + typecheck → una revisión de código sobre el diff completo → bloqueantes corregidos, no bloqueantes a `DEBT.md`.)*
+*(Sin gates: tests de CA primero → capas 1→4 con gate automático tests + typecheck → una revisión de código sobre el diff → bloqueantes corregidos, no bloqueantes a `DEBT.md`.)*
 
-**G4 — Prueba manual → commit**
-- [ ] Sigo el plan de prueba (pasos, datos, resultado esperado). Valido en lote las decisiones técnicas por defecto.
+**G4 — Prueba manual → commit** (todos los tracks)
+- [ ] El plan separa lo **ya cubierto por tests** (no lo repito) de lo que **pruebo a mano**: experiencia/visual, integraciones reales, flujos no automatizados, y al menos un happy path en el entorno real.
+- [ ] Valido en lote las decisiones técnicas por defecto.
 - [ ] `ok` → commitea (`feat(<ID>): …`). `ok push` → además pushea. Si falla, lo digo y vuelve a código.
 
-**Me interrumpe fuera de los gates solo si:** hay una decisión de producto, el tier sube (válvula de escape), la spec choca con el foundation, los tests siguen rojos tras 2 intentos, o el semáforo da ROJO.
+**Me interrumpe fuera de los gates solo si:** hay una decisión de alto impacto no prevista, el track sube (válvula de escape), la spec choca con el foundation, los tests siguen rojos tras 2 intentos, o el semáforo da ROJO.
 
 ---
 
 ## Flujo A · Feature nueva (camino manual / modo profundo)
 
-> Para features **L**, o cuando quiero discovery sección por sección y control capa por capa. Recorre las 6 fases invocando cada comando.
+> Es lo que usa el track **Completo** por dentro, o cuando quiero discovery sección por sección y control capa por capa. Recorre las 6 fases invocando cada comando.
 
 **Fase 1 — Definir necesidad**
 - [ ] Escribo el problema en 1-2 líneas + notas crudas (restricciones, dependencias). Sin formato.
@@ -140,13 +166,13 @@ Por cada capa:
 
 > Caso dominante en gitelli. Cambio de producto sobre una feature que ya existe. Re-entra al ciclo **acotado al delta**.
 >
-> **Camino por defecto:** `sdd-feature <ID> "qué cambiar"` — clasifica el tier, hace las preguntas del delta en lote junto con la propuesta de tier, y sigue el Flujo 0 con los pasos que el tier exige (T1 = carril rápido). Los pasos de abajo son el camino manual.
+> **Camino por defecto:** `sdd-feature <ID> "qué cambiar"` — propone el track, hace las preguntas de alto impacto del delta en el mismo mensaje, y sigue el Flujo 0 con los gates de ese track. Los pasos de abajo son el camino manual.
 
 **Paso 0 — Clasifico** (ver árbol de decisión en §0)
 - [ ] ¿Es bug? → Flujo C. ¿Capacidad nueva independiente? → Flujo A. ¿Se repite en varias features? → primero el foundation.
 - [ ] Si es agregar/cambiar funcionalidad de esta feature → sigo acá.
 
-**Paso 1 — Leo la spec existente con ojo crítico** (Regla 3)
+**Paso 1 — Leo la spec existente con ojo crítico** (superficie de decisión, Regla 3)
 - [ ] ¿Refleja bien el comportamiento actual? **Ojo con las as-built:** suelen tener huecos.
 - [ ] Si la base está floja, completarla es parte de este cambio (espíritu de Regla 5).
 
@@ -159,7 +185,7 @@ Por cada capa:
 - [ ] Si el delta es de producto no resuelto, o choca con el foundation → me frena.
 
 **Paso 4 — Adversaria + verificación** → `sdd-adversarial-spec` → (apruebo) → `sdd-verify`
-- [ ] La Regla 4 **no se relaja** por ser "solo un cambio".
+- [ ] Track Estándar/Completo: la revisión adversaria **no se saltea** por ser "solo un cambio". Track Rápido: no corresponde.
 
 **Paso 5 — Codegen del delta** → `sdd-codegen` (solo las capas que el cambio toca)
 - [ ] Si el delta no afecta el modelo de datos, no se regenera Capa 1.
@@ -181,20 +207,21 @@ Por cada capa:
 
 > Si dudo entre A y B, casi siempre es **B**.
 
-**Paso 2 — Artefacto** `sdd/bugs/bugfix-NNN.md` (estado **Abierto**)
-- [ ] Descripción (observado vs esperado), reproducción, root cause, criterio de aceptación testeable, severidad, tipo.
+**Paso 2 — ¿Lleva artefacto?** `sdd/bugs/bugfix-NNN.md` (estado **Abierto**) **solo si**: Tipo B, severidad Crítica/Alta, o causa no obvia.
+- [ ] Con artefacto: descripción (observado vs esperado), reproducción, root cause, criterio de aceptación testeable, severidad, tipo.
+- [ ] Sin artefacto (Tipo A, Media/Baja, causa clara): la traza es el test de regresión + commit `fix(<spec-id>):` con observado/esperado, causa y test en el cuerpo.
 
 **Paso 3 — Según severidad**
 - [ ] **Crítico** (prod caída / dato corrupto): fix mínimo ya, artefacto Abierto el mismo día, completar en 24h.
-- [ ] **Alto/Medio/Bajo:** proceso completo sin atajos. Si **Tipo B → actualizo la spec primero** (sube versión).
+- [ ] **Alto:** proceso completo con artefacto. **Medio/Bajo:** artefacto solo si Tipo B o causa no obvia. Si **Tipo B → actualizo la spec primero** (sube versión).
 
 **Paso 4 — Test de regresión (regla de cierre)**
 - [ ] Escribo el test **antes** del fix: debe **fallar** con el código actual.
 - [ ] Genero el fix **mínimo** (sin refactor, sin mejoras de paso).
-- [ ] El test **pasa** y queda en la suite. Lo referencio en el `bugfix-NNN.md`.
+- [ ] El test **pasa** y queda en la suite. Lo referencio en el `bugfix-NNN.md` o en el commit.
 
 **Paso 5 — Cierre**
-- [ ] Estado **Cerrado** solo con: fix verificado + test en verde + **prueba manual** + spec actualizada si era Tipo B. Mi `ok` a la prueba manual autoriza el commit (`fix(bugfix-NNN):`), sin re-confirmar.
+- [ ] Estado **Cerrado** solo con: fix verificado + test en verde + **prueba manual** + spec actualizada si era Tipo B. La prueba manual se acota a lo que el test no cubre (si no ejercita el camino real, reproduzco el caso en el entorno real). Mi `ok` autoriza el commit (`fix(bugfix-NNN):` o `fix(<spec-id>):`), sin re-confirmar.
 
 > **Velocidad (v19):** `sdd-bugfix` presenta clasificación + root cause + test + fix propuesto **en un solo mensaje**; con mi `ok` avanza solo hasta la prueba manual.
 
@@ -276,7 +303,7 @@ claude plugin update sdd-toolkit@sdd-toolkit       # 4. recopia el plugin instal
 - Esquivo decisiones con "es estándar" / "lo definimos después".
 - No releo antes de cerrar. **Trabajar cansado/de noche aumenta el riesgo de aprobar mal.**
 
-**Antipatrones a no cometer:** vibe coding · spec retroactiva · saltar la adversaria "porque es chica" · modificar spec sin frenar la generación · generar capas sin gate entre ellas (tests + typecheck) · confirmaciones que no deciden nada · aceptar código que "funciona" sin verificar que cumple spec · commitear un fix sin su `bugfix-NNN.md` · cerrar un bug sin test de regresión.
+**Antipatrones a no cometer:** vibe coding · spec retroactiva · clasificar el track hacia abajo "porque es chico" · modificar spec sin frenar la generación · generar capas sin gate entre ellas (tests + typecheck) · confirmaciones que no deciden nada · aceptar código que "funciona" sin verificar que cumple spec · commitear un fix sin trazabilidad (`bugfix-NNN.md` cuando corresponde, o commit `fix(<spec-id>):` con observado/esperado, causa y test) · cerrar un bug sin test de regresión.
 
 ---
 

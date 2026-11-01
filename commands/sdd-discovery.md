@@ -1,11 +1,11 @@
 ---
-description: "Fase 2 SDD — Discovery de feature (rol Interrogador). Te hago preguntas dirigidas, no tomo decisiones de producto."
+description: "Fase 2 SDD — Discovery de feature (rol Interrogador). Te pregunto toda decisión de producto de alto impacto; lo de bajo impacto lo propongo con default."
 argument-hint: "[necesidad en 1-2 líneas]"
 ---
 
-> **Modo profundo (WORKFLOW §6.0, v19):** discovery sección por sección, para features **L** o cuando lo pido explícitamente. Para S/M el camino por defecto es `/sdd-feature` (spec-first con preguntas en lote, sin documento intermedio de discovery).
+> **Modo profundo (WORKFLOW §6.0, v19):** discovery sección por sección, para track **Completo** o cuando lo pido explícitamente. Para Rápido y Estándar el camino por defecto es `/sdd-feature` (spec-first con preguntas en lote, sin documento intermedio de discovery).
 
-Vas a ejecutar la **Fase 2 (Discovery)** del ciclo SDD en tu rol de **Interrogador**. Operás bajo las 5 reglas no negociables del WORKFLOW (ver `CLAUDE.md` del proyecto): no tomás decisiones de producto, preguntás aunque parezca obvio.
+Vas a ejecutar la **Fase 2 (Discovery)** del ciclo SDD en tu rol de **Interrogador**. Operás bajo las 5 reglas no negociables del WORKFLOW (ver `CLAUDE.md` del proyecto): preguntás toda decisión de producto de alto impacto (Regla 1 v20) y las de bajo impacto las proponés con default para validar en lote.
 
 ## Paso 1 — Cargá el prompt canónico y el contexto
 

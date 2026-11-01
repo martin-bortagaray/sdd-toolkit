@@ -1,6 +1,6 @@
 # CODEGEN PROTOCOL — Protocolo de Generación de Código por Capas
 
-> **Versión:** 20261101-v8 · historia en `/CHANGELOG.md`
+> **Versión:** 20261101-v9 · historia en `/CHANGELOG.md`
 > **Toolkit:** sdd-toolkit
 > **Propósito:** Referencia rápida para usar durante Fase 6 (generación de código). No es un prompt para la IA. Es el checklist operativo del autor para ejecutar Fase 6 correctamente.
 
@@ -11,8 +11,8 @@
 - [ ] La spec tiene estado `Approved`.
 - [ ] El checklist de verificación pre-codegen (`06-spec-verification.prompt.md`, dentro de la revisión unificada de `/sdd-feature` o vía `/sdd-verify`) dio **VERDE** o **AMARILLO aceptado conscientemente** (con decisión registrada en sección 10.1 de la spec).
 - [ ] El INDEX del proyecto (`specs/INDEX.md`) tiene la spec en estado `Approved`.
-- [ ] **Si es una modificación** (la spec viene de `/sdd-modify-spec`): tenés el **CHANGE-SET** a mano (delta `ADDED/MODIFIED/REMOVED` con capa por ítem y **tier en el header**, WORKFLOW.md sección 8.3.2). Solo se generan las capas listadas en el CHANGE-SET; las demás no se tocan. Build inicial = sin CHANGE-SET = las 4 capas completas.
-- [ ] **Si es una modificación:** el `/sdd-verify` se corrió en el modo del tier (express T1 / delta T2 / completo T3) y el chequeo D3 confirmó que el tier declarado es consistente con el contenido del CHANGE-SET.
+- [ ] **Si es una modificación** (la spec viene de `/sdd-modify-spec`): tenés el **CHANGE-SET** a mano (delta `ADDED/MODIFIED/REMOVED` con capa por ítem y **track en el header**, WORKFLOW.md sección 8.3.2; en track Rápido, uno mínimo: ítems + capa). Solo se generan las capas que el delta toca; las demás no se tocan. Build inicial = sin CHANGE-SET = las 4 capas completas.
+- [ ] **Si es una modificación:** el checklist de verify se corrió en el modo del track (express Rápido / delta Estándar / completo Completo) y el chequeo D3 confirmó que el track declarado es consistente con el delta.
 
 ---
 
@@ -23,7 +23,7 @@
      Prompt 04 en MODO FEATURE: una tabla para todas las capas del plan
      (requerimiento/CA → capa → archivos → test que lo cubre) + migraciones
      + archivos existentes que se tocan. Confirmo "plan ok" una vez.
-     En features S, el plan viene junto con la ficha de aprobación de spec.
+     En track Rápido y Estándar, el plan viene en el mismo gate que la aprobación de spec.
 
   Para cada capa del plan (1 → 2 → 3 → 4), SIN gate humano entre capas:
      a. Tests de los CA (§8) y casos borde (§9) que tocan la capa → fallan.
@@ -32,12 +32,13 @@
         en verde. Máx. 2 intentos de corrección; al tercero, frenar (WORKFLOW 8.2).
      d. Decisiones técnicas por defecto → a la lista acumulada.
      Interrupción solo por: gap de producto, conflicto con foundation,
-     válvula de escape de tier.
+     válvula de escape de track.
 
-  REVISIÓN DE CÓDIGO — UNA PASADA POR FEATURE (según tier)
-     Build inicial / T3: prompt 05 sobre el diff completo (subagente, Sonnet);
-       backend + UI con diff grande → 2 subagentes en paralelo.
-     T2: subagente acotado al diff. T1: checks inline.
+  REVISIÓN DE CÓDIGO — UNA PASADA POR FEATURE (según track)
+     Completo / feature nueva Estándar: prompt 05 sobre el diff completo
+       (subagente, Sonnet); backend + UI con diff grande → 2 en paralelo.
+     Modificación Estándar / Rápido con lógica: subagente acotado al diff.
+     Rápido de pura presentación: checks inline.
      Bloqueantes → corregir + re-correr gate automático.
      No bloqueantes → DEBT.md.
 
@@ -66,7 +67,7 @@ En MODO FEATURE, los ítems mecánicos (tests en verde, typecheck/build) los cub
 - [ ] Decisiones técnicas tomadas por defecto revisadas. Cada una aceptada o reemplazada explícitamente.
 - [ ] No hay sobre-ingeniería: todo lo generado tiene justificación en spec o convenciones.
 - [ ] Tests de esta capa generados, ejecutados y pasan.
-- [ ] Verificación adversaria ejecutada según tier: pasada completa (T3/builds), subagente acotado al diff (T2), o checks inline — tests + typecheck + diff vs CONVENTIONS (T1).
+- [ ] Revisión de código ejecutada según track: diff completo (Completo / feature nueva Estándar), subagente acotado al diff (modificación Estándar / Rápido con lógica), o checks inline — tests + typecheck + diff vs CONVENTIONS (Rápido de pura presentación).
 - [ ] Hallazgos de pasada adversaria procesados (bloqueantes resueltos, no bloqueantes a DEBT.md o descartados).
 
 ### Capa 1 — Modelo de datos
@@ -168,7 +169,7 @@ Ver WORKFLOW.md sección 8.3.1:
 
 ## Reglas que no se relajan bajo ninguna circunstancia
 
-1. **No saltar la pasada adversaria de código** por "es una capa simple". Única excepción codificada: modificaciones **T1** (WORKFLOW.md 8.3.2), donde se **reemplaza** —no se omite— por checks inline (tests + typecheck + diff vs `CONVENTIONS.md`). La diferencia: T1 es una regla con criterio objetivo verificado por D3, no una sensación de "es simple".
+1. **No saltar la pasada adversaria de código** por "es una capa simple". Única excepción codificada: track **Rápido de pura presentación** (WORKFLOW.md 8.3.2), donde se **reemplaza** —no se omite— por checks inline (tests + typecheck + diff vs `CONVENTIONS.md`). La diferencia: el track es una clasificación con criterio objetivo verificado por D3, no una sensación de "es simple".
 2. **No pasar a la siguiente capa con tests en rojo.** En MODO FEATURE el gate entre capas es automático (tests + typecheck/build); en MODO CAPA, el checklist completo.
 3. **No commitear hasta que los tests pasen.**
 4. **No modificar el código sin modificar la spec primero** si el cambio es de producto.

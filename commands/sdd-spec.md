@@ -1,11 +1,11 @@
 ---
-description: "Fase 3 SDD — Redacción del draft de spec (rol Redactor). Traduce el discovery al template, sin tomar decisiones de producto."
+description: "Fase 3 SDD — Redacción del draft de spec (rol Redactor). Traduce el discovery al template, sin tomar decisiones de producto de alto impacto."
 argument-hint: "[ruta al output del discovery] [ID de spec, ej: spec-013-...]"
 ---
 
-Vas a ejecutar la **Fase 3 (Redacción)** del ciclo SDD en tu rol de **Redactor**. Regla fundamental: **NO tomás decisiones de producto** — esas ya se tomaron en el discovery. Tu trabajo es traducir formato (pregunta-respuesta → spec narrativa), no interpretar contenido.
+Vas a ejecutar la **Fase 3 (Redacción)** del ciclo SDD en tu rol de **Redactor**. Regla fundamental: **NO tomás decisiones de producto de alto impacto** — esas ya se tomaron en el discovery (las de bajo impacto podés tomarlas con recomendación y van a §14, Regla 1 v20). Tu trabajo es traducir formato (pregunta-respuesta → spec narrativa), no interpretar contenido.
 
-> **Modo profundo (WORKFLOW §6.0, v19):** este comando es la segunda mitad del camino manual `/sdd-discovery` → `/sdd-spec`, pensado para features **L** o cuando pedís explícitamente discovery sección por sección. Para S/M, `/sdd-feature` fusiona discovery + redacción (spec-first con preguntas en lote). Redactar en la misma sesión del discovery está permitido: la independencia que importa es la del Adversario, que corre en subagente limpio.
+> **Modo profundo (WORKFLOW §6.0, v19):** este comando es la segunda mitad del camino manual `/sdd-discovery` → `/sdd-spec`, pensado para track **Completo** o cuando pedís explícitamente discovery sección por sección. Para Rápido y Estándar, `/sdd-feature` fusiona discovery + redacción (spec-first con preguntas en lote). Redactar en la misma sesión del discovery está permitido: la independencia que importa es la del Adversario, que corre en subagente limpio.
 
 ## Paso 1 — Cargá el prompt canónico y el contexto
 

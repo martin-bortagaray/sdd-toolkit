@@ -1,6 +1,6 @@
 # WORKFLOW — Mi Proceso de Desarrollo de Software con IA
 
-> **Versión:** 20261101-v19 · historia en `/CHANGELOG.md`
+> **Versión:** 20261101-v20 · historia en `/CHANGELOG.md`
 > **Autor:** Martin Bortagaray
 > **Estado:** Review (pendiente aprobación final)
 
@@ -33,22 +33,22 @@ No delego decisiones de producto en la IA. Uso la IA como acelerador en redacci�
 
 Estas reglas aplican en todo el proceso. No se relajan por urgencia ni por cansancio.
 
-**Regla 1.** La IA nunca toma decisiones de producto sin preguntarme primero. Si tiene que decidir algo que no le dije, me pregunta. Aunque parezca obvio.
+**Regla 1 (v20).** La IA nunca toma una **decisión de producto de alto impacto** sin preguntarme primero. Alto impacto = modelo de datos, reglas de negocio, permisos / seguridad / datos sensibles, dinero o cálculos económicos, contratos externos (integraciones, APIs o formatos que consume otro sistema) y todo lo irreversible o caro de revertir. Las decisiones de **bajo impacto** (textos, orden, defaults de presentación, mensajes, valores de configuración reversibles) las toma con su mejor recomendación y las marca (Regla 2). **Si duda si algo es de alto impacto, pregunta.**
 
-**Regla 2.** La IA marca explícitamente cada decisión que toma por defecto. En cada artefacto generado, hay una sección clara que enumera las decisiones tomadas por defecto, para que yo las valide.
+**Regla 2.** La IA marca explícitamente cada decisión que toma por defecto. En cada artefacto generado, hay una sección clara que enumera las decisiones tomadas por defecto, para que yo las valide (en lote). Es la red que hace segura la Regla 1: nada decidido por la IA queda invisible.
 
-**Regla 3.** Leo la spec entera antes de aprobarla. No "le doy una mirada". Lectura completa, con cabeza fresca.
+**Regla 3 (v20).** Apruebo una spec leyendo **completa su superficie de decisión**: §4 requerimientos funcionales, §6 modelo de datos, §7 reglas de negocio, §8 criterios de aceptación, §10 decisiones y trade-offs, §14 decisiones por defecto (en una modificación, el delta de esas secciones). Lectura completa de esas secciones, con cabeza fresca — no "le doy una mirada". El resto de la spec (contexto, no funcionales, notas, dependencias) lo auditan la revisión y los tests: los criterios de §8 se convierten en tests ejecutables.
 
-**Regla 4.** Toda spec de feature aprobada pasa por una pasada adversaria. No se salta ese paso. Para artefactos del toolkit (prompts, templates, protocolos), la pasada adversaria es recomendada pero opcional según criterio del autor. Justificación: el toolkit evoluciona con la experiencia de uso real; refinarlo prematuramente sin señal de uso introduce más fricción que valor. Cuando un artefacto del toolkit muestre problema en uso real, se itera con Regla 5.
+**Regla 4 (v20).** Toda spec de **track Estándar o Completo** (§8.3.2) pasa por una revisión adversaria con contexto limpio antes de aprobarse. No se salta ese paso. En **track Rápido** — que por definición no toca modelo de datos, reglas de negocio, seguridad, dinero, contratos externos ni nada irreversible — la reemplaza la revisión de código sobre el diff, más los tests y la prueba manual; la válvula de escape sube el track si aparece riesgo. Para artefactos del toolkit (prompts, templates, protocolos), la pasada adversaria es recomendada pero opcional según criterio del autor: el toolkit evoluciona con la experiencia de uso real, y cuando un artefacto muestre problema en uso real, se itera con Regla 5.
 
-> **Segunda excepción codificada (v14):** las **modificaciones Tier 1** (cosméticas — sin reglas de negocio, sin modelo de datos, sin superficie de seguridad; ver sección 8.3.2) omiten la pasada adversaria de spec. Justificación: en un delta cosmético no hay riesgo de diseño que auditar; la pasada solo produce hallazgos del tipo que la sección 13.1 ya descarta, y un ritual sin señal erosiona la disciplina más que una excepción escrita con criterio objetivo. El riesgo restante es de implementación y lo cubren los tests, los checks inline y el gate de prueba manual (7.5), que no se relaja en ningún tier. La clasificación es objetiva, con regla de duda hacia arriba y válvula de escape (8.3.2).
+> **Por qué cambiaron las Reglas 1, 3 y 4 (v20):** en uso real, el proceso no era sostenible trabajando fuera de horario. La evidencia externa (benchmark Uvik 2026, críticas de Böckeler/Fowler y Thoughtworks Radar a SDD, BMAD Quick Flow, Kiro Quick Spec) coincide: la ceremonia rinde en cambios con riesgo de diseño y no aporta en cambios chicos; las specs largas generan fatiga de revisión. Las garantías se movieron de "más lectura y más preguntas" a mecanismos que escalan: decisiones marcadas (Regla 2), criterios de aceptación ejecutables, revisión proporcional al riesgo y válvula de escape.
 
 **Regla 5.** Si descubro que una spec aprobada estaba mal después de aprobarla, no lo escondo. Subo versión, documento el cambio, entiendo por qué se me escapó.
 
 ### 2.3 Principios personales
 
 - **Si dudo dos veces en una decisión, la dejo abierta y consulto** al ingeniero agrónomo, a mi socio, o al experto de dominio que corresponda. No fuerzo una decisión apresurada. **Importante:** estas decisiones abiertas deben resolverse y escribirse en la spec ANTES del paso a estado Approved (ver Fase 5).
-- **Prefiero specs cortas y completas a specs largas con detalle innecesario.** Densidad sobre volumen. Desde v19 es regla de formato ("spec compacta", guide regla global 4): lo que no aplica se omite, y el largo orientativo es S ≈ 1 página, M ≈ 2, L ≈ 4. Cada línea que no decide nada es tiempo de lectura en la aprobación (Regla 3).
+- **Prefiero specs cortas y completas a specs largas con detalle innecesario.** Densidad sobre volumen. Desde v19 es regla de formato ("spec compacta", guide regla global 4): lo que no aplica se omite, y el largo orientativo depende del track (§8.3.2): mini-spec Rápido ≈ ½ página, Estándar ≈ 1-2, Completo ≈ 2-4. Cada línea que no decide nada es tiempo de lectura en la aprobación (Regla 3).
 
 ### 2.4 Jerarquía de artefactos
 
@@ -223,30 +223,31 @@ El design system se carga como contexto en el prompt 00c-design-prototype y en l
 
 Cada feature pasa por estas seis fases. **Cualquier cambio futuro a una feature implementada vuelve a Fase 1.**
 
-### 6.0 Modo Flow — cómo se ejecutan las fases (por defecto desde v19)
+### 6.0 Modo Flow — cómo se ejecutan las fases (por defecto desde v19, tracks desde v20)
 
-Las seis fases son el modelo conceptual; **cómo se ejecutan** cambió en v19. Antes, cada fase era un comando que yo invocaba y cada paso intermedio esperaba mi confirmación: una feature nueva de 4 capas recorría ~11 comandos y ~30 interacciones (13 rondas de discovery, tabla + checklist + pasada adversaria × 4 capas, doble gate en el commit). La mayoría de esas esperas no decidían nada.
+Las seis fases son el modelo conceptual; **cómo se ejecutan** cambió en v19. Antes, cada fase era un comando que yo invocaba y cada paso intermedio esperaba mi confirmación: una feature nueva de 4 capas recorría ~11 comandos y ~30 interacciones. La mayoría de esas esperas no decidían nada.
 
-El comando `/sdd-feature` orquesta el ciclo completo y **avanza solo**, frenando únicamente en **cuatro gates humanos** y en las interrupciones legítimas:
+El comando `/sdd-feature` orquesta el ciclo completo — para features nuevas **y** modificaciones — y **avanza solo**. Primero clasifica el trabajo en un **track** (§8.3.2: Rápido / Estándar / Completo) y el track define cuántas veces me frena:
 
-| Gate | Fases | Qué decido |
-|------|-------|-----------|
-| **G1 — Preguntas en lote** | 2+3 (spec-first) | Las decisiones de producto abiertas, con opciones y recomendación. `ok` acepta las recomendadas. En modificaciones incluye la propuesta de tier; en T1 (carril rápido) una sola aprobación vale por G1+G2+G3. |
-| **G2 — Aprobación de spec** | 4→5 | Leo la spec entera (Regla 3), valido §14 en lote, apruebo con `leí, apruebo` (un `ok` suelto no aprueba). Si mis respuestas cambian la spec, veo el diff antes de aprobar. |
-| **G3 — Plan único** | 6 | Una tabla para todas las capas. En features **S** se fusiona con G2. |
-| **G4 — Prueba manual** | 6→commit | Pruebo y respondo `ok` (autoriza el commit) u `ok push`. |
+| Gate | Qué decido | Rápido | Estándar | Completo |
+|------|-----------|:------:|:--------:|:--------:|
+| **G1 — Preguntas** | Decisiones de producto de alto impacto (Regla 1), en lote con opciones y recomendación; confirmo el track. | fusionado en un único gate de aprobación | ✔ | ✔ (discovery profundo) |
+| **G2 — Aprobación de spec** | Leo la superficie de decisión (Regla 3), valido §14 en lote, apruebo con `leí, apruebo`. Si mis respuestas cambian la spec, veo el diff. | ⤷ | ✔ + plan | ✔ |
+| **G3 — Plan único** | Una tabla para todas las capas. | ⤷ | fusionado con G2 | ✔ |
+| **G4 — Prueba manual** | Pruebo lo que los tests no cubren y respondo `ok` (autoriza el commit) u `ok push`. | ✔ | ✔ | ✔ |
+| **Total de gates** | | **2** | **3** | **4** |
 
-**Interrupciones legítimas** (fuera de los gates): gap que requiere decisión de producto (Regla 1), válvula de escape de tier, conflicto spec vs foundation, tests en rojo tras 2 intentos, semáforo ROJO.
+**Interrupciones legítimas** (fuera de los gates): decisión de producto de alto impacto no prevista (Regla 1), válvula de escape de track, conflicto spec vs foundation, tests en rojo tras 2 intentos, semáforo ROJO.
 
-**Qué cambia respecto del camino manual:**
-- **Fases 2+3 fusionadas (spec-first):** la IA redacta la spec de entrada y cada decisión de producto faltante queda como `[DECIDIR-N]`, que se responde en lote (`prompts/08-spec-first.prompt.md`). Sin documento intermedio de discovery ni re-lectura. Para features **L** o a pedido, sigue el discovery sección por sección (`/sdd-discovery` → `/sdd-spec`, "modo profundo").
-- **Fase 4 + verificación pre-codegen en un solo subagente** (revisión unificada). Los hallazgos sin decisión de producto se aplican sin esperarme y quedan en §10.2; los que requieren decisión llegan en lote a G2. La pasada 2 (si corresponde por §13.2) corre automáticamente antes de G2.
-- **Fase 6 en MODO FEATURE:** plan único → capas generadas seguidas con **gate automático** entre capas (tests + typecheck/build) → **una** pasada adversaria de código sobre el diff completo (§7.4).
-- **Bookkeeping automático:** estado de la spec, versión, changelog e INDEX los actualiza el orquestador en cada transición.
-- **Reanudable:** el orquestador persiste lo que no vive en la spec ni en git (tier, plan confirmado, decisiones técnicas acumuladas, estado de la revisión de código) en un archivo efímero `sdd/specs/<ID>.flow.md`, y deduce la fase desde ese archivo + spec + rama. Una feature puede cortarse entre sesiones sin perder trabajo; el archivo se borra en el commit.
-- **Hallazgos aplicados sin esperarme quedan auditables:** todo arreglo de la revisión que agrega o define comportamiento va a §14 ("Pendiente de validación", Regla 2) y se valida en G2; los descartados quedan listados en una línea cada uno y puedo reabrirlos.
+**Cómo funciona:**
+- **Spec-first:** la IA redacta la spec de entrada (o el delta, o la mini-spec en Rápido) y cada decisión de alto impacto faltante queda como `[DECIDIR-N]`, que se responde en lote (`prompts/08-spec-first.prompt.md`). Las de bajo impacto las decide y las marca en §14. En track Completo, discovery sección por sección (`/sdd-discovery` → `/sdd-spec`).
+- **Revisión unificada** (Estándar y Completo): pasada adversaria + verificación pre-codegen en un solo subagente. Los hallazgos sin decisión de producto se aplican sin esperarme y quedan en §10.2 (y en §14 si definen comportamiento); los que requieren decisión llegan en lote a G2. La pasada 2 (si corresponde por §13.2) corre automáticamente antes de G2. En Rápido no hay revisión de spec (Regla 4): solo checks formales inline.
+- **Código en MODO FEATURE:** plan único → tests de §8 primero → capas en orden con **gate automático** (tests + typecheck/build) → **una** revisión de código sobre el diff (§7.4).
+- **Bookkeeping automático:** estado de la spec, versión, changelog e INDEX los actualiza el orquestador.
+- **Reanudable:** lo que no vive en la spec ni en git (track, plan confirmado, decisiones técnicas acumuladas, estado de la revisión de código) se persiste en un archivo efímero `sdd/specs/<ID>.flow.md`; el orquestador deduce la fase desde ese archivo + spec + rama, y lo borra en el commit.
+- **Hallazgos aplicados sin esperarme quedan auditables:** todo arreglo que define comportamiento va a §14 ("Pendiente de validación") y se valida en G2; los descartados quedan listados en una línea cada uno y puedo reabrirlos.
 
-**Lo que NO cambia:** las 5 reglas no negociables, el gate de prueba manual, los tiers y la válvula de escape, el máximo de 2 pasadas adversarias. Modo Flow cambia cuándo y cuántas veces me detengo, no qué se garantiza. Los comandos por fase siguen disponibles como camino manual.
+**Lo que no cambia:** la Regla 2 (todo lo decidido por la IA queda marcado), la Regla 5, el gate de prueba manual, la válvula de escape, el máximo de 2 pasadas adversarias. Los comandos por fase siguen disponibles como camino manual.
 
 ### Fase 1 — Definir necesidad
 
@@ -286,12 +287,12 @@ El comando `/sdd-feature` orquesta el ciclo completo y **avanza solo**, frenando
 
 ### Fase 5 — Aprobación y congelado
 
-- Leo la spec entera, con cabeza fresca (Regla 3).
+- Leo completa la superficie de decisión de la spec (§4, §6, §7, §8, §10, §14), con cabeza fresca (Regla 3).
 - **Pre-requisitos obligatorios para pasar a Approved:**
   - No quedan en la spec decisiones marcadas como abiertas, pendientes de consulta, o "TBD".
   - Todas las dudas externas (al agrónomo, socio, expertos de dominio) fueron resueltas y escritas en la spec.
-  - La pasada adversaria fue ejecutada al menos una vez (máximo dos veces, ver sección 13). Excepción: modificaciones Tier 1, donde la pasada se omite por la excepción codificada de Regla 4 (sección 8.3.2).
-- **Estado Review es iterativo:** la spec puede permanecer en Review mientras itero ajustes y, si fuera necesario, mientras ejecuto una segunda pasada adversaria. Solo paso a Approved cuando los pre-requisitos están cumplidos y mi lectura crítica de la spec entera es satisfactoria.
+  - La revisión adversaria fue ejecutada al menos una vez (máximo dos veces, ver sección 13) — en track Estándar y Completo. En track Rápido no corresponde (Regla 4, §8.3.2).
+- **Estado Review es iterativo:** la spec puede permanecer en Review mientras itero ajustes y, si fuera necesario, mientras ejecuto una segunda pasada adversaria. Solo paso a Approved cuando los pre-requisitos están cumplidos y mi lectura crítica de la superficie de decisión es satisfactoria.
 - Si paso a **Approved**, registro fecha/hora + versión. La spec queda congelada durante la implementación.
 
 **Señales de que estoy aprobando con criterio (no por inercia):**
@@ -371,7 +372,7 @@ En MODO FEATURE (v19) las decisiones **técnicas** se acumulan durante la genera
 
 ### 7.4 Verificación entre capas
 
-**MODO FEATURE (por defecto desde v19):** entre capas el gate es **automático** — tests de la capa + suite previa + typecheck/lint/build en verde; máximo 2 intentos de corrección, al tercero se frena (§8.2). No hay confirmación humana entre capas. El checklist de abajo se verifica **una vez al cierre de la feature**: la pasada adversaria de código corre **una sola vez sobre el diff completo** (no ×4), con contexto = unión de la matriz por capa de `protocols/tier-routing.md`, y las decisiones técnicas por defecto acumuladas se validan junto con la prueba manual (G4). Con backend + UI y diff grande, la pasada se parte en dos subagentes en paralelo.
+**MODO FEATURE (por defecto desde v19):** entre capas el gate es **automático** — tests de la capa + suite previa + typecheck/lint/build en verde; máximo 2 intentos de corrección, al tercero se frena (§8.2). No hay confirmación humana entre capas. El checklist de abajo se verifica **una vez al cierre de la feature**: la pasada adversaria de código corre **una sola vez sobre el diff completo** (no ×4), con contexto = unión de la matriz por capa de `protocols/track-routing.md`, y las decisiones técnicas por defecto acumuladas se validan junto con la prueba manual (G4). Con backend + UI y diff grande, la pasada se parte en dos subagentes en paralelo.
 
 **Red automática recomendada (hook):** en cada proyecto conviene un hook `Stop` de Claude Code que corra tests + typecheck y bloquee el cierre del turno si fallan. Convierte el gate entre capas en una garantía determinista en vez de una instrucción del prompt. Es configuración del proyecto (depende de su comando de tests), no del toolkit.
 
@@ -383,7 +384,7 @@ En MODO FEATURE (v19) las decisiones **técnicas** se acumulan durante la genera
 - [ ] Políticas de seguridad de `PRINCIPLES.md` (más extensiones específicas de la spec, si las hay) aplicadas a esta capa.
 - [ ] Requerimientos no funcionales relevantes de la spec verificados.
 - [ ] Decisiones tomadas por defecto por el LLM revisadas y aprobadas o rechazadas explícitamente.
-- [ ] **Pasada adversaria del código realizada** (en conversación separada, usando el prompt `prompts/05-adversarial-code.prompt.md` del toolkit). **Excepción — modificaciones T1 (sección 8.3.2):** se reemplaza por checks inline en la misma sesión: tests + typecheck/build + revisión del diff contra `CONVENTIONS.md`.
+- [ ] **Pasada adversaria del código realizada** (en conversación separada, usando el prompt `prompts/05-adversarial-code.prompt.md` del toolkit). **Excepción — track Rápido de pura presentación (sección 8.3.2):** se reemplaza por checks inline en la misma sesión: tests + typecheck/build + revisión del diff contra `CONVENTIONS.md`.
 - [ ] Hallazgos de la pasada adversaria de código procesados según protocolo de 7.4.1.
 - [ ] Tests de esta capa generados, ejecutados y pasan.
 - [ ] No hay sobre-ingeniería: todo lo generado tiene justificación en spec o convenciones.
@@ -425,13 +426,13 @@ Pasar la pasada adversaria del código significa que **el código cumple la spec
 
 ### 7.5 Prueba manual antes del commit (gate)
 
-Los tests automáticos (intercalados por capa, sección 7.4) validan que **el código cumple la spec**. No validan que **la experiencia real sea la esperada** — eso solo lo confirma probar el cambio a mano. Por eso, antes de commitear una feature completa, hay un gate de prueba manual:
+Los tests automáticos (intercalados por capa, sección 7.4) validan que **el código cumple la spec**. No validan que **la experiencia real sea la esperada** — eso solo lo confirma probar el cambio a mano. Por eso, antes de commitear, hay un gate de prueba manual, **acotado a lo que los tests automáticos no cubren (v20)**:
 
-1. La IA arma un **plan de prueba manual concreto** derivado de los criterios de aceptación (sección 8) y casos borde (sección 9) de la spec. En una modificación, acotado a lo que tocó el CHANGE-SET. Pasos numerados, con datos/precondición y resultado esperado — no instrucciones genéricas.
+1. La IA arma un **plan de prueba manual concreto** derivado de los criterios de aceptación (§8) y casos borde (§9) — en una modificación, acotado al delta. El plan separa: (a) los criterios **ya cubiertos por tests automáticos** — se listan con el test que los cubre, **no se repiten a mano**; (b) lo que **se prueba a mano**: experiencia y aspecto visual, integraciones reales, flujos end-to-end no automatizados, datos reales. Siempre incluye al menos **un recorrido del happy path en el entorno real**. Pasos numerados, con datos/precondición y resultado esperado — no instrucciones genéricas.
 2. **Pruebo el cambio yo mismo** siguiendo esos pasos.
 3. **Solo con mi confirmación explícita de que funciona, se commitea.** Si algo falla, no se commitea: vuelve a iteración de código (sección 8.2) o, si corresponde, se abre un bug.
 
-**Desde v19 mi `ok` a la prueba manual es también la autorización del commit:** no se vuelve a preguntar por el gate ni por el mensaje (`/sdd-commit` detecta que el gate ya se confirmó en la sesión). `ok push` además pushea la rama.
+**Mi `ok` a la prueba manual es también la autorización del commit (v19):** no se vuelve a preguntar por el gate ni por el mensaje (`/sdd-commit` detecta que el gate ya se confirmó en la sesión). `ok push` además pushea la rama.
 
 Este gate vive en el cierre de `/sdd-feature` / `/sdd-codegen` / `/sdd-bugfix`; `/sdd-commit` lo ofrece solo si no se confirmó antes en la sesión. Aplica solo a commits que tocan código; los commits de solo documentación o artefactos del toolkit lo saltan.
 
@@ -484,9 +485,9 @@ Pregunta mental cuando aparece un problema:
 - Documento qué cambió y por qué.
 - Reanudo la generación con la spec nueva en contexto.
 
-**Caso frecuente — agregar/cambiar funcionalidad en una feature ya implementada (o spec as-built):** cuando el cambio es de producto (no un bug) y el sistema hoy se comporta como la spec dice, la modificación re-entra al ciclo acotada al delta y **clasificada por tier (sección 8.3.2)**, que determina qué pasos se ejecutan: discovery del delta → edición quirúrgica de la spec existente (sube versión + changelog) → pasada adversaria según tier → verificación (modo según tier) → codegen solo de las capas afectadas. El prompt `prompts/07-modify-spec.prompt.md` (comando `/sdd-modify-spec`) cubre este flujo, con foco en specs Implemented y As-built. Para specs as-built, la primera modificación suele revelar huecos de la descripción reverse-engineered: completarlos es parte del cambio (espíritu de Regla 5).
+**Caso frecuente — agregar/cambiar funcionalidad en una feature ya implementada (o spec as-built):** cuando el cambio es de producto (no un bug) y el sistema hoy se comporta como la spec dice, la modificación re-entra al ciclo acotada al delta y **clasificada por track (sección 8.3.2)**, que determina qué pasos se ejecutan. El camino por defecto es `/sdd-feature <ID> "cambio"`, que usa `prompts/07-modify-spec.prompt.md` (edición quirúrgica de la spec existente + versión + changelog + CHANGE-SET en Estándar/Completo) y luego genera solo las capas afectadas. Para specs as-built, la primera modificación suele revelar huecos de la descripción reverse-engineered: completarlos es parte del cambio (espíritu de Regla 5).
 
-**CHANGE-SET — cómo el codegen sabe que NO debe reconstruir todo.** La modificación produce, además del changelog (prosa, para humanos), un **CHANGE-SET estructurado**: el delta en formato `ADDED / MODIFIED / REMOVED`, con cada ítem etiquetado con la(s) capa(s) que toca. Es la señal que consume `/sdd-codegen` (Regla 9 de `04-codegen-layer.prompt.md`) para regenerar solo los ítems del delta y **preservar el resto del código existente** — en vez de regenerar la capa completa. Capas que no aparecen en el CHANGE-SET no se generan. Esto extiende a las capas 2–4 la protección que la Capa 1 ya tenía por las migraciones append-only. Diseño adoptado del modelo de *delta specs* de OpenSpec, adaptado al modelo de spec-única-viva de este proceso (no se crea una carpeta de cambio separada; el CHANGE-SET es efímero y vive durante el cambio).
+**CHANGE-SET — cómo el codegen sabe que NO debe reconstruir todo.** La modificación produce, además del changelog (prosa, para humanos), un **CHANGE-SET estructurado**: el delta en formato `ADDED / MODIFIED / REMOVED`, con cada ítem etiquetado con la(s) capa(s) que toca. Es la señal que consume `/sdd-codegen` (Regla 9 de `04-codegen-layer.prompt.md`) para regenerar solo los ítems del delta y **preservar el resto del código existente** — en vez de regenerar la capa completa. Capas que no aparecen en el CHANGE-SET no se generan. **Toda modificación lleva CHANGE-SET** (en track Rápido, uno mínimo: ítems + capa, sin prosa). Esto extiende a las capas 2–4 la protección que la Capa 1 ya tenía por las migraciones append-only. Diseño adoptado del modelo de *delta specs* de OpenSpec, adaptado al modelo de spec-única-viva de este proceso (no se crea una carpeta de cambio separada; el CHANGE-SET es efímero y vive durante el cambio).
 
 > **⚠️ Riesgo conocido — propagación entre capas.** El CHANGE-SET acota el scope según el juicio del autor al redactarlo. El punto débil es la **propagación**: un ítem `MODIFIED`/`REMOVED` en una capa puede invalidar código de otra capa que NO figura en el delta (ej: cambio el tipo de un campo en Capa 1 → la lógica de Capa 2 que lo consume queda inconsistente, pero el codegen la marca "Sin cambios — no regenerar" y la deja intacta → **gap silencioso**). Las herramientas grandes (Kiro) lo atacan con cascada automática de dependencias; este proceso lo deja en manos de (a) el autor al etiquetar las capas afectadas por ricochet, no solo las editadas a mano, y (b) el chequeo de propagación del checklist entre capas (`codegen-protocol.md`) y la pasada adversaria de código. **Al modificar, verificá siempre que el CHANGE-SET capture las capas afectadas por propagación, no solo las que tocaste.** Si esto se vuelve recurrente, el siguiente incremento natural es un chequeo en el Paso 0 del codegen: "¿algún ítem 'Sin cambios' depende de un ítem MODIFIED/REMOVED?".
 
@@ -501,83 +502,53 @@ Si durante la generación de código (Fase 6) descubro un error estructural que 
 3. **Prohibido continuar generación en la capa actual** hasta haber completado nuevamente Fase 5 sobre la nueva versión de spec.
 4. Documento qué cambió y por qué en el changelog de la spec.
 
-### 8.3.2 Tiers de modificación — proporcionalidad del proceso
+### 8.3.2 Tracks — proporcionalidad del proceso (features y modificaciones, v20)
 
-**Principio:** el costo del proceso debe ser proporcional al radio de daño del cambio. La sección 9 ya aplica esto a bugs (clasificación A/B/C + flujo por severidad). Los tiers extienden el mismo principio a las modificaciones de specs: no todo cambio sobre una feature implementada carga el mismo riesgo de diseño, y los pasos del ciclo que auditan diseño no aportan valor donde no hay diseño que auditar.
-
-**Alcance:** los tiers aplican **solo a modificaciones** (flujo de 8.3 / `/sdd-modify-spec`). Las features nuevas siguen el ciclo completo: una feature nueva genuinamente cosmética casi no existe, y si parece existir, probablemente es una modificación mal encuadrada. Si el uso real muestra necesidad de tiers en features nuevas, se extiende en una versión futura (mismo criterio que la calibración de Regla 4 en v5: refinar con señal de uso, no especulativamente).
+**Principio:** el costo del proceso debe ser proporcional al radio de daño del trabajo. La sección 9 ya aplica esto a bugs (clasificación A/B/C + flujo por severidad). Desde v20, una **sola clasificación por riesgo** aplica a **todo trabajo** — features nuevas y modificaciones — y reemplaza a los tiers T1/T2/T3 (v14–v19, solo modificaciones) y a los tamaños S/M/L (v19, solo features nuevas). Referencia operativa compacta: `protocols/track-routing.md`.
 
 #### Clasificación
 
-El tier se deriva **mecánicamente del CHANGE-SET** (qué secciones de la spec toca el delta y si hay superficie de seguridad), no de la sensación de "se siente chico":
-
-| Tier | Criterio objetivo (sobre el CHANGE-SET) | Ejemplos |
-|------|------------------------------------------|----------|
-| **T1 — Cosmético / presentación** | El delta NO toca sección 6 (modelo de datos), NO toca sección 7 (reglas de negocio), NO toca superficie de seguridad (auth, permisos, datos sensibles), NO introduce entidades, flujos ni integraciones. El comportamiento observable cambia solo en presentación: layout, textos, colores, orden visual, formato de salida. Puede tocar cualquier capa de código (un layout de PDF vive en Capa 2): lo que define T1 es la naturaleza del cambio, no la capa. | Layout de PDF, textos de UI, colores, ordenamiento visual. |
-| **T2 — Lógica acotada** | El delta toca comportamiento (secciones 4/7/8/9) en funciones existentes, pero NO toca sección 6, NO introduce entidades/flujos/integraciones nuevas, NO toca superficie de seguridad. | Nueva condición en una regla existente, campo nuevo en una query existente, validación adicional. |
-| **T3 — Estructural** | El delta toca el modelo de datos (sección 6), introduce una entidad, flujo o integración nueva, o toca superficie de seguridad. | Campo nuevo persistido, cambio en cálculo de precios, cambio de permisos. |
+| Track | Criterio objetivo | Ejemplos |
+|-------|-------------------|----------|
+| **Rápido** | NO toca §6 (modelo de datos), NI §7 (reglas de negocio), NI permisos / seguridad / datos sensibles, NI dinero o cálculos económicos, NI contratos externos, NI nada irreversible, NI un componente compartido o artefacto foundacional (un override local sí califica). Alcance chico: una capacidad, pocos archivos. | Layout, textos, filtro u orden sobre datos existentes, vista de solo lectura, validación de formato. |
+| **Estándar** | Toca §6 o §7, o introduce un flujo o una entidad nueva, dentro de una capacidad, sin disparadores de Completo. | Campo nuevo persistido, regla nueva o modificada, entidad nueva simple. |
+| **Completo** | Cualquier disparador: permisos / seguridad / datos sensibles, dinero o cálculos económicos, contrato externo nuevo o modificado, operación irreversible sobre datos, o tamaño grande (varias entidades nuevas, >~30 decisiones). Más de una capacidad funcional → proponer partir. | Cambio de permisos, cálculo de precios, integración nueva, migración de datos. |
 
 **Reglas de clasificación:**
 
-- **Si dudo entre dos tiers, es el superior.** Espejo de la regla de bugs ("si dudo entre Tipo A y B, casi siempre es B", sección 9.2).
-- La IA propone el tier **con justificación contra los criterios objetivos**; yo confirmo (Modo B). Un tier sin justificación citando los criterios no es una clasificación, es una sensación.
-- El tier queda registrado en el **header del CHANGE-SET** y en la entrada del **changelog de la spec**. La trazabilidad incluye qué camino recorrió cada cambio.
+- **Si dudo entre dos tracks, es el superior.** Espejo de la regla de bugs ("si dudo entre Tipo A y B, casi siempre es B", sección 9.2).
+- La IA propone el track **con justificación contra los criterios objetivos**; yo lo confirmo en el primer gate (Modo B). Un track sin justificación citando los criterios no es una clasificación, es una sensación.
+- El track queda registrado en el **changelog de la spec** y, en modificaciones, en el **header del CHANGE-SET**.
 
-#### Qué pasos ejecuta cada tier
+#### Qué recorre cada track
 
-| Paso | T1 | T2 | T3 |
-|------|----|----|----|
-| Discovery del delta | Opcional — el delta se enuncia en 1 línea (ver carril rápido) | Sí | Sí |
-| `/sdd-modify-spec` (cirugía + versión + CHANGE-SET) | Cirugía mínima — 1 línea de changelog; CHANGE-SET opcional | Sí | Sí |
-| Revisión de spec (adversaria + verify, un subagente) — Pasada 1 | **No** (excepción de Regla 4) | Sí, acotada al delta | Sí, completa |
-| `/sdd-adversarial-spec` — Pasada 2 | No | Solo si P1 tuvo bloqueantes (13.2) | Solo si P1 tuvo bloqueantes (13.2) |
-| Checklist de verify (dentro de la revisión; inline en T1) | Modo express (delta) | Modo delta | Completo |
-| `/sdd-codegen` | Solo capas del CHANGE-SET | Solo capas del CHANGE-SET | Solo capas del CHANGE-SET |
-| Adversaria de código (una por feature) | **Checks inline** (tests + typecheck + diff contra `CONVENTIONS.md`, misma sesión) | Subagente acotado al diff, contexto selectivo | Subagente sobre el diff completo |
-| Gate de prueba manual (7.5) | **Sí, siempre** | Sí | Sí |
-| Commit único (`/sdd-commit`) | Sí | Sí | Sí |
+| Paso | Rápido | Estándar | Completo |
+|------|--------|----------|----------|
+| Spec | **Mini-spec** (feature nueva) o **delta** + 1 línea de changelog; CHANGE-SET mínimo | Spec-first en lote · modificación con CHANGE-SET | Discovery profundo · modificación con CHANGE-SET |
+| Revisión de spec | **No** (Regla 4) — checks formales inline (verify express) | Revisión unificada (adversaria + verify); acotada al delta en modificaciones | Revisión unificada completa; pasada 2 si la 1 tuvo bloqueantes |
+| Gates humanos (§6.0) | 2 | 3 | 4 |
+| Codegen | Tests primero + gate automático; solo las capas del delta en modificaciones | Ídem | Ídem |
+| Revisión de código | Subagente acotado al diff (checks inline si es solo presentación) | Subagente sobre el diff | Subagente sobre el diff completo (2 en paralelo si es grande) |
+| Gate de prueba manual (7.5) | **Sí** | Sí | Sí |
+| Commit único | Sí | Sí | Sí |
 
-El gate de prueba manual **no se relaja en ningún tier**: en T1 es justamente la red principal, porque el riesgo de un cambio cosmético es de implementación y experiencia, no de diseño.
+**Mini-spec (Rápido, feature nueva):** archivo normal en `sdd/specs/` con ID e INDEX, pero solo §1, §2 en dos líneas, §4, §8 (son los tests), §9 aplicable, §14 y §15 (changelog: una línea con versión y track). Si para escribirla hace falta §6 o §7, no es Rápido. El "spec antes que código" (§8.5) se mantiene en todos los tracks: lo que cambia es el tamaño de la spec, no su existencia.
 
-#### T1 — carril rápido (fast-lane)
+El gate de prueba manual **no se relaja en ningún track**: en Rápido es la red principal junto con la revisión de código, porque el riesgo es de implementación y experiencia, no de diseño.
 
-El tier T1 ya omite la pasada adversaria de spec (eje *rigor*); el carril rápido reduce además la **ceremonia** y los **gates de confirmación** (eje *proceso*), porque en un cambio de pura presentación no hay diseño que documentar ni decisión de producto que validar. Es un refinamiento del mismo principio de proporcionalidad: los tiers v14 bajaron el rigor del T1 pero la ceremonia del `/sdd-modify-spec` seguía corriendo completa.
+#### Carga selectiva de contexto
 
-**Test de entrada (objetivo; todo debe cumplirse):**
+En modificaciones, las revisiones y el codegen cargan los documentos foundacionales según lo que el delta toca, no siempre los 6: siempre `CONVENTIONS.md` + `PRINCIPLES.md`; `DOMAIN_MODEL.md` si toca Capa 1 o 2; `ARCHITECTURE.md` si toca Capa 2 o 3 o integraciones; `GLOSSARY.md` si introduce términos nuevos; `PRODUCT.md` solo en Completo. Las features nuevas Estándar/Completo cargan todo para la revisión de spec y el codegen (sección 7.2). **La revisión de código** corre una vez por feature sobre el diff completo (por capa solo en MODO CAPA) y carga solo el foundation y las secciones de spec que las capas tocadas usan — la unión de las filas de la matriz de `protocols/track-routing.md`. Recargar los 6 documentos completos multiplica el costo sin agregar señal; la independencia de contexto (separación del generador) se conserva igual.
 
-- Es T1 por los criterios de la tabla de clasificación (no toca §6, §7, seguridad, entidades, flujos ni integraciones).
-- No cambia ningún contrato ya documentado (requerimiento, criterio de aceptación, regla de negocio o nota de §13): solo agrega o refina presentación.
-- **No toca un componente compartido ni un artefacto foundacional.** Si el fix natural sería editar un componente o estilo compartido que afecta a otras features, NO es carril rápido: es modificación foundacional (§8.4) o sube de tier. Un **override local** en la feature sí califica.
+#### Válvula de escape — el track es una hipótesis, no un permiso
 
-**Flujo del carril rápido (3 puntos de confirmación, no 6):**
+Si durante cualquier paso posterior a la clasificación (revisión, codegen, prueba manual) aparece evidencia de que el trabajo toca algo que su track no admite:
 
-1. **Una sola aprobación al inicio:** la IA propone en un único mensaje el tier T1 + el enfoque + el delta enunciado en una línea. El autor confirma (Modo B, una vez).
-2. Discovery y CHANGE-SET son **opcionales**; la edición de spec se reduce a **una línea de changelog** (más una nota de sección solo si el cambio llena un hueco real de documentación). El verify queda en modo express o se absorbe en los checks inline.
-3. Código → **checks inline** (tests + typecheck + diff vs `CONVENTIONS.md`) → **gate de prueba manual** → commit.
-
-**Innegociables (no se relajan en el carril rápido):** el **gate de prueba manual** —es la red principal de un cambio cosmético— y la **válvula de escape**: si aparece evidencia de que el delta toca lógica, §6, seguridad o un componente compartido, sube de tier o pasa a §8.4 en el acto.
-
-#### Carga selectiva de contexto en modificaciones
-
-En modificaciones, los subagentes (adversarias) y el codegen cargan documentos foundacionales según lo que el CHANGE-SET toca, no siempre los 6:
-
-- **Siempre:** `CONVENTIONS.md` + `PRINCIPLES.md`.
-- **`DOMAIN_MODEL.md`:** si el delta toca Capa 1 o 2 (entidades o lógica).
-- **`ARCHITECTURE.md`:** si el delta toca Capa 2 o 3, o introduce integraciones.
-- **`GLOSSARY.md`:** si el delta introduce términos nuevos del dominio.
-- **`PRODUCT.md`:** solo T3.
-
-Los builds iniciales (sin CHANGE-SET) cargan todo para la pasada de spec y el codegen, como siempre (sección 7.2). **Excepción — pasada adversaria de código:** corre una vez por feature sobre el diff completo (por capa solo en MODO CAPA), y en cualquier build (inicial o modificación) carga solo el foundation y las secciones de spec que la capa bajo revisión toca, según la matriz por capa de `protocols/tier-routing.md` (en MODO FEATURE, la unión de las filas de las capas tocadas). Recargar los 6 documentos completos multiplica el costo sin agregar señal; la independencia de contexto (separación del generador) se conserva igual.
-
-#### Válvula de escape — el tier es una hipótesis, no un permiso
-
-Si durante cualquier paso posterior a la clasificación (adversaria, verify, codegen, prueba manual) aparece evidencia de que el delta toca modelo de datos, reglas de negocio o superficie de seguridad no contempladas:
-
-1. **El tier sube en el acto** (T1→T2 o T2→T3) y se actualiza el header del CHANGE-SET.
-2. **Se ejecutan los pasos salteados antes de continuar.** Ejemplo: si un T1 sube a T2 en pleno codegen, se frena la generación, se corre la pasada adversaria de spec acotada al delta, y recién después se reanuda.
+1. **El track sube en el acto** (Rápido → Estándar o Estándar → Completo) y se actualiza el header del CHANGE-SET si lo hay.
+2. **Se ejecutan los pasos salteados antes de continuar.** Ejemplo: si un Rápido sube a Estándar en pleno codegen, se frena la generación, se completa la spec (secciones que faltan), corre la revisión unificada y se aprueba; recién después se reanuda.
 3. La re-clasificación queda registrada en el changelog de la spec, con qué la disparó (espíritu de Regla 5: entender por qué se me escapó).
 
-**Antipatrón a vigilar:** clasificar hacia abajo por ansiedad o cansancio (zona de riesgo personal, sección 12.3). Si el argumento para T1 es "es chiquito" y no "no toca sección 6/7 ni seguridad", la clasificación está mal hecha.
+**Antipatrón a vigilar:** clasificar hacia abajo por ansiedad o cansancio (zona de riesgo personal, sección 12.3). Si el argumento para Rápido es "es chiquito" y no "no toca §6, §7, seguridad, dinero, contratos ni nada irreversible", la clasificación está mal hecha.
 
 ### 8.4 Modificar setup foundacional
 
@@ -650,7 +621,13 @@ Antes de tocar una línea de código, clasifico el bug en uno de tres tipos. La 
 
 ### 9.3 Artefacto bugfix-XXX.md
 
-Todo bug genera un artefacto de trazabilidad. Sin excepción.
+Todo bug queda trazado. **Desde v20 el artefacto `bugfix-XXX.md` es obligatorio solo cuando amerita:**
+
+- **Tipo B** (la spec cambia), o
+- **Severidad Crítica o Alta**, o
+- **Root cause no obvio** (requirió investigación, o puede reaparecer en otra forma).
+
+**Fuera de esos casos** (Tipo A, severidad Media/Baja, causa clara), la trazabilidad es el **test de regresión + un commit `fix(<spec-id>): …`** cuyo cuerpo registra observado vs esperado, causa y nombre del test. Si durante el fix la causa resulta no obvia o aparece que es Tipo B, se crea el artefacto en el acto (válvula de escape).
 
 **Formato del archivo:** `bugfix-<numero>.md`
 - Numeración secuencial por proyecto, reinicia en cada proyecto.
@@ -726,12 +703,12 @@ Proceso completo sin atajos:
 
 #### Severidad Media / Baja
 
-Idéntico a Alta, sin urgencia de tiempo. No salto pasos porque "es chico".
+Tipo B o causa no obvia: idéntico a Alta, sin urgencia de tiempo. Tipo A con causa clara: test de regresión (debe fallar) → fix mínimo → test en verde → prueba manual acotada (§7.5) → commit `fix(<spec-id>):` con observado/esperado, causa y test en el cuerpo. Sin `bugfix-XXX.md`.
 
 ### 9.5 Protocolo de generación del fix con IA
 
 El prompt de generación del fix siempre incluye:
-- El `bugfix-XXX.md` completo.
+- El `bugfix-XXX.md` completo (o, sin artefacto, la descripción observado/esperado + causa).
 - La spec afectada (versión actualizada si Tipo B, versión original si Tipo A).
 - El setup foundacional relevante (`CONVENTIONS.md`, `ARCHITECTURE.md`).
 - El código actual del módulo afectado.
@@ -742,13 +719,13 @@ Instrucción explícita contra sobre-ingeniería:
 
 ### 9.6 Test de regresión y prueba manual: regla de cierre
 
-**Un bug no está cerrado hasta que el test de regresión existe y pasa, y yo reproduje el caso a mano y confirmé que el bug ya no ocurre.**
+**Un bug no está cerrado hasta que el test de regresión existe y pasa, y yo confirmé a mano que el bug ya no ocurre** — reproduciendo el caso original en el entorno real cuando el test de regresión no ejercita ese camino real (UI, integración, datos reales); si el test ya lo ejercita de punta a punta, alcanza con el recorrido mínimo de §7.5.
 
 El test de regresión:
 - Se escribe antes del fix (debe fallar con el código actual).
 - Reproduce el caso exacto que falló en producción.
 - Se incorpora a la suite de tests existente de la feature afectada.
-- Se referencia en el `bugfix-XXX.md` con el nombre del test y el archivo.
+- Se referencia en el `bugfix-XXX.md` (o en el cuerpo del commit `fix:` si no hay artefacto) con el nombre del test y el archivo.
 
 ### 9.7 Impacto en specs existentes
 
@@ -803,10 +780,13 @@ Los proyectos creados desde el toolkit guardan referencia a la versión del tool
 Draft → Review → Approved → Implemented → [Deprecated]
                     ↓
        (Approved → Review si surge error estructural en Fase 6, ver 8.3.1)
+
+Track Rápido (v20):  Draft → Approved → Implemented   (sin Review: no hay revisión adversaria de spec)
+Modificación:        Implemented/As-built → [Review] → Approved → Implemented   (la fase en curso se sigue en sdd/specs/<ID>.flow.md)
 ```
 
 - **Draft:** en escritura inicial.
-- **Review:** iniciada tras la pasada adversaria 1. **Estado iterativo** donde se procesan hallazgos, se ejecuta la pasada adversaria 2 si fuera necesario (ver sección 13), se resuelven decisiones abiertas y se hace lectura crítica final.
+- **Review:** iniciada tras la pasada adversaria 1 (tracks Estándar y Completo; el track Rápido no pasa por Review). **Estado iterativo** donde se procesan hallazgos, se ejecuta la pasada adversaria 2 si fuera necesario (ver sección 13), se resuelven decisiones abiertas y se hace lectura crítica final.
 - **Approved:** congelada, lista para implementación. Solo se pasa a este estado cuando los pre-requisitos de Fase 5 están cumplidos.
 - **Implemented:** ya en código.
 - **Deprecated:** la feature fue eliminada o reemplazada.
@@ -959,7 +939,7 @@ Cuando se incorpore gente al equipo, agregar branch protection en `main` en GitH
 - **Vibe coding:** generar código sin spec previa.
 - **Spec retroactiva:** escribir spec después del código.
 - **Spec sin actualizar tras cambio de código:** el código y la spec divergen sin que lo note.
-- **Saltar la pasada adversaria** por "está chiquita la feature".
+- **Saltar la revisión que el track exige** o **clasificar el track hacia abajo** porque "está chiquita la feature" (el track se decide por los criterios objetivos de §8.3.2, no por tamaño percibido).
 - **Modificar spec en pleno desarrollo sin frenar generación.**
 - **Aceptar código que "funciona" sin verificar que cumple spec.**
 - **Generar todas las capas sin verificación entre ellas.** Desde v19 las capas se generan seguidas en una sola ejecución, pero en orden y con gate automático (tests + typecheck/build) entre cada una; el antipatrón es saltar ese gate, no ahorrarse la confirmación humana.
@@ -974,7 +954,7 @@ Cuando se incorpore gente al equipo, agregar branch protection en `main` en GitH
 ### 12.2 Antipatrones específicos de bugs
 
 - **Fix sin clasificar:** corregir un bug sin determinar primero si es Tipo A, B o C. La corrección que corresponde es diferente según el origen.
-- **Parchear código sin crear el bugfix spec:** el fix queda sin trazabilidad. No se puede saber qué causó el cambio meses después.
+- **Parchear código sin trazabilidad:** ni `bugfix-XXX.md` (cuando corresponde, §9.3) ni commit `fix:` con observado/esperado, causa y test. No se puede saber qué causó el cambio meses después.
 - **Tratar un Tipo C como bug:** si el comportamiento es correcto según la spec pero el negocio cambió de opinión, es un cambio de requerimiento. Tratarlo como bug corrompe la trazabilidad.
 - **Fix de emergencia sin deuda técnica registrada:** el "lo especifico después" que nunca llega. Si el fix urgente se hace sin spec, la deuda técnica se registra ese mismo día, no "cuando haya tiempo".
 - **No escribir el test de regresión:** el bug se cierra, el test no existe, el bug vuelve. El test de regresión es parte del cierre, no un opcional.
@@ -995,14 +975,14 @@ Estas son mis tendencias específicas. Las nombro explícitamente para vigilarla
 
 Antes de aprobar una spec o cerrar una capa de código, recorro esta checklist:
 
-- [ ] **¿Releí completo?** No "le di una mirada".
+- [ ] **¿Leí completa la superficie de decisión (§4, §6, §7, §8, §10, §14)?** No "le di una mirada".
 - [ ] **¿Esquivé alguna decisión?** ¿Hay algún "lo definimos después" o "es estándar" que en realidad necesita decisión ahora?
 - [ ] **¿Quedan decisiones abiertas o pendientes de consulta?** Si sí, NO apruebo. Resuelvo primero.
 - [ ] **¿Criterios de aceptación y casos borde están suficientemente detallados?** Si me parece que están justos, releo y aplico la taxonomía obligatoria de la guide.
 - [ ] **¿Procesé el feedback recibido o lo cerré rápido?** ¿Estoy aprobando con criterio o con ansiedad?
 - [ ] **¿Modifiqué el contenido real de la spec para reflejar lo procesado de la pasada adversaria, o solo le di la razón al adversario en el chat sin trasladarlo al documento?**
-- [ ] **¿Las decisiones del LLM tomadas por defecto fueron revisadas y validadas explícitamente?**
-- [ ] **¿La pasada adversaria se hizo o la salté?**
+- [ ] **¿Las decisiones del LLM tomadas por defecto (§14) fueron revisadas y validadas explícitamente?** Con la Regla 1 v20 son más: ¿alguna es en realidad de alto impacto y debió preguntarse?
+- [ ] **¿El track está bien clasificado y se hizo la revisión que exige?**
 - [ ] **¿Estoy cansado?** Si sí, el riesgo de aprobación apresurada es mayor. Considero esperar.
 
 Si alguna respuesta es "no" o "no estoy seguro", freno y resuelvo antes de avanzar.

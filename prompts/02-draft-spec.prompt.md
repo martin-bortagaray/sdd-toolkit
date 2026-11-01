@@ -1,8 +1,8 @@
 # Prompt — Redacción de Spec (Fase 3)
 
-> **Versión:** 20261101-v5 · historia en `/CHANGELOG.md`
+> **Versión:** 20261101-v6 · historia en `/CHANGELOG.md`
 > **Uso:** Después de Fase 2 (Discovery) y antes de Fase 4 (Pasada adversaria). Es el prompt que ejecuta el rol Redactor de la IA (WORKFLOW.md sección 3).
-> **Dónde se ejecuta:** Vía el comando `/sdd-spec` en Claude Code, o en conversación nueva en Claude.ai. Puede correr en la misma sesión del discovery (WORKFLOW.md sección 3, v19): la independencia que importa es la del Adversario. Modo profundo para features L; en S/M, `/sdd-feature` usa `08-spec-first`.
+> **Dónde se ejecuta:** Vía el comando `/sdd-spec` en Claude Code, o en conversación nueva en Claude.ai. Puede correr en la misma sesión del discovery (WORKFLOW.md sección 3, v19): la independencia que importa es la del Adversario. Modo profundo para track Completo; en Rápido y Estándar, `/sdd-feature` usa `08-spec-first`.
 
 ---
 
@@ -85,9 +85,9 @@ DATOS QUE TE PASO EXPLÍCITAMENTE:
 - Versión del toolkit usado: {TOOLKIT-VERSION}
 - ID asignado para esta spec: {NEXT-SPEC-ID}
 
-REGLA FUNDAMENTAL: NO TOMES DECISIONES DE PRODUCTO.
+REGLA FUNDAMENTAL: NO TOMES DECISIONES DE PRODUCTO DE ALTO IMPACTO.
 
-Mis decisiones de producto ya están tomadas durante el discovery. Tu trabajo en esta fase es redactar la spec usando esas decisiones, no tomar decisiones nuevas. Esta regla aplica a todos los pasos del proceso de redacción y al manejo de cualquier gap. Si te encontrás tomando una decisión de producto, parate y avisame (ver "Manejo de gaps" abajo). NO la inscribas en la sección 14 disfrazada de decisión operativa.
+Mis decisiones de producto ya están tomadas durante el discovery. Tu trabajo en esta fase es redactar la spec usando esas decisiones. Si aparece una decisión de alto impacto (modelo de datos, reglas de negocio, permisos/seguridad/datos sensibles, dinero o cálculos económicos, contratos externos, y todo lo irreversible) que el discovery no cubre, parate y avisame (ver "Manejo de gaps" abajo); NO la inscribas en la sección 14. Las de bajo impacto (textos, orden, defaults de presentación, mensajes) las podés tomar con tu recomendación y van a la sección 14 para que las valide.
 
 PASO 0 — VERIFICACIÓN DE PRE-REQUISITOS:
 
@@ -138,7 +138,7 @@ Regla de adaptación al template:
 
 Reglas globales de redacción (de la guide):
 - Lenguaje preciso. NO uses "podría", "idealmente", "es deseable", "sería bueno". Usá "debe", "es", "tiene".
-- Densidad sobre volumen — spec compacta (guide, regla global 4): las sub-secciones que no aplican se omiten (una sola línea "No aplican: X, Y — motivo" si hace falta constancia); en §9 las categorías no aplicables van juntas en una línea con su justificación. Largo orientativo S ≈ 1 página, M ≈ 2, L ≈ 4. NO inflar contenido.
+- Densidad sobre volumen — spec compacta (guide, regla global 4): las sub-secciones que no aplican se omiten (una sola línea "No aplican: X, Y — motivo" si hace falta constancia); en §9 las categorías no aplicables van juntas en una línea con su justificación. Largo orientativo: track Completo ≈ 2-4 páginas. NO inflar contenido.
 - Consistencia con setup foundacional. Si detectás contradicción entre lo que pide el discovery y lo que dice el setup foundacional, NO redactes esa parte y avisame (ver "Manejo de gaps").
 
 Reglas específicas por sección:
@@ -158,8 +158,8 @@ PASO 2 — SECCIÓN 14 (Decisiones tomadas por defecto por la IA):
 Esta sección documenta cualquier decisión que hayas tenido que tomar durante la redacción que no estaba explícita en el discovery ni en el setup foundacional.
 
 Reglas:
-- Solo decisiones operativas menores: formato, agrupación, terminología neutra, ordenamiento de elementos en una lista, marcar entidad como candidata a DOMAIN_MODEL.
-- NUNCA decisiones de producto (ver "Regla fundamental" arriba).
+- Decisiones operativas menores (formato, agrupación, terminología neutra, ordenamiento, marcar entidad como candidata a DOMAIN_MODEL) y decisiones de producto de BAJO impacto, cada una con tu recomendación.
+- NUNCA decisiones de producto de alto impacto (ver "Regla fundamental" arriba).
 - Por cada decisión:
   - Decisión tomada.
   - Sección de la spec donde aparece.

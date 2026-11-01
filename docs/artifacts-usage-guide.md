@@ -1,7 +1,7 @@
 # Guía de uso de artefactos del toolkit SDD
 
 > **Toolkit:** sdd-toolkit
-> **Versión:** 20261101-v7
+> **Versión:** 20261101-v8
 > **Propósito:** Referencia rápida de qué artefacto usar en cada momento del proceso y catálogo completo del toolkit.
 
 Este documento es complemento del WORKFLOW.md y de los diagramas de flujo. Tiene dos vistas:
@@ -29,16 +29,16 @@ Al terminar Fase 0, crear `INDEX.md` del proyecto usando `templates/project-inde
 
 ### Ciclo de feature en Modo Flow (por defecto desde WORKFLOW v19)
 
-Una sola invocación de `/sdd-feature` recorre el ciclo; el autor interviene en 4 gates.
+Una sola invocación de `/sdd-feature` recorre el ciclo. El orquestador **clasifica el trabajo en un track por riesgo** (Rápido / Estándar / Completo — `protocols/track-routing.md`, `WORKFLOW.md` §8.3.2; una sola clasificación para feature nueva y modificación) y el autor interviene solo en los gates de ese track: **Rápido 2** (aprobación única de track + spec/delta + plan, y prueba manual), **Estándar 3** (G1 preguntas, G2+G3 spec y plan fusionados, G4 prueba manual) y **Completo 4** (G1, G2, G3, G4). La IA pregunta solo decisiones de producto de alto impacto (Regla 1); el resto lo decide con recomendación y va a §14.
 
 | Momento | Prompt que ejecuta el orquestador | Contexto que carga | Output / gate |
 |---------|-----------------------------------|--------------------|---------------|
-| **Fases 2+3 — Spec-first** | `08-spec-first.prompt.md` (modificación: `07-modify-spec`) | Setup foundacional + dependencias + template. Guide solo puntual. | Spec Draft en disco con `[DECIDIR-N]` → **G1: preguntas en lote**. |
-| **Fase 4 + verificación — Revisión unificada** | `03-adversarial-spec` + checklist de `06-spec-verification` (sin F1/F3), en un subagente Sonnet | Spec + foundation (selectiva en modificaciones) + dependencias. | Hallazgos aplicados o descartados en §10.2, semáforo → **G2: aprobación de spec**. |
-| **Fase 6 — Plan único** | `04-codegen-layer` MODO FEATURE (Paso 0) | Spec Approved + foundation + schema real. | Tabla de todas las capas → **G3: plan ok** (en S, fusionado con G2). |
+| **Fases 2+3 — Spec-first** | `08-spec-first.prompt.md` (modificación: `07-modify-spec`) | Setup foundacional + dependencias + template. Guide solo puntual. | Spec Draft en disco con `[DECIDIR-N]` (solo alto impacto) → **G1: preguntas en lote** (Rápido: mini-spec y aprobación única; Completo: discovery profundo `01` → `02`). |
+| **Fase 4 + verificación — Revisión unificada** | `03-adversarial-spec` + checklist de `06-spec-verification` (sin F1/F3), en un subagente Sonnet. **Solo Estándar y Completo** (Rápido la omite — Regla 4: lo cubren la revisión de código, los tests y la prueba manual; corre solo checks formales inline, verify EXPRESS). | Spec + foundation (selectiva en modificaciones) + dependencias. | Hallazgos aplicados o descartados en §10.2, semáforo → **G2: aprobación de spec** (leyendo la superficie de decisión §4, §6, §7, §8, §10, §14; aprueba con `leí, apruebo`). |
+| **Fase 6 — Plan único** | `04-codegen-layer` MODO FEATURE (Paso 0) | Spec Approved + foundation + schema real. | Tabla de todas las capas → **G3: plan ok** (solo Completo; en Rápido y Estándar el plan viaja fusionado en la aprobación). |
 | **Fase 6 — Implementación** | `04-codegen-layer` MODO FEATURE | Lo anterior + código de capas previas. | Tests de CA primero, capas 1→4 con gate automático. Sin gates humanos. |
-| **Fase 6 — Revisión de código** | `05-adversarial-code` alcance FEATURE (subagente; 2 en paralelo si el diff es grande) | Diff completo + unión de la matriz por capa de `tier-routing.md`. | Bloqueantes corregidos, no bloqueantes a `DEBT.md`. |
-| **Cierre** | — | — | Plan de prueba manual → **G4: `ok` = commit**. |
+| **Fase 6 — Revisión de código** | `05-adversarial-code` alcance FEATURE (subagente; 2 en paralelo si el diff es grande) | Diff completo + unión de la matriz por capa de `track-routing.md` (Rápido: acotada al diff o checks inline si es solo presentación). | Bloqueantes corregidos, no bloqueantes a `DEBT.md`. |
+| **Cierre** | — | — | Plan de prueba manual (acotado a lo que los tests automáticos no cubren, más al menos un happy path en entorno real) → **G4: `ok` = commit**. |
 
 ### Ciclo de feature — camino manual (modo profundo / control por capa)
 
@@ -50,13 +50,13 @@ Una sola invocación de `/sdd-feature` recorre el ciclo; el autor interviene en 
 | **Fase 4 — Pasada adversaria de spec** | `03-adversarial-spec.prompt.md` | Spec Draft + setup foundacional + dependencias. `feature-spec.guide.md` opcional (la taxonomía de casos borde ya está en el prompt). | Hallazgos clasificados (bloqueantes / mejoras / preguntas). Yo proceso hallazgos y actualizo la spec. Estado: Review. |
 | **Fase 5 — Aprobación + verificación** | `06-spec-verification.prompt.md` | Spec Approved + setup foundacional + dependencias + `feature-spec.guide.md`. | Veredicto VERDE / AMARILLO / ROJO con checklist completo. |
 | **Fase 6 — Codegen Capa 1 (Datos)** | `04-codegen-layer.prompt.md` con `{CAPA}` = "Modelo de datos" | Spec Approved + setup foundacional + dependencias. | Código + tests + tabla comparativa + decisiones técnicas tomadas. |
-| **Fase 6 — Pasada adversaria Capa 1** | `05-adversarial-code.prompt.md` | Código de la capa + contexto acotado a la capa (matriz capa→foundation/secciones en `tier-routing.md`; sin `PRODUCT.md`). | Hallazgos clasificados. Yo proceso bloqueantes inmediatamente, no bloqueantes a `DEBT.md`. |
+| **Fase 6 — Pasada adversaria Capa 1** | `05-adversarial-code.prompt.md` | Código de la capa + contexto acotado a la capa (matriz capa→foundation/secciones en `track-routing.md`; sin `PRODUCT.md`). | Hallazgos clasificados. Yo proceso bloqueantes inmediatamente, no bloqueantes a `DEBT.md`. |
 | **Fase 6 — Codegen Capa 2 (Negocio)** | `04-codegen-layer.prompt.md` con `{CAPA}` = "Lógica de negocio" | Lo anterior + código aprobado de Capa 1 + schema real de DB. | Idem Capa 1 pero para lógica de negocio. |
-| **Fase 6 — Pasada adversaria Capa 2** | `05-adversarial-code.prompt.md` | Código de Capa 2 + contexto acotado a la capa (matriz en `tier-routing.md`). | Idem. |
+| **Fase 6 — Pasada adversaria Capa 2** | `05-adversarial-code.prompt.md` | Código de Capa 2 + contexto acotado a la capa (matriz en `track-routing.md`). | Idem. |
 | **Fase 6 — Codegen Capa 3 (API)** | `04-codegen-layer.prompt.md` con `{CAPA}` = "API / Capa de acceso" | Lo anterior + código aprobado de Capas 1 y 2. | Idem Capa 1 pero para API. |
-| **Fase 6 — Pasada adversaria Capa 3** | `05-adversarial-code.prompt.md` | Código de Capa 3 + contexto acotado a la capa (matriz en `tier-routing.md`). | Idem. |
+| **Fase 6 — Pasada adversaria Capa 3** | `05-adversarial-code.prompt.md` | Código de Capa 3 + contexto acotado a la capa (matriz en `track-routing.md`). | Idem. |
 | **Fase 6 — Codegen Capa 4 (UI)** | `04-codegen-layer.prompt.md` con `{CAPA}` = "UI" | Lo anterior + código aprobado de Capas 1, 2, 3 + `design-system.template.md`. | Idem Capa 1 pero para UI. |
-| **Fase 6 — Pasada adversaria Capa 4** | `05-adversarial-code.prompt.md` | Código de Capa 4 + contexto acotado a la capa (matriz en `tier-routing.md`). | Idem. |
+| **Fase 6 — Pasada adversaria Capa 4** | `05-adversarial-code.prompt.md` | Código de Capa 4 + contexto acotado a la capa (matriz en `track-routing.md`). | Idem. |
 | **Deploy a staging** | No es prompt. Comandos git. | Ninguno. | Feature en ambiente staging. Cliente notificado para validar. |
 | **Cliente valida en staging** | No aplica. Es un waitstate. | Ninguno. | Feedback del cliente: aprueba o pide ajustes. |
 | **Deploy a producción** | No es prompt. Comandos git. | Ninguno. | Feature en producción. Actualizo INDEX (Approved → Implemented). |
@@ -70,27 +70,27 @@ Durante todo el ciclo, los siguientes artefactos están como referencia constant
 
 ### Modificación de feature existente (agregar o cambiar funcionalidad en una spec Implemented/As-built)
 
-Variante del ciclo cuando el cambio es de producto (no un bug) sobre una feature que ya existe. Re-entra al ciclo acotado al delta y **clasificado por tier** (T1 cosmético / T2 lógica acotada / T3 estructural — `WORKFLOW.md` sección 8.3.2): el tier, derivado del CHANGE-SET con regla de duda hacia arriba, determina qué pasos se ejecutan y con cuánto contexto. Protocolo en `WORKFLOW.md` sección 8.3.
+Variante del ciclo cuando el cambio es de producto (no un bug) sobre una feature que ya existe. Re-entra al ciclo acotado al delta y **clasificado por track** (Rápido / Estándar / Completo, por riesgo — `WORKFLOW.md` sección 8.3.2 y `protocols/track-routing.md`): el track, derivado del CHANGE-SET con regla de duda hacia arriba, determina qué pasos se ejecutan y con cuánto contexto. Protocolo en `WORKFLOW.md` sección 8.3.
 
 | Momento | Prompt que ejecuto | Templates / archivos que adjunto | Output |
 |---------|-------------------|----------------------------------|--------|
 | **Discovery del delta** | `01-discovery.prompt.md` | Setup foundacional + spec existente + dependencias. | Documento de discovery acotado al cambio. |
-| **Modificación de la spec** | `07-modify-spec.prompt.md` | Spec existente + output del discovery del delta + setup foundacional + dependencias + `feature-spec.guide.md`. | Tier propuesto y confirmado + spec editada quirúrgicamente (en Claude Code, directo sobre el archivo, sin re-emitirla), versión subida, changelog con tier, CHANGE-SET con tier en el header. Estado: vuelve a Review. |
-| **Pasada adversaria — según tier** | `03-adversarial-spec.prompt.md` | Spec modificada + CHANGE-SET + contexto selectivo (8.3.2). | **T1: se omite** (excepción codificada de Regla 4). T2: modo acotado al delta. T3: completa. Pasada 2 solo si la 1 tuvo bloqueantes (13.2). |
-| **Verificación + codegen del delta** | `06-spec-verification.prompt.md` (modo express T1 / delta T2 / completo T3) → `04`/`05` | Spec modificada + CHANGE-SET + código existente. | Chequeos D1–D3 (D3 verifica el tier contra el contenido). Solo se regeneran las capas que el delta toca. Adversaria de código: checks inline T1 / acotada al diff T2 / completa T3. El gate de prueba manual no se relaja en ningún tier. |
+| **Modificación de la spec** | `07-modify-spec.prompt.md` | Spec existente + output del discovery del delta + setup foundacional + dependencias + `feature-spec.guide.md`. | Track propuesto y confirmado + spec editada quirúrgicamente (en Claude Code, directo sobre el archivo, sin re-emitirla), versión subida, changelog con track, CHANGE-SET con track en el header (en Rápido, delta + 1 línea de changelog; CHANGE-SET mínimo). Estado: vuelve a Review. |
+| **Pasada adversaria — según track** | `03-adversarial-spec.prompt.md` | Spec modificada + CHANGE-SET + contexto selectivo (8.3.2). | **Rápido: se omite** (Regla 4 v20: solo Estándar y Completo la corren). Estándar: modo acotado al delta. Completo: completa. Pasada 2 solo si la 1 tuvo bloqueantes (13.2). |
+| **Verificación + codegen del delta** | `06-spec-verification.prompt.md` (modo express en Rápido / delta en Estándar / completo en Completo) → `04`/`05` | Spec modificada + CHANGE-SET + código existente. | Chequeos D1–D3 (D3 verifica el track contra el contenido). Solo se regeneran las capas que el delta toca. Adversaria de código: subagente acotado al diff en Rápido (checks inline si es solo presentación) / acotada al diff del cambio en Estándar / completa en Completo. El gate de prueba manual (acotado a lo que los tests no cubren) no se omite en ningún track. |
 
 ### Tratamiento de bugs (se ejecuta cuando aparece un bug en producción o en testing post-implementación)
 
-Flujo reactivo, fuera del ciclo de feature. Se activa sobre código ya implementado. Protocolo completo en `WORKFLOW.md` sección 9.
+Flujo reactivo, fuera del ciclo de feature. Se activa sobre código ya implementado. Protocolo completo en `WORKFLOW.md` sección 9. **Desde v20 el artefacto `bugfix-XXX.md` es condicional:** solo se crea si el bug es Tipo B, de severidad Crítica o Alta, o de causa no obvia; en los demás casos (Tipo A, severidad Media/Baja, causa clara) la trazabilidad es el test de regresión más un commit `fix(<spec-id>):` con observado/esperado, causa y nombre del test en el cuerpo.
 
 | Momento | Prompt que ejecuto | Templates / archivos que adjunto | Output |
 |---------|-------------------|----------------------------------|--------|
 | **Clasificación del bug** | Ninguno. Análisis manual. | Spec afectada (versión vigente). | Tipo del bug: A (fallo de implementación), B (fallo de spec) o C (cambio de negocio → reclasificar como feature). |
-| **Registro del bug** | Ninguno. | `templates/bugfix.template.md`. | Archivo `bugfixes/bugfix-XXX.md` en estado Abierto, con descripción, reproducción y severidad completos. |
+| **Registro del bug (condicional)** | Ninguno. | `templates/bugfix.template.md`. | Solo si Tipo B, Crítico/Alto o causa no obvia: archivo `bugfixes/bugfix-XXX.md` en estado Abierto, con descripción, reproducción y severidad completos. Si no aplica, se omite (ver nota arriba). |
 | **Actualización de spec (solo Tipo B)** | Ninguno. Edición directa de la spec afectada. | Spec afectada + `bugfix-XXX.md`. | Nueva versión de la spec (vN+1) con la sección corregida. Spec original sube versión antes de tocar el código. |
-| **Generación del fix** | `04-codegen-layer.prompt.md` con instrucción de fix mínimo (ver protocolo en sección 9.5 del WORKFLOW). | `bugfix-XXX.md` completo + spec afectada (actualizada si Tipo B, original si Tipo A) + setup foundacional relevante + código actual del módulo afectado. | Fix mínimo + test de regresión (debe fallar con código actual). |
-| **Pasada adversaria del fix** | `05-adversarial-code.prompt.md` | Fix + `bugfix-XXX.md` + spec afectada. | Hallazgos clasificados. Bloqueantes corregidos antes de cerrar. |
-| **Verificación y cierre** | Ninguno. Verificación manual. | Test de regresión ejecutado en la suite. | Test de regresión pasando. `bugfix-XXX.md` actualizado a estado Cerrado. |
+| **Generación del fix** | `04-codegen-layer.prompt.md` con instrucción de fix mínimo (ver protocolo en sección 9.5 del WORKFLOW). | `bugfix-XXX.md` completo (o, sin artefacto, descripción observado/esperado + causa) + spec afectada (actualizada si Tipo B, original si Tipo A) + setup foundacional relevante + código actual del módulo afectado. | Fix mínimo + test de regresión (debe fallar con código actual). |
+| **Pasada adversaria del fix** | `05-adversarial-code.prompt.md` | Fix + `bugfix-XXX.md` (si existe) + spec afectada. | Hallazgos clasificados. Bloqueantes corregidos antes de cerrar. |
+| **Verificación y cierre** | Ninguno. Verificación manual. | Test de regresión ejecutado en la suite. | Test de regresión pasando + prueba manual acotada. `bugfix-XXX.md` (si existe) actualizado a estado Cerrado; sin artefacto, commit `fix(<spec-id>):` con observado/esperado, causa y test. |
 
 **Nota sobre severidad crítica:** si la producción está caída o hay datos corruptos, el fix mínimo puede preceder al artefacto completo. El `bugfix-XXX.md` se crea ese mismo día en estado Abierto y se completa en las próximas 24 horas. Ver sección 9.4 del WORKFLOW.
 
@@ -124,7 +124,7 @@ Esta tabla lista los artefactos del toolkit organizados por tipo. (El conteo tot
 | `prompts/03-adversarial-spec.prompt.md` | Prompt | Una o dos veces por feature, en Fase 4. | Cuestiona la spec en busca de ambigüedades, gaps, supuestos no declarados, casos borde olvidados. |
 | `prompts/04-codegen-layer.prompt.md` | Prompt | Una vez por feature en MODO FEATURE (por defecto, v19), o una por capa en MODO CAPA. | Genera el código: plan único + capas en orden con gate automático (MODO FEATURE), o una capa específica (MODO CAPA). |
 | `prompts/05-adversarial-code.prompt.md` | Prompt | Una vez por feature sobre el diff completo (por defecto, v19), o una por capa en modo manual. | Cuestiona el código generado contra la spec y contra principios de seguridad y diseño. |
-| `prompts/08-spec-first.prompt.md` | Prompt | Una vez por feature nueva S/M, en Fase A de `/sdd-feature`. | Fusiona discovery + redacción: draft directo a disco con `[DECIDIR-N]` y preguntas en lote con recomendación. |
+| `prompts/08-spec-first.prompt.md` | Prompt | Una vez por feature nueva de track Rápido (mini-spec) o Estándar, en Fase A de `/sdd-feature`. El track Completo usa discovery profundo (`01` → `02`). | Fusiona discovery + redacción: draft directo a disco con `[DECIDIR-N]` y preguntas en lote con recomendación. |
 | `prompts/06-spec-verification.prompt.md` | Prompt | Una vez por feature, en Fase 5 (entre aprobación y codegen). | Verifica preparación operativa de la spec antes de empezar codegen. Devuelve veredicto VERDE / AMARILLO / ROJO. |
 
 ### Templates de setup foundacional (6 artefactos)
@@ -158,7 +158,7 @@ Estos templates se usan principalmente durante Fase 0 paso 2. Definen la estruct
 
 | Artefacto | Tipo | Cuándo se usa | Para qué sirve |
 |-----------|------|---------------|----------------|
-| `templates/bugfix.template.md` | Template | Reactivo. Cuando se detecta un bug en producción o en testing post-implementación. | Esqueleto del artefacto `bugfix-XXX.md`. Estructura obligatoria para registrar clasificación, root cause, criterio de aceptación del fix y test de regresión. Numeración secuencial por proyecto. |
+| `templates/bugfix.template.md` | Template | Reactivo. Cuando se detecta un bug en producción o en testing post-implementación **y amerita artefacto** (Tipo B, severidad Crítica/Alta o causa no obvia; v20). | Esqueleto del artefacto `bugfix-XXX.md`. Estructura obligatoria para registrar clasificación, root cause, criterio de aceptación del fix y test de regresión. Numeración secuencial por proyecto. |
 
 ### Template de pendientes diferidos (1 artefacto, uso reactivo)
 
@@ -183,7 +183,7 @@ Estos templates se usan principalmente durante Fase 0 paso 2. Definen la estruct
 | Artefacto | Tipo | Cuándo se usa | Para qué sirve |
 |-----------|------|---------------|----------------|
 | `protocols/codegen-protocol.md` | Protocolo operativo | Referencia constante durante Fase 6. | Checklist operativo de las 4 capas, manejo de problemas, pasos de deploy. Es el "checklist físico" que el autor consulta durante codegen. |
-| `protocols/tier-routing.md` | Protocolo operativo | Modificaciones y pasada adversaria de código. | Clasificación T1/T2/T3, pasos por tier, carril rápido T1 y matriz de carga selectiva de contexto. |
+| `protocols/track-routing.md` | Protocolo operativo | Todo trabajo (feature nueva o modificación): clasificación y ruteo del ciclo; pasada adversaria de código. | Clasificación por riesgo en track Rápido / Estándar / Completo, pasos y gates por track (2 / 3 / 4), mini-spec del Rápido, válvula de escape y matriz de carga selectiva de contexto. Reemplaza a `tier-routing.md` (v20). |
 
 ### Plugin de Claude Code (1 conjunto)
 
@@ -242,3 +242,4 @@ A diferencia de los otros templates, `design-system.template.md` NO se instancia
 | 20260613-v6 | 2026-06-13 | Agregado al catálogo (Vista 2) el `templates/debt.template.md` y el comando `/sdd-defer`: registro de pendientes diferidos (`sdd/DEBT.md`). Formaliza el destino de ideas, deuda técnica y decisiones que se difieren durante una sesión (WORKFLOW 8.7, v15). |
 | 20260610-v5 | 2026-06-10 | Sub-vista "Modificación de feature existente" actualizada al modelo de **tiers** (WORKFLOW v14, 8.3.2): tier en el flujo de modificación, pasada adversaria/verify/adversaria de código ruteadas por tier, edición quirúrgica directa sobre el archivo (sin re-emitir la spec), chequeos D1–D3. Corregido el header de versión que había quedado en v3 con changelog en v4. |
 | 20261101-v7 | 2026-11-01 | WORKFLOW v19 (Modo Flow): nueva sub-vista "Ciclo de feature en Modo Flow" con los 4 gates de `/sdd-feature`; la anterior pasa a "camino manual". Catálogo: `08-spec-first` agregado, frecuencia de 04/05 actualizada (una vez por feature por defecto), `tier-routing.md` agregado a protocolos. |
+| 20261101-v8 | 2026-11-01 | WORKFLOW v20: tiers T1/T2/T3 y tamaños S/M/L unificados en tracks Rápido / Estándar / Completo. Sub-vista Modo Flow con gates por track (2 / 3 / 4) y revisión adversaria solo en Estándar/Completo; sub-vista de modificación ruteada por track; flujo de bugs con `bugfix-XXX.md` condicional. Catálogo: `08-spec-first` para Rápido/Estándar, `tier-routing.md` → `track-routing.md`. |

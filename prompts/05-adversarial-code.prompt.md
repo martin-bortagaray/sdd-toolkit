@@ -1,18 +1,17 @@
 # Prompt — Pasada adversaria de código
 
-> **Versión:** 20261101-v7 · historia en `/CHANGELOG.md`
+> **Versión:** 20261101-v8 · historia en `/CHANGELOG.md`
 > **Uso:** Por defecto (MODO FEATURE, v19) **una vez por feature**, sobre el diff completo, después de que todas las capas quedaron en verde. En MODO CAPA (manual), después de cada capa.
 > **Dónde se ejecuta:** Vía el comando `/sdd-adversarial-code` en Claude Code (corre en subagente con contexto limpio), o en conversación nueva en Claude.ai. NUNCA en la conversación donde se generó el código (WORKFLOW.md sección 11.1, modelo híbrido v10).
 
 ---
 
-## Cuándo se ejecuta según el tier (modificaciones, WORKFLOW.md 8.3.2)
+## Cuándo se ejecuta según el track (WORKFLOW.md 8.3.2, v20)
 
-En **builds iniciales y modificaciones T3**, este prompt se ejecuta completo, como siempre. En modificaciones con CHANGE-SET:
-
-- **T1 (cosmético): este prompt NO se ejecuta.** Se reemplaza por **checks inline** en la misma sesión de generación: tests de la capa + typecheck/build + revisión del diff contra `CONVENTIONS.md`. El valor del subagente es la independencia de contexto, y sobre un diff cosmético esa independencia compra poco; el riesgo real lo cubren los tests y el gate de prueba manual (que no se relaja en ningún tier).
-- **T2 (lógica acotada): se ejecuta acotado al diff, con contexto selectivo.** El subagente recibe: el diff de la capa (no todo el código), las secciones de la spec que el CHANGE-SET toca + el CHANGE-SET, `CONVENTIONS.md` + `PRINCIPLES.md` siempre, y `DOMAIN_MODEL.md`/`ARCHITECTURE.md` solo según las capas tocadas (8.3.2). Los hallazgos se reportan solo sobre el código del delta y su interacción con el código existente que toca.
-- **Válvula de escape:** si la revisión revela que el cambio toca modelo/reglas/seguridad que el tier no admite, el hallazgo es bloqueante y el tier sube (WORKFLOW.md 8.3.2).
+- **Track Completo, y features nuevas Estándar:** se ejecuta sobre el diff completo de la feature.
+- **Track Rápido de pura presentación ("pura presentación" = el diff no cambia condicionales, queries, validaciones ni datos que se persisten o envían: solo layout, textos, estilos, orden visual o formato de salida): este prompt NO se ejecuta.** Se reemplaza por **checks inline** en la misma sesión de generación: tests + typecheck/build + revisión del diff contra `CONVENTIONS.md`. Sobre un diff cosmético la independencia de contexto compra poco; el riesgo real lo cubren los tests y el gate de prueba manual (que no se relaja en ningún track).
+- **Track Rápido con lógica, y modificaciones Estándar: se ejecuta acotado al diff, con contexto selectivo.** (En una feature nueva Rápido no hay CHANGE-SET: el contexto es la mini-spec + el diff.) El subagente recibe: el diff de la capa (no todo el código), las secciones de la spec que el CHANGE-SET toca + el CHANGE-SET, `CONVENTIONS.md` + `PRINCIPLES.md` siempre, y `DOMAIN_MODEL.md`/`ARCHITECTURE.md` solo según las capas tocadas (8.3.2). Los hallazgos se reportan solo sobre el código del delta y su interacción con el código existente que toca.
+- **Válvula de escape:** si la revisión revela que el cambio toca algo que su track no admite (modelo, reglas, seguridad, dinero, contratos externos, irreversible), el hallazgo es bloqueante y el track sube (WORKFLOW.md 8.3.2).
 
 ## Alcance FEATURE (por defecto desde v19)
 
@@ -32,7 +31,7 @@ La pasada corre **una vez sobre el diff completo de la feature**, no una vez por
 
    Más, siempre: el **código generado de la capa que estás revisando** y las specs dependientes de §12 relevantes a la capa. Transversal: `GLOSSARY.md` solo si la capa usa/introduce términos nuevos. **`PRODUCT.md` no se carga en esta pasada** (es racional de producto, no contrato de implementación).
 
-   **En modificaciones T2:** acotado al diff de la capa (no a todo su código) y a las secciones que el CHANGE-SET toca.
+   **En modificaciones Estándar y track Rápido con lógica:** acotado al diff (no a todo su código) y a las secciones que el CHANGE-SET toca.
 3. Reemplazá los placeholders `{...}` del prompt.
 4. Pegá el prompt completo y enviá.
 

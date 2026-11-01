@@ -1,6 +1,6 @@
 # Prompt — Pasada Adversaria de Spec (Fase 4)
 
-> **Versión:** 20260614-v4 · historia en `/CHANGELOG.md`
+> **Versión:** 20261101-v5 · historia en `/CHANGELOG.md`
 > **Uso:** Después de Fase 3 (Redacción del draft) y antes de Fase 5 (Aprobación). Es el prompt que ejecuta el rol Adversario de la IA (WORKFLOW.md sección 3) sobre una spec de feature.
 > **Dónde se ejecuta:** Vía el comando `/sdd-adversarial-spec` en Claude Code (corre en subagente con contexto limpio), o en conversación nueva en Claude.ai. NUNCA en la conversación donde se redactó la spec (WORKFLOW.md sección 11.1, modelo híbrido v10).
 
@@ -12,11 +12,12 @@
 - **Pasada 2 — condicional (WORKFLOW.md 13.2, v14):** solo se ejecuta si la Pasada 1 produjo **al menos un hallazgo bloqueante** (contradicción real, gap operativo concreto, violación al setup foundacional, decisión implícita sin marcar). Si la Pasada 1 fue limpia o solo dejó hallazgos descartables/estilísticos, NO hay Pasada 2: se pasa directo a Fase 5.
 - **Máximo 2 pasadas** (WORKFLOW.md sección 13.2). Si después de Pasada 2 siguen apareciendo hallazgos estructurales serios, la spec tiene problemas de fondo. Parar y reconsiderar.
 
-**Modificaciones de specs existentes (vienen de `/sdd-modify-spec` con CHANGE-SET y tier, WORKFLOW.md 8.3.2):**
+**Según el track (WORKFLOW.md 8.3.2, v20 — aplica a features nuevas y modificaciones):**
 
-- **Tier T1 (cosmético):** este prompt NO se ejecuta. Excepción codificada de Regla 4: no hay riesgo de diseño que auditar. El riesgo de implementación lo cubren tests + checks inline + gate de prueba manual.
-- **Tier T2 (lógica acotada):** se ejecuta en **modo acotado al delta** — la spec completa se lee como contexto de coherencia, pero los hallazgos se reportan solo sobre lo que el delta introduce o toca (ver bloque MODO ACOTADO del prompt). Contexto selectivo según el CHANGE-SET (ver "Cómo usar").
-- **Tier T3 (estructural):** pasada completa, igual que una spec nueva.
+- **Track Rápido:** este prompt NO se ejecuta (Regla 4 v20): el track excluye por definición modelo de datos, reglas de negocio, seguridad, dinero, contratos externos e irreversibles. El riesgo de implementación lo cubren la revisión de código, los tests y el gate de prueba manual.
+- **Track Estándar — modificación (hay CHANGE-SET):** se ejecuta en **modo acotado al delta** — la spec completa se lee como contexto de coherencia, pero los hallazgos se reportan solo sobre lo que el delta introduce o toca (ver bloque MODO ACOTADO del prompt). Contexto selectivo según el CHANGE-SET (ver "Cómo usar").
+- **Track Estándar — feature nueva, y track Completo:** pasada completa.
+- En Modo Flow (`/sdd-feature`) corre en el mismo subagente que el checklist de `06-spec-verification` (revisión unificada).
 
 ---
 
@@ -30,7 +31,7 @@
    - Specs declaradas en la sección 12 "Dependencias y supuestos" de la spec a revisar (primer nivel directo, no transitivas).
    - `templates/feature-spec.guide.md` del toolkit — **opcional**. Solo si necesitás el detalle de qué va en cada sección. La taxonomía de 10 casos borde que esta pasada audita ya está embebida en la categoría 6 del prompt; no cargues la guide solo por eso.
 
-   **Carga selectiva en modificaciones T2 (WORKFLOW.md 8.3.2):** en vez de los 6 documentos foundacionales, cargar según el CHANGE-SET — siempre `CONVENTIONS.md` + `PRINCIPLES.md`; `DOMAIN_MODEL.md` si el delta toca Capa 1 o 2; `ARCHITECTURE.md` si toca Capa 2 o 3 o introduce integraciones; `GLOSSARY.md` solo si el delta introduce términos nuevos. Adjuntar también el **CHANGE-SET**. En T3 y en specs nuevas se carga todo, como siempre.
+   **Carga selectiva en modificaciones Estándar (WORKFLOW.md 8.3.2):** en vez de los 6 documentos foundacionales, cargar según el CHANGE-SET — siempre `CONVENTIONS.md` + `PRINCIPLES.md`; `DOMAIN_MODEL.md` si el delta toca Capa 1 o 2; `ARCHITECTURE.md` si toca Capa 2 o 3 o introduce integraciones; `GLOSSARY.md` solo si el delta introduce términos nuevos. Adjuntar también el **CHANGE-SET**. En track Completo y en specs nuevas se carga todo, como siempre.
 
 3. Identificar si es Pasada 1 o Pasada 2 (el placeholder `{PASADA}` del prompt).
 
@@ -67,15 +68,15 @@ Excepción: solo re-marques un hallazgo ya cerrado si tenés nuevo criterio basa
 
 Esto evita el loop adversario infinito donde cada pasada vuelve a marcar lo mismo (WORKFLOW.md sección 13.3).
 
-MODO ACOTADO AL DELTA (solo si te pasé un CHANGE-SET con Tier T2):
+MODO ACOTADO AL DELTA (solo si te pasé un CHANGE-SET con Track: Estándar):
 
-Si esta revisión es sobre una MODIFICACIÓN de una spec existente (te adjunté un CHANGE-SET con tier T2), tu alcance cambia:
+Si esta revisión es sobre una MODIFICACIÓN de una spec existente (te adjunté un CHANGE-SET con track Estándar), tu alcance cambia:
 
 - Leé la spec completa como contexto de coherencia, pero reportá SOLO hallazgos que el delta introduce o toca: problemas dentro de los ítems ADDED/MODIFIED/REMOVED, o incoherencias NUEVAS entre el delta y el resto de la spec / el setup foundacional / las dependencias.
 - NO reportes problemas pre-existentes de la spec que el delta no toca: esa spec ya fue aprobada con su propia pasada adversaria en su momento. Si encontrás un problema pre-existente grave (contradicción real o riesgo de seguridad), mencionalo en UNA línea al final bajo "FUERA DE SCOPE", sin desarrollarlo.
 - Prestá especial atención a la PROPAGACIÓN: ítems del delta que invalidan comportamiento declarado en secciones que el CHANGE-SET no lista (ej: una condición nueva en sección 7 que contradice un criterio de aceptación existente en sección 8). Eso SÍ es hallazgo, y de los importantes.
 
-Si NO te pasé CHANGE-SET (spec nueva o tier T3), ignorá este bloque: la revisión es completa.
+Si NO te pasé CHANGE-SET (spec nueva) o el track es Completo, ignorá este bloque: la revisión es completa.
 
 LO QUE QUIERO QUE BUSQUES (en orden de prioridad):
 

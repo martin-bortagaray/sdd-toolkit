@@ -1,6 +1,6 @@
 # Prompt — Generación de Código por Capas (Fase 6)
 
-> **Versión:** 20261101-v6 · historia en `/CHANGELOG.md`
+> **Versión:** 20261101-v7 · historia en `/CHANGELOG.md`
 > **Uso:** Después de que la spec está Approved con semáforo pre-codegen VERDE o AMARILLO aceptado (revisión unificada de `/sdd-feature` o `/sdd-verify`). Por defecto en **MODO FEATURE** (un plan y una ejecución para todas las capas); el modo por capa queda como opción manual.
 > **Dónde se ejecuta:** Vía el comando `/sdd-codegen` en Claude Code. La generación escribe los archivos directamente con herramientas (Write/Edit), así que esta fase requiere Claude Code; el camino Claude.ai del modelo híbrido (WORKFLOW.md §11.1) aplica a las fases de pensamiento (1–3), no a la generación.
 
@@ -56,7 +56,7 @@ El comportamiento original: una invocación por capa, tabla de la capa confirmad
    - Código generado y aprobado de todas las capas anteriores.
    - Schema real de la base de datos (dump del schema vivo o migraciones ejecutadas).
 
-   **Carga selectiva en modificaciones (hay CHANGE-SET; WORKFLOW.md 8.3.2):** en vez de los 6 documentos foundacionales, cargar según el delta — siempre `CONVENTIONS.md` + `PRINCIPLES.md`; `DOMAIN_MODEL.md` si el delta toca Capa 1 o 2; `ARCHITECTURE.md` si toca Capa 2 o 3 o introduce integraciones; `GLOSSARY.md` solo si el delta introduce términos nuevos; `PRODUCT.md` solo en T3. En builds iniciales se carga todo, como siempre.
+   **Carga selectiva en modificaciones (hay CHANGE-SET; WORKFLOW.md 8.3.2):** en vez de los 6 documentos foundacionales, cargar según el delta — siempre `CONVENTIONS.md` + `PRINCIPLES.md`; `DOMAIN_MODEL.md` si el delta toca Capa 1 o 2; `ARCHITECTURE.md` si toca Capa 2 o 3 o introduce integraciones; `GLOSSARY.md` solo si el delta introduce términos nuevos; `PRODUCT.md` solo en track Completo. En builds iniciales se carga todo, como siempre.
 
 4. Reemplazar los placeholders `{CAPA}`, `{NUMERO-CAPA}`, `{SPEC-ID}` y `{SPEC-VERSION}` en el prompt antes de pegar.
 
@@ -73,7 +73,7 @@ CONTEXTO QUE TE PASO:
 - Spec aprobada de la feature.
 - Setup foundacional del proyecto: ARCHITECTURE, DOMAIN_MODEL, CONVENTIONS, PRINCIPLES, GLOSSARY.
 - Specs dependientes declaradas en sección 12 de la spec (primer nivel directo).
-[Si es una MODIFICACIÓN agregar: - CHANGE-SET de /sdd-modify-spec (delta ADDED/MODIFIED/REMOVED con capa por ítem y tier en el header). Si NO te paso CHANGE-SET, es un build inicial: generá la capa completa. Si durante la generación detectás que el delta toca modelo de datos, reglas de negocio o seguridad que el tier declarado no admite, PARÁ y avisame: el tier debe subir (válvula de escape, WORKFLOW.md 8.3.2).]
+[Si es una MODIFICACIÓN agregar: - CHANGE-SET de /sdd-modify-spec (delta ADDED/MODIFIED/REMOVED con capa por ítem y track en el header; en track Rápido es un CHANGE-SET mínimo, pero existe). Una modificación SIEMPRE trae CHANGE-SET; si NO te paso CHANGE-SET, es una feature nueva (build inicial): generá las capas del plan completas. Si durante la generación detectás que el delta toca algo que el track declarado no admite (modelo de datos, reglas de negocio, permisos/seguridad/datos sensibles, dinero, contratos externos, algo irreversible o un componente compartido), PARÁ y avisame: el track debe subir (válvula de escape, WORKFLOW.md 8.3.2).]
 [A partir de Capa 2 agregar: - Código de capas anteriores ya generadas y aprobadas.]
 [A partir de Capa 2 agregar: - Schema real de la base de datos (migraciones ejecutadas).]
 
@@ -124,7 +124,7 @@ La columna "Estado en el cambio" solo aplica cuando esta generación viene de un
 
 Regla 3 — No sobre-ingenieriar. No agregués atributos, validaciones, restricciones, relaciones, endpoints, componentes, capas de abstracción, o patrones que no estén explícitamente en la spec o requeridos por CONVENTIONS.md o PRINCIPLES.md.
 
-Regla 4 — No tomes decisiones de producto. Si durante la generación encontrás algo que la spec no especifica y que requiere una decisión de producto (no solo técnica), parate y avisame. No lo implementés con tu criterio.
+Regla 4 — No tomes decisiones de producto de alto impacto (WORKFLOW Regla 1 v20). Si durante la generación encontrás algo que la spec no especifica y que requiere una decisión de alto impacto (modelo de datos, reglas de negocio, permisos/seguridad, dinero, contratos externos, irreversible), parate y avisame. Las de bajo impacto (textos, orden, defaults de presentación) las tomás con tu recomendación y van a la lista de DECISIONES TOMADAS POR DEFECTO.
 
 Regla 5 — Consistencia con capas anteriores. El código de esta capa debe ser coherente con el código ya generado y aprobado de capas anteriores. Si hay inconsistencia entre lo que las capas anteriores implementaron y lo que la spec pide para esta capa, avisame antes de generar.
 

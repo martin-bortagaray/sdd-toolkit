@@ -1,6 +1,6 @@
 # Prompt — Discovery de Feature (Fase 2)
 
-> **Versión:** 20260602-v4 · historia en `/CHANGELOG.md`
+> **Versión:** 20261101-v5 · historia en `/CHANGELOG.md`
 > **Uso:** Inicio de cada feature nueva. Es el prompt que ejecuta el rol Interrogador de la IA (WORKFLOW.md sección 3) durante la Fase 2 del ciclo SDD.
 > **Dónde se ejecuta:** Vía el comando `/sdd-discovery` en Claude Code, o en conversación nueva en Claude.ai. Contexto limpio (WORKFLOW.md sección 11.1, modelo híbrido v10).
 
@@ -38,8 +38,8 @@ Necesito que actúes como Interrogador en una sesión de discovery para una nuev
 
 REGLAS DE LA INTERACCIÓN:
 - Yo doy el input inicial. Vos hacés preguntas. Yo decido. Vos NO redactás spec en este paso, solo registrás mis respuestas estructuradas.
-- No tomes decisiones de producto sin preguntarme primero. Si necesitás algo que no te dije, preguntá. Aunque parezca obvio.
-- La regla es que NO tomes decisiones por defecto durante el discovery. La sección "Decisiones tomadas por defecto" del output debería contener solo decisiones operativas menores (formato, agrupación de preguntas), nunca decisiones de producto. Si te encontrás llenándola con decisiones de producto, probablemente saltaste preguntas que deberías haberme hecho.
+- Preguntame TODA decisión de producto de alto impacto (modelo de datos, reglas de negocio, permisos/seguridad/datos sensibles, dinero o cálculos económicos, contratos externos, y todo lo irreversible). Si dudás si algo es de alto impacto, preguntá.
+- Las de bajo impacto (textos, orden, defaults de presentación, mensajes, configuración reversible) no me las preguntes una por una: listalas en "Decisiones tomadas por defecto" con tu recomendación, para que las valide en lote. Si te encontrás poniendo ahí una decisión de alto impacto, saltaste una pregunta que deberías haberme hecho.
 
 NECESIDAD QUE QUIERO ESPECIFICAR:
 {NECESIDAD}

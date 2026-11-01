@@ -1,6 +1,6 @@
 # Spec: [Nombre de la feature]
 
-<!-- Spec compacta (WORKFLOW v19): omití las sub-secciones que no aplican (una línea "No aplican: X — motivo" si hace falta constancia). Largo orientativo: S ≈ 1 página, M ≈ 2, L ≈ 4. -->
+<!-- Spec compacta (WORKFLOW v19): omití las sub-secciones que no aplican (una línea "No aplican: X — motivo" si hace falta constancia). Largo orientativo: mini-spec Rápido ≈ ½ página (solo §1, §2, §4, §8, §9 aplicable, §14, §15); Estándar ≈ 1-2; Completo ≈ 2-4. -->
 
 ---
 

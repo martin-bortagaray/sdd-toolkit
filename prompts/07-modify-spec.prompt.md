@@ -1,6 +1,6 @@
 # Prompt — Modificación de Spec Existente (Fase 3 sobre feature ya implementada)
 
-> **Versión:** 20261101-v4 · historia en `/CHANGELOG.md`
+> **Versión:** 20261101-v5 · historia en `/CHANGELOG.md`
 > **Uso:** Cuando una feature ya implementada (o una spec as-built) necesita agregar o cambiar funcionalidad. Es el rol Redactor (WORKFLOW.md sección 3) aplicado a una spec que **ya existe**, no a una nueva. Cubre el flujo de WORKFLOW.md sección 8.3 (Modificar spec).
 > **Dónde se ejecuta:** Claude Code (preferido) o conversación nueva con contexto limpio.
 
@@ -40,11 +40,11 @@ CONTEXTO QUE TE PASO:
 4. Specs dependientes de primer nivel declaradas en la sección 12 de la spec.
 5. La guide del toolkit (feature-spec.guide.md) — solo consulta puntual de la sección que tocás.
 
-REGLA FUNDAMENTAL: NO TOMES DECISIONES DE PRODUCTO. Las decisiones del delta ya están en el discovery. Tu trabajo es trasladarlas a la spec existente, editando con cirugía, no reescribir.
+REGLA FUNDAMENTAL: NO TOMES DECISIONES DE PRODUCTO DE ALTO IMPACTO (Regla 1 v20). Las decisiones del delta vienen del discovery (o del discovery inline); las de bajo impacto las tomás con recomendación y van a §14. Tu trabajo es trasladarlas a la spec existente, editando con cirugía, no reescribir.
 
 PASO 0 — VERIFICACIONES:
 
-DISCOVERY INLINE DEL DELTA (si no te pasé un output de discovery): identificá las decisiones de producto que el cambio deja abiertas y presentámelas en lote (máx. 8, por impacto), cada una con 2-4 opciones, trade-off en una línea y tu recomendación (formato G1 de prompts/08-spec-first.prompt.md). Va en el MISMO mensaje que la lectura crítica (Paso 1) y la propuesta de tier (Paso 2): una sola espera. Detección de evasión vigente. Mis respuestas cumplen el rol de V1/V2.
+DISCOVERY INLINE DEL DELTA (si no te pasé un output de discovery): identificá las decisiones de producto de ALTO IMPACTO que el cambio deja abiertas (modelo de datos, reglas de negocio, permisos/seguridad/datos sensibles, dinero, contratos externos, lo irreversible — Regla 1 v20) y presentámelas en lote (máx. 8, por impacto), cada una con 2-4 opciones, trade-off en una línea y tu recomendación (formato G1 de prompts/08-spec-first.prompt.md). Las de bajo impacto (textos, orden, defaults de presentación, mensajes) las decidís con tu recomendación y van a §14 "Pendiente de validación" (Regla 2). Va en el MISMO mensaje que la lectura crítica (Paso 1) y la propuesta de track (Paso 2): una sola espera. Detección de evasión vigente. Mis respuestas cumplen el rol de V1/V2.
 
 V1 — Sin pendientes en el discovery del delta (si me pasaste uno): buscá "[PENDIENTE". Si hay alguno sin resolver, NO edites. Devolveme "MODIFICACIÓN BLOQUEADA" listando los pendientes (coherente con WORKFLOW.md 2.3 y 5).
 
@@ -64,18 +64,19 @@ Antes de editar, leé la spec existente completa y respondeme en 3-5 líneas:
 
 Si encontrás que la spec existente está incompleta o no captura bien el comportamiento actual: marcámelo. Completar/corregir esa base es parte de esta modificación (espíritu de WORKFLOW.md Regla 5). No construyas el delta encima de una descripción as-built floja sin avisarme.
 
-PASO 2 — CLASIFICACIÓN DEL TIER DE LA MODIFICACIÓN (WORKFLOW.md sección 8.3.2):
+PASO 2 — CLASIFICACIÓN DEL TRACK DE LA MODIFICACIÓN (WORKFLOW.md sección 8.3.2, protocols/track-routing.md):
 
-Antes de editar, clasificá el delta en un tier y proponémelo con justificación. El tier determina qué pasos del ciclo se ejecutan después (adversaria, verify, adversaria de código).
+Antes de editar, clasificá el delta en un track y proponémelo con justificación. El track determina qué pasos del ciclo se ejecutan después (revisión de spec, modo de verify, revisión de código, cantidad de gates).
 
-- T1 — Cosmético/presentación: el delta NO toca el modelo de datos (sección 6), NO toca reglas de negocio (sección 7), NO toca superficie de seguridad (auth, permisos, datos sensibles), NO introduce entidades, flujos ni integraciones. El comportamiento observable cambia solo en presentación: layout, textos, colores, orden visual, formato de salida. Puede tocar cualquier capa de código (un layout de PDF vive en Capa 2): lo que define T1 es la naturaleza del cambio, no la capa.
-- T2 — Lógica acotada: toca comportamiento (secciones 4/7/8/9) en funciones existentes, pero NO la sección 6, NO entidades/flujos/integraciones nuevas, NO seguridad.
-- T3 — Estructural: toca la sección 6, introduce entidad/flujo/integración nueva, o toca superficie de seguridad.
+- Rápido: el delta NO toca el modelo de datos (sección 6), NI reglas de negocio (sección 7), NI permisos/seguridad/datos sensibles, NI dinero o cálculos económicos, NI contratos externos, NI nada irreversible, NI un componente compartido o artefacto foundacional (un override local sí califica). Alcance chico. Puede tocar cualquier capa de código (un layout de PDF vive en Capa 2): lo que define el track es la naturaleza del cambio, no la capa.
+- Estándar: toca la sección 6 o la 7, o introduce un flujo o una entidad nueva, sin disparadores de Completo.
+- Completo: toca permisos/seguridad/datos sensibles, dinero o cálculos económicos, un contrato externo, una operación irreversible sobre datos, o es grande.
 
 Reglas de clasificación:
-- Si dudás entre dos tiers, proponé el superior (espejo de la regla de bugs: si dudo entre A y B, es B).
+- Si dudás entre dos tracks, proponé el superior (espejo de la regla de bugs: si dudo entre A y B, es B).
 - La justificación tiene que citar los criterios objetivos ("no toca sección 6 porque...", "no hay superficie de seguridad porque..."). "Es un cambio chico" no es una justificación.
-- Esperá mi confirmación del tier antes de editar (Modo B: vos proponés, yo decido). Lectura crítica (Paso 1), tier (Paso 2) y preguntas del delta van en un solo mensaje; yo respondo todo junto. El tier confirmado va al header del CHANGE-SET (Bloque 3) y a la entrada del changelog.
+- Esperá mi confirmación del track antes de editar (Modo B: vos proponés, yo decido). Lectura crítica (Paso 1), track (Paso 2) y preguntas del delta van en un solo mensaje; yo respondo todo junto. El track confirmado va a la entrada del changelog y, en Estándar/Completo, al header del CHANGE-SET (Bloque 3).
+- Track Rápido: la edición de spec se reduce a una línea de changelog (+ nota de sección solo si llena un hueco real de documentación); el CHANGE-SET es mínimo (ítems + capa, sin prosa) pero se emite siempre: es lo que acota el codegen.
 
 PASO 3 — EDICIÓN QUIRÚRGICA:
 
@@ -89,12 +90,12 @@ PASO 4 — VERSIÓN Y CHANGELOG:
 
 - Subí la versión de la spec: nueva entrada con formato AAAAMMDD-vN (incrementá N respecto a la versión actual).
 - Actualizá el campo "Versión" y "Fecha última modificación" de la sección 1 (Metadata).
-- Agregá una entrada al changelog (sección 15) que diga: qué secciones cambiaron, qué se agregó/modificó, por qué, y el **tier confirmado** del cambio. Sé concreto: el changelog es la trazabilidad del cambio, incluido qué camino del proceso recorrió.
+- Agregá una entrada al changelog (sección 15) que diga: qué secciones cambiaron, qué se agregó/modificó, por qué, y el **track confirmado** del cambio. Sé concreto: el changelog es la trazabilidad del cambio, incluido qué camino del proceso recorrió.
 - Si la spec estaba en estado "As-built", proponé pasarla a "Implemented" con la nueva versión (decisión final del autor).
 
 PASO 5 — DECISIONES POR DEFECTO (sección 14):
 
-Si durante la edición tomaste alguna decisión operativa menor (formato, orden, terminología), listala en sección 14 con estado "Pendiente de validación". NUNCA decisiones de producto. Si no hubo, escribilo literal.
+Si durante la edición tomaste alguna decisión operativa menor (formato, orden, terminología) o de producto de BAJO impacto, listala en sección 14 con tu recomendación y estado "Pendiente de validación". NUNCA decisiones de alto impacto. Si no hubo, escribilo literal.
 
 MANEJO DE GAPS:
 
@@ -103,12 +104,12 @@ Si durante la edición descubrís que el delta requiere una decisión de product
 OUTPUT FINAL — tres bloques separados por delimitador visual:
 
 Bloque 1 — RESUMEN DEL CAMBIO:
-   - Tier confirmado y su justificación.
+   - Track confirmado y su justificación.
    - Secciones modificadas (lista).
    - Qué se agregó / cambió / quitó en cada una.
    - Versión nueva de la spec.
    - Si detectaste debilidades en la spec existente que corregiste de paso.
-   - Hasta 3 puntos a revisar en la pasada adversaria (Fase 4) — omitir si el tier es T1 (la pasada se omite, WORKFLOW.md 8.3.2).
+   - Hasta 3 puntos a revisar en la revisión adversaria (Fase 4) — omitir si el track es Rápido (la revisión de spec se omite, Regla 4 v20).
 
 Bloque 2 — EDICIONES APLICADAS:
    - Si estás corriendo en Claude Code (tenés acceso al archivo): aplicá las ediciones quirúrgicas DIRECTAMENTE sobre el archivo de la spec con tu herramienta de edición, y en este bloque reportá la lista de ediciones aplicadas (sección tocada + qué cambió, 1-2 líneas por edición). NO re-emitas la spec completa: ya está en el disco; re-emitir cientos de líneas que no cambiaron es puro costo de output sin valor.
@@ -120,7 +121,7 @@ Bloque 3 — CHANGE-SET ESTRUCTURADO (delta machine-readable para el codegen):
 
    ```
    CHANGE-SET — {SPEC-ID} {VERSION-ANTERIOR} → {VERSION-NUEVA}
-   Tier: {T1 | T2 | T3} — {justificación en una línea contra los criterios de WORKFLOW.md 8.3.2}
+   Track: {Rápido | Estándar | Completo} — {justificación en una línea contra los criterios de WORKFLOW.md 8.3.2}
 
    ## ADDED
    - [Capa N | Sección X, ítem Y] <texto preciso de lo que se agrega>
@@ -140,5 +141,5 @@ Bloque 3 — CHANGE-SET ESTRUCTURADO (delta machine-readable para el codegen):
 
 NO hagas pasada adversaria en este paso. Eso es Fase 4, con otro prompt.
 
-¿Listo? Empezá por el Paso 0 (verificaciones), el Paso 1 (lectura crítica) y el Paso 2 (propuesta de tier). No edites hasta que yo confirme el tier.
+¿Listo? Empezá por el Paso 0 (verificaciones), el Paso 1 (lectura crítica) y el Paso 2 (propuesta de track). No edites hasta que yo confirme el track.
 ```

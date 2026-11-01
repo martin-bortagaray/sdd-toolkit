@@ -1,6 +1,6 @@
 # Prompt — Verificación de Spec Pre-Generación (Fase 5 → Fase 6)
 
-> **Versión:** 20261101-v4 · historia en `/CHANGELOG.md`
+> **Versión:** 20261101-v5 · historia en `/CHANGELOG.md`
 > **Uso:** Después de que la spec está en estado Approved y antes de iniciar Fase 6 (generación de código por capas). Es el "semáforo de salida" del ciclo de especificación.
 > **Dónde se ejecuta:** Vía el comando `/sdd-verify` en Claude Code, o en conversación nueva en Claude.ai. Contexto limpio (WORKFLOW.md sección 11.1, modelo híbrido v10).
 
@@ -14,7 +14,7 @@ Si el prompt devuelve bloqueantes, resolverlos y volver a ejecutar antes de inic
 
 **Revisión unificada (Modo Flow, WORKFLOW.md §6.0, v19):** dentro de `/sdd-feature` este checklist corre en el mismo subagente que la pasada adversaria (`03-adversarial-spec`), sobre la spec en estado Draft/Review, **omitiendo F1 y F3** (estado Approved y §14 validada los cierra el gate de aprobación G2). El resultado se reporta como semáforo pre-codegen junto con los hallazgos adversarios.
 
-**Tiene tres modos según el tier (WORKFLOW.md 8.3.2):** COMPLETO para specs nuevas y modificaciones T3, DELTA para modificaciones T2, EXPRESS para modificaciones T1. En modificaciones, adjuntar también el CHANGE-SET (con su tier en el header) y aplicar la carga selectiva de documentos foundacionales de 8.3.2.
+**Tiene tres modos según el track (WORKFLOW.md 8.3.2, v20):** COMPLETO para specs nuevas Estándar y para track Completo, DELTA para modificaciones Estándar, EXPRESS para track Rápido (mini-spec o delta; corre inline, sin subagente). En modificaciones, adjuntar también el CHANGE-SET (con su track en el header) si existe y aplicar la carga selectiva de documentos foundacionales de 8.3.2.
 
 ---
 
@@ -44,34 +44,34 @@ CONTEXTO QUE TE PASO:
 2. Setup foundacional del proyecto (PRODUCT, ARCHITECTURE, DOMAIN_MODEL, CONVENTIONS, GLOSSARY, PRINCIPLES) — los archivos que existan.
 3. Specs declaradas como dependencias en sección 12 de la spec (primer nivel directo).
 4. Guide del toolkit (feature-spec.guide.md) — referencia de qué va en cada sección.
-5. Si es una MODIFICACIÓN: el CHANGE-SET (delta ADDED/MODIFIED/REMOVED con tier en el header).
+5. Si es una MODIFICACIÓN: el CHANGE-SET (delta ADDED/MODIFIED/REMOVED con track en el header), si existe.
 
-MODO DE EJECUCIÓN (según tier, WORKFLOW.md sección 8.3.2):
+MODO DE EJECUCIÓN (según track, WORKFLOW.md sección 8.3.2):
 
-Si te pasé un CHANGE-SET, el modo lo decide su tier. Si no hay CHANGE-SET (spec nueva / build inicial), el modo es COMPLETO.
+El modo lo decide el track: Rápido → EXPRESS; Estándar → COMPLETO en spec nueva, DELTA en modificación; Completo → COMPLETO.
 
-- MODO COMPLETO (specs nuevas y modificaciones T3): ejecutá Parte 1 (F1-F8) y Parte 2 (C1-C6) completas sobre toda la spec. En modificaciones, ejecutá además los chequeos delta D1-D3.
+- MODO COMPLETO (specs nuevas Estándar y track Completo): ejecutá Parte 1 (F1-F8) y Parte 2 (C1-C6) completas sobre toda la spec. En modificaciones, ejecutá además los chequeos delta D1-D3.
 
-- MODO DELTA (modificaciones T2): ejecutá F1, F2, F3 y los chequeos delta D1-D3. Ejecutá F5, F6, F7 y C1-C6 ACOTADOS al delta: valen solo sobre los ítems del CHANGE-SET y las secciones que tocan. La base de la spec ya pasó verificación cuando se aprobó; no la re-verifiques entera. En F5/F6 no apliques el mínimo global de 5 escenarios: verificá que cada comportamiento nuevo del delta tenga al menos un criterio de aceptación verificable y sus casos borde aplicables cubiertos.
+- MODO DELTA (modificaciones Estándar): ejecutá F1, F2, F3 y los chequeos delta D1-D3. Ejecutá F5, F6, F7 y C1-C6 ACOTADOS al delta: valen solo sobre los ítems del CHANGE-SET y las secciones que tocan. La base de la spec ya pasó verificación cuando se aprobó; no la re-verifiques entera. En F5/F6 no apliques el mínimo global de 5 escenarios: verificá que cada comportamiento nuevo del delta tenga al menos un criterio de aceptación verificable y sus casos borde aplicables cubiertos.
 
-- MODO EXPRESS (modificaciones T1): ejecutá SOLO F1, F2, F3, los chequeos delta D1-D3, y C3/C4/C5 acotados a los ítems del delta. F4-F8 y C1/C2/C6 se omiten: un delta cosmético no toca modelo, reglas ni stack, y la base ya está verificada.
+- MODO EXPRESS (track Rápido): ejecutá SOLO F1, F2, F3, F5 y F6 acotados a la mini-spec o al delta, los chequeos delta D1-D3 (si es modificación), y C3/C4/C5 acotados. Si corre inline antes de la aprobación única (Modo Flow), omití F1 y F3: los cierra esa aprobación. F4, F7, F8 y C1/C2/C6 se omiten: el track Rápido no toca modelo, reglas ni stack. Verificá además que la mini-spec/delta no necesite §6 ni §7; si los necesita, el track no es Rápido (BLOQUEANTE, válvula de escape).
 
 CHEQUEOS DELTA (solo modificaciones — los tres modos cuando hay CHANGE-SET):
 
 D1. Versión y changelog:
-¿La versión de la spec subió respecto a la anterior, y el changelog (sección 15) tiene una entrada que dice qué cambió, por qué, y el tier del cambio?
+¿La versión de la spec subió respecto a la anterior, y el changelog (sección 15) tiene una entrada que dice qué cambió, por qué, y el track del cambio?
 PASA / FALLA con detalle.
 
 D2. CHANGE-SET coherente con la spec:
 ¿Cada ítem del CHANGE-SET corresponde a una edición real en la spec, y cada edición sustantiva de la spec está reflejada en el CHANGE-SET? ¿Las capas etiquetadas por ítem son plausibles?
 PASA / FALLA listando los desajustes en ambas direcciones.
 
-D3. Tier verificado contra el CHANGE-SET:
-¿El contenido del CHANGE-SET respeta los criterios objetivos del tier declarado en su header?
-- T1: NO toca sección 6 (modelo) ni sección 7 (reglas de negocio) ni superficie de seguridad, NO introduce entidades/flujos/integraciones.
-- T2: NO toca sección 6 ni superficie de seguridad, NO introduce entidades/flujos/integraciones.
-PASA si el tier declarado es consistente con el contenido.
-FALLA — BLOQUEANTE si el delta excede su tier: el tier debe subir (válvula de escape de WORKFLOW.md 8.3.2) y los pasos salteados (ej: pasada adversaria de spec) deben ejecutarse antes de continuar a Fase 6.
+D3. Track verificado contra el delta:
+¿El contenido del delta (CHANGE-SET si existe, o las ediciones de la spec) respeta los criterios objetivos del track declarado?
+- Rápido: NO toca sección 6 (modelo) ni sección 7 (reglas de negocio), NI permisos/seguridad/datos sensibles, NI dinero, NI contratos externos, NI nada irreversible, NI un componente compartido.
+- Estándar: NO toca permisos/seguridad/datos sensibles, NI dinero, NI contratos externos, NI nada irreversible.
+PASA si el track declarado es consistente con el contenido.
+FALLA — BLOQUEANTE si el delta excede su track: el track debe subir (válvula de escape de WORKFLOW.md 8.3.2) y los pasos salteados (ej: pasada adversaria de spec) deben ejecutarse antes de continuar a Fase 6.
 
 PARTE 1 — CHECKLIST FORMAL:
 
@@ -98,9 +98,9 @@ PASA si: hay al menos una decisión con alternativa descartada y razonamiento.
 FALLA si: la sección está vacía, dice "N/A", o tiene solo placeholder.
 
 F5. Criterios de aceptación verificables (sección 8):
-¿Cada requerimiento funcional de la sección 4 tiene al menos un criterio de aceptación verificable (Given/When/Then o equivalente)? En features M y L, además, ¿hay al menos 5 escenarios?
-PASA si: cada RF está cubierto por al menos un CA verificable (y, en M/L, hay 5 o más).
-FALLA si: algún RF no tiene CA, los criterios no son verificables (no tienen condición + acción + resultado esperado), o una feature M/L tiene menos de 5.
+¿Cada requerimiento funcional de la sección 4 tiene al menos un criterio de aceptación verificable (Given/When/Then o equivalente)? En features nuevas de track Completo, además, ¿hay al menos 5 escenarios?
+PASA si: cada RF está cubierto por al menos un CA verificable (y, en Completo, hay 5 o más).
+FALLA si: algún RF no tiene CA, los criterios no son verificables (no tienen condición + acción + resultado esperado), o una feature nueva Completo tiene menos de 5.
 
 F6. Taxonomía de casos borde cubierta (sección 9):
 Verificá las 10 categorías de la taxonomía obligatoria (guide §9): concurrencia, límites numéricos, inconsistencia de estado, falla de integración externa, datos vacíos, datos malformados, conexión perdida, sesión expirada, permisos insuficientes, entidad inexistente.
@@ -166,7 +166,7 @@ Generá el reporte en este formato:
 ---
 REPORTE DE VERIFICACIÓN PRE-GENERACIÓN
 Spec: [ID y versión]
-Modo: [COMPLETO / DELTA / EXPRESS] — [tier, si es modificación]
+Modo: [COMPLETO / DELTA / EXPRESS] — [track]
 Fecha: [hoy]
 ---
 
