@@ -17,7 +17,9 @@ El bug es: **$ARGUMENTS**. Antes de nada, clasificá el tipo — determina qué 
 
 > Señal de alerta: si dudás entre A y B, casi siempre es B. La ambigüedad de spec es la causa más frecuente de bugs.
 
-Para clasificar, leé la spec afectada en `sdd/specs/` y compará comportamiento observado vs. lo que la spec dice. Presentame tu clasificación y el porqué antes de avanzar. Si es **Tipo C**, paramos acá y lo tratamos como feature.
+Para clasificar, leé la spec afectada en `sdd/specs/` y compará comportamiento observado vs. lo que la spec dice. **En un solo mensaje** (WORKFLOW v19 — una espera, no tres) presentame: clasificación A/B/C + porqué, root cause hipotético, el test de regresión que vas a escribir y el fix mínimo que proponés (y, si es Tipo B, el cambio de spec). Si es **Tipo C**, paramos acá y lo tratamos como feature (`/sdd-feature`).
+
+**Con mi `ok` seguís sin más confirmaciones** por los Pasos 2-4 (artefacto, spec si es B, test que falla, fix, test en verde) hasta la prueba manual del Paso 5. Solo frenás si el root cause resulta distinto del hipotético o aparece una decisión de producto.
 
 ## Paso 2 — Creá el artefacto `bugfix-NNN.md`
 
@@ -48,4 +50,4 @@ El test de regresión automático prueba que el caso exacto no vuelve, pero no r
 
 ## Paso 6 — Cierre
 
-Pasá el artefacto a **Cerrado** solo con: fix verificado, test de regresión en verde y en la suite, **prueba manual confirmada por mí**, spec actualizada si era Tipo B. Para commitear usá `/sdd-commit` (detecta el `bugfix-NNN`, arma el prefijo `fix(bugfix-NNN):` y vuelve a ofrecer el gate de prueba manual como red de seguridad).
+Pasá el artefacto a **Cerrado** solo con: fix verificado, test de regresión en verde y en la suite, **prueba manual confirmada por mí**, spec actualizada si era Tipo B. **Mi `ok` a la prueba manual autoriza el commit:** commiteá directo con prefijo `fix(bugfix-NNN):` (convención de `/sdd-commit`), sin volver a preguntar por el gate ni por el mensaje. `ok push` → también pusheás.

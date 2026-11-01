@@ -1,6 +1,6 @@
 # CODEGEN PROTOCOL — Protocolo de Generación de Código por Capas
 
-> **Versión:** 20260610-v7 · historia en `/CHANGELOG.md`
+> **Versión:** 20261101-v8 · historia en `/CHANGELOG.md`
 > **Toolkit:** sdd-toolkit
 > **Propósito:** Referencia rápida para usar durante Fase 6 (generación de código). No es un prompt para la IA. Es el checklist operativo del autor para ejecutar Fase 6 correctamente.
 
@@ -9,57 +9,51 @@
 ## Antes de empezar Fase 6
 
 - [ ] La spec tiene estado `Approved`.
-- [ ] El prompt `06-spec-verification.prompt.md` fue ejecutado con veredicto **VERDE** o **AMARILLO aceptado conscientemente** (con decisión registrada en sección 10.1 de la spec).
+- [ ] El checklist de verificación pre-codegen (`06-spec-verification.prompt.md`, dentro de la revisión unificada de `/sdd-feature` o vía `/sdd-verify`) dio **VERDE** o **AMARILLO aceptado conscientemente** (con decisión registrada en sección 10.1 de la spec).
 - [ ] El INDEX del proyecto (`specs/INDEX.md`) tiene la spec en estado `Approved`.
 - [ ] **Si es una modificación** (la spec viene de `/sdd-modify-spec`): tenés el **CHANGE-SET** a mano (delta `ADDED/MODIFIED/REMOVED` con capa por ítem y **tier en el header**, WORKFLOW.md sección 8.3.2). Solo se generan las capas listadas en el CHANGE-SET; las demás no se tocan. Build inicial = sin CHANGE-SET = las 4 capas completas.
 - [ ] **Si es una modificación:** el `/sdd-verify` se corrió en el modo del tier (express T1 / delta T2 / completo T3) y el chequeo D3 confirmó que el tier declarado es consistente con el contenido del CHANGE-SET.
 
 ---
 
-## Flujo por capa
+## Flujo de Fase 6 (MODO FEATURE, por defecto desde WORKFLOW v19)
 
 ```
-Para cada capa (1 → 2 → 3 → 4):
+  0. PLAN ÚNICO  (único gate humano antes del código)
+     Prompt 04 en MODO FEATURE: una tabla para todas las capas del plan
+     (requerimiento/CA → capa → archivos → test que lo cubre) + migraciones
+     + archivos existentes que se tocan. Confirmo "plan ok" una vez.
+     En features S, el plan viene junto con la ficha de aprobación de spec.
 
-  1. GENERAR
-     Ejecutar prompt 04-codegen-layer.prompt.md en conversación nueva.
-     Cargar: spec + setup foundacional + dependencias + código capas anteriores (si aplica).
+  Para cada capa del plan (1 → 2 → 3 → 4), SIN gate humano entre capas:
+     a. Tests de los CA (§8) y casos borde (§9) que tocan la capa → fallan.
+     b. Código de la capa (Write/Edit a disco).
+     c. GATE AUTOMÁTICO: tests de la capa + suite previa + typecheck/lint/build
+        en verde. Máx. 2 intentos de corrección; al tercero, frenar (WORKFLOW 8.2).
+     d. Decisiones técnicas por defecto → a la lista acumulada.
+     Interrupción solo por: gap de producto, conflicto con foundation,
+     válvula de escape de tier.
 
-  2. REVISAR TABLA COMPARATIVA
-     Confirmar tabla antes de pedir que genere código.
-     ¿Todos los requerimientos de esta capa están en la tabla?
-     Si falta alguno → pedirlo antes de confirmar.
+  REVISIÓN DE CÓDIGO — UNA PASADA POR FEATURE (según tier)
+     Build inicial / T3: prompt 05 sobre el diff completo (subagente, Sonnet);
+       backend + UI con diff grande → 2 subagentes en paralelo.
+     T2: subagente acotado al diff. T1: checks inline.
+     Bloqueantes → corregir + re-correr gate automático.
+     No bloqueantes → DEBT.md.
 
-  3. REVISAR CÓDIGO Y TESTS
-     Ejecutar checklist de verificación entre capas (abajo).
+  PRUEBA MANUAL (gate, WORKFLOW 7.5) — junto con la validación de las
+     decisiones técnicas por defecto acumuladas. Mi "ok" autoriza el commit.
 
-  4. VERIFICACIÓN ADVERSARIA SEGÚN TIER (WORKFLOW.md 8.3.2)
-     T3 y builds iniciales: prompt 05-adversarial-code.prompt.md en conversación nueva (o subagente).
-     Modificación T2: subagente acotado al diff, contexto selectivo.
-     Modificación T1: checks inline en la misma sesión (tests + typecheck/build + diff vs CONVENTIONS).
-     Procesar hallazgos: bloqueantes antes de avanzar, no bloqueantes a DEBT.md.
-     Si un hallazgo revela que el delta excede su tier: tier sube + ejecutar pasos salteados (válvula de escape).
-
-  5. PASAR A SIGUIENTE CAPA
-     Adjuntar código de esta capa como contexto adicional en la siguiente.
-
-Al completar las 4 capas (no capa por capa; ver WORKFLOW.md sección 7.6):
-
-  PRUEBA MANUAL (gate, WORKFLOW.md sección 7.5):
-     Armar plan de prueba manual desde criterios de aceptación (sección 8) y
-     casos borde (sección 9) de la spec — en modificación, acotado al CHANGE-SET.
-     Probar el cambio a mano. Sin confirmación de que funciona, NO se commitea.
-
-  COMMITEAR la feature completa, verificada y probada manualmente.
-  Un solo commit por feature, con referencia a spec ID y versión.
-  Formato: feat(<spec-id>): <descripción de la feature>
+  COMMIT único de la feature: feat(<spec-id>): <descripción>
 ```
+
+**MODO CAPA (manual):** el flujo anterior sigue disponible con `/sdd-codegen <ID> <capa>` — tabla de la capa → confirmación → código → checklist → pasada adversaria de esa capa → siguiente capa.
 
 ---
 
 ## Checklist de verificación entre capas
 
-Ejecutar después de revisar el código y antes de la pasada adversaria. **No tildar hasta verificar.**
+En MODO FEATURE, los ítems mecánicos (tests en verde, typecheck/build) los cubre el **gate automático entre capas**, y el resto se verifica **una vez al cierre de la feature** (lo audita la pasada adversaria de código sobre el diff completo + la validación de decisiones por defecto en G4). En MODO CAPA, ejecutar por capa, antes de la pasada adversaria. **No tildar hasta verificar.**
 
 ### Siempre (todas las capas)
 
@@ -175,7 +169,7 @@ Ver WORKFLOW.md sección 8.3.1:
 ## Reglas que no se relajan bajo ninguna circunstancia
 
 1. **No saltar la pasada adversaria de código** por "es una capa simple". Única excepción codificada: modificaciones **T1** (WORKFLOW.md 8.3.2), donde se **reemplaza** —no se omite— por checks inline (tests + typecheck + diff vs `CONVENTIONS.md`). La diferencia: T1 es una regla con criterio objetivo verificado por D3, no una sensación de "es simple".
-2. **No pasar a la siguiente capa hasta que el checklist esté completo.**
+2. **No pasar a la siguiente capa con tests en rojo.** En MODO FEATURE el gate entre capas es automático (tests + typecheck/build); en MODO CAPA, el checklist completo.
 3. **No commitear hasta que los tests pasen.**
 4. **No modificar el código sin modificar la spec primero** si el cambio es de producto.
 5. **No sobre-ingenieriar.** Si no está en la spec, no va.

@@ -1,7 +1,7 @@
 # Vista general del proceso SDD
 
 > **Toolkit:** sdd-toolkit
-> **Versión:** 20260602-v3
+> **Versión:** 20261101-v4
 > **Propósito:** Vista rápida del proceso completo del toolkit SDD. Para detalle visual completo, ver [`process-diagram.svg`](./process-diagram.svg).
 
 ---
@@ -55,7 +55,7 @@ flowchart TD
 
 **Fase 0** se hace una sola vez por proyecto. Produce el setup foundacional, el roadmap y el prototipo UI.
 
-**Ciclo de feature** se repite por cada feature listada en el roadmap. Tiene 6 fases secuenciales con prompts asociados.
+**Ciclo de feature** se repite por cada feature listada en el roadmap. Tiene 6 fases secuenciales con prompts asociados. **Desde WORKFLOW v19 se ejecuta en Modo Flow** con `/sdd-feature`: las fases 2+3 se fusionan (spec-first, `08-spec-first`), la 4 y la verificación corren en un solo subagente, y la 6 genera todas las capas con un plan único y una sola revisión de código; el autor interviene en 4 gates (preguntas en lote, aprobación de spec, plan, prueba manual). El diagrama muestra el modelo conceptual por fases, que no cambia.
 
 **Deploy** ocurre después de completar Fase 6. Sigue el modelo de ramas definido en WORKFLOW sección 11.6.
 
@@ -76,9 +76,9 @@ El diagrama Mermaid de arriba muestra el esqueleto del proceso. Para ver el deta
 El toolkit está organizado en:
 
 - **1 workflow:** `WORKFLOW.md`
-- **10 prompts:** 3 de Fase 0 + 7 del ciclo de feature (incluye `07-modify-spec`)
+- **11 prompts:** 3 de Fase 0 + 8 del ciclo de feature (incluye `07-modify-spec` y `08-spec-first`)
 - **13 templates:** setup foundacional (6) + spec de feature (2) + proyecto (2) + ADR (1) + design system (1) + bugfix (1)
-- **1 protocolo:** codegen-protocol
+- **2 protocolos:** codegen-protocol, tier-routing
 - **6 documentos:** process-overview, process-diagram.svg, 3 diagramas de flujo SVG, artifacts-usage-guide
 - **1 plugin de Claude Code:** `.claude-plugin/` + `commands/` (un comando por fase del proceso)
 
@@ -95,3 +95,4 @@ Para listado completo y referencia rápida, ver `docs/artifacts-usage-guide.md`.
 | 20260523-v1 | 2026-05-23 | Versión inicial. |
 | 20260526-v2 | 2026-05-26 | Agregado flujo de tratamiento de bugs al diagrama mermaid. Corregida referencia sección 9.6 → 11.6. Actualizado inventario: 23 → 26 artefactos con desglose correcto. |
 | 20260602-v3 | 2026-06-02 | Inventario actualizado por WORKFLOW v10: 10 prompts (agregado `07-modify-spec`), agregado el plugin de Claude Code. Removido el total exacto de artefactos (ya no cuadraba con el desglose) y marcado para recuento. Pendiente: regenerar `process-diagram.svg` (sigue mostrando conteos viejos). |
+| 20261101-v4 | 2026-11-01 | WORKFLOW v19 (Modo Flow): nota en "Lectura rápida" sobre la ejecución con `/sdd-feature` y sus 4 gates; inventario a 11 prompts (`08-spec-first`) y 2 protocolos. Pendiente: regenerar `process-diagram.svg` y los SVG de flujo. |

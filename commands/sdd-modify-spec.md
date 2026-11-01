@@ -1,6 +1,6 @@
 ---
 description: "SDD — Modificar una spec existente (Implemented/As-built) para agregar o cambiar funcionalidad. Edición quirúrgica + sube versión + changelog."
-argument-hint: "[ID/ruta de la spec a modificar] [ruta al output del discovery del delta]"
+argument-hint: "[ID/ruta de la spec a modificar] [qué cambiar, o ruta al output del discovery del delta]"
 ---
 
 Vas a **modificar una spec que ya existe** (estado Implemented o As-built) para agregar o cambiar funcionalidad — el flujo de WORKFLOW sección 8.3. Regla fundamental: **NO tomás decisiones de producto** (ya están en el discovery del delta) y **editás con cirugía**, no reescribís la spec entera.
@@ -8,9 +8,9 @@ Vas a **modificar una spec que ya existe** (estado Implemented o As-built) para 
 ## Paso 1 — Cargá el prompt canónico y el contexto
 
 1. Leé el prompt maestro: `${CLAUDE_PLUGIN_ROOT}/prompts/07-modify-spec.prompt.md`. Es la fuente de verdad.
-2. Leé la guía: `${CLAUDE_PLUGIN_ROOT}/templates/feature-spec.guide.md`.
-3. Identificá desde **$ARGUMENTS**: la spec a modificar (`sdd/specs/<ID>.md`) y el output del discovery del delta. Si no me pasaste el discovery del delta, hacelo primero con `/sdd-discovery` acotado al cambio.
-4. Leé el setup foundacional de `sdd/foundation/` y las specs dependientes (sección 12).
+2. La guía `${CLAUDE_PLUGIN_ROOT}/templates/feature-spec.guide.md` solo puntualmente (grep de la sección que tocás), no entera.
+3. Identificá desde **$ARGUMENTS**: la spec a modificar (`sdd/specs/<ID>.md`) y el cambio. Si me pasaste un output de discovery del delta, usalo. **Si me pasaste solo la descripción del cambio (camino por defecto, v19):** no me mandes a `/sdd-discovery`; hacé el discovery del delta **inline y en lote** — las decisiones de producto que el cambio deja abiertas, con opciones y tu recomendación (formato G1 de `prompts/08-spec-first.prompt.md`) — y presentalas **en el mismo mensaje** que la propuesta de tier del Paso 4. Una sola espera.
+4. Leé el setup foundacional con la carga selectiva de `tier-routing.md` (siempre CONVENTIONS + PRINCIPLES; el resto según lo que toca el cambio) y las specs dependientes de §12 relevantes.
 
 ## Paso 2 — Verificaciones (Paso 0 del prompt)
 
@@ -24,7 +24,7 @@ Antes de editar, leé la spec completa y decime si refleja con precisión el com
 
 ## Paso 4 — Clasificá el tier y esperá mi confirmación
 
-Proponeme el **tier de la modificación** (T1/T2/T3) según los criterios objetivos de `${CLAUDE_PLUGIN_ROOT}/protocols/tier-routing.md`, con justificación contra esos criterios — "es un cambio chico" no es justificación. **Si dudás entre dos, proponé el superior.** No edites hasta que yo confirme el tier (Modo B). El tier va al header del CHANGE-SET + changelog y determina los pasos siguientes.
+Proponeme el **tier de la modificación** (T1/T2/T3) según los criterios objetivos de `${CLAUDE_PLUGIN_ROOT}/protocols/tier-routing.md`, con justificación contra esos criterios — "es un cambio chico" no es justificación. **Si dudás entre dos, proponé el superior.** No edites hasta que yo confirme el tier (Modo B). La propuesta de tier va **junto** con las preguntas del delta (si las hay): las respondo en un solo mensaje. El tier va al header del CHANGE-SET + changelog y determina los pasos siguientes.
 
 ## Paso 5 — Editá, versioná, documentá
 

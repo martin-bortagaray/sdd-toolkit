@@ -15,11 +15,11 @@
 
 | Paso | T1 | T2 | T3 |
 |------|----|----|----|
-| Adversaria de spec (`/sdd-adversarial-spec`) | **Omitida** (excepción Regla 4) | Acotada al delta | Completa |
+| Revisión de spec (adversaria + verify en un subagente, Fase B de `/sdd-feature`) | **Omitida** — solo D1–D3 + C3/C4/C5 inline | Acotada al delta | Completa |
 | Pasada adversaria 2 | — | Solo si P1 tuvo bloqueantes | Solo si P1 tuvo bloqueantes |
-| Verify (`/sdd-verify`) | Modo **express** | Modo **delta** | **Completo** |
+| Modo del checklist de verify (dentro de la revisión) | **Express** | **Delta** | **Completo** |
 | Codegen (`/sdd-codegen`) | Solo capas del CHANGE-SET | Solo capas del CHANGE-SET | Solo capas del CHANGE-SET |
-| Adversaria de código | **Checks inline** (tests + typecheck + diff vs `CONVENTIONS.md`) | Subagente acotado al diff | Subagente completo |
+| Adversaria de código (una pasada por feature) | **Checks inline** (tests + typecheck + diff vs `CONVENTIONS.md`) | Subagente acotado al diff | Subagente sobre el diff completo |
 | Gate de prueba manual (§7.5) | **Sí** | Sí | Sí |
 
 ## T1 — carril rápido
@@ -32,9 +32,9 @@ T1 ya omite la adversaria de spec; el carril rápido reduce también la **ceremo
 
 Siempre `CONVENTIONS.md` + `PRINCIPLES.md`. `DOMAIN_MODEL.md` si el delta toca Capa 1/2. `ARCHITECTURE.md` si toca Capa 2/3 o introduce integraciones. `GLOSSARY.md` solo con términos nuevos. `PRODUCT.md` solo en T3. (Specs nuevas / T3: se carga todo.)
 
-### Pasada adversaria de código (todos los builds, por capa)
+### Pasada adversaria de código (todos los builds)
 
-La pasada adversaria de código corre **una vez por capa**. No recarga el foundation completo ni la spec completa en cada capa: carga solo lo que la capa bajo revisión toca. Vale para **builds iniciales y modificaciones** por igual (la independencia de contexto se conserva; lo que se acota es el volumen, no la separación del generador).
+Por defecto (v19) la pasada corre **una vez por feature sobre el diff completo**: el contexto es la **unión** de las filas de esta matriz para las capas que la feature tocó (cada documento una sola vez). Con diff grande que toca backend y UI, dos subagentes en paralelo (capas 1-3 / capa 4), cada uno con su fila. En el modo manual por capa, una fila por pasada. Nunca se recarga el foundation completo ni la spec completa: solo lo que las capas bajo revisión tocan. Vale para **builds iniciales y modificaciones** por igual (la independencia de contexto se conserva; lo que se acota es el volumen, no la separación del generador).
 
 | Capa bajo revisión | Foundation a cargar | Secciones de spec |
 |---|---|---|

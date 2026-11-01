@@ -1,14 +1,14 @@
 # Prompt — Generación de Código por Capas (Fase 6)
 
-> **Versión:** 20260610-v5 · historia en `/CHANGELOG.md`
-> **Uso:** Después de que la spec pasó verificación pre-generación (`prompts/06-spec-verification.prompt.md`) con veredicto VERDE o AMARILLO aceptado. Se ejecuta una vez por capa, con contexto incremental.
+> **Versión:** 20261101-v6 · historia en `/CHANGELOG.md`
+> **Uso:** Después de que la spec está Approved con semáforo pre-codegen VERDE o AMARILLO aceptado (revisión unificada de `/sdd-feature` o `/sdd-verify`). Por defecto en **MODO FEATURE** (un plan y una ejecución para todas las capas); el modo por capa queda como opción manual.
 > **Dónde se ejecuta:** Vía el comando `/sdd-codegen` en Claude Code. La generación escribe los archivos directamente con herramientas (Write/Edit), así que esta fase requiere Claude Code; el camino Claude.ai del modelo híbrido (WORKFLOW.md §11.1) aplica a las fases de pensamiento (1–3), no a la generación.
 
 ---
 
 ## Cuándo usar este prompt
 
-Este prompt se ejecuta **4 veces por feature**, una por capa:
+Las 4 capas, en orden (en MODO CAPA el prompt se ejecuta una vez por capa; en MODO FEATURE, una vez por feature recorriendo las capas del plan):
 
 | Capa | Qué genera | Prerequisito |
 |------|-----------|--------------|
@@ -17,7 +17,21 @@ Este prompt se ejecuta **4 veces por feature**, una por capa:
 | 3 — API / Capa de acceso | Endpoints, rutas, validaciones de entrada | Código de Capas 1 y 2 aprobados |
 | 4 — UI | Componentes, páginas, flujos de interfaz | Código de Capas 1, 2 y 3 aprobados |
 
-**No pasar a la siguiente capa hasta completar el checklist de verificación entre capas** (WORKFLOW.md sección 7.4). El prompt de pasada adversaria de código (`prompts/05-adversarial-code.prompt.md`) se ejecuta después de cada capa, antes de tildar el checklist.
+**No pasar a la siguiente capa hasta completar el checklist de verificación entre capas** (WORKFLOW.md sección 7.4).
+
+### MODO FEATURE (por defecto desde v19 — `/sdd-feature` o `/sdd-codegen` sin número de capa)
+
+El prompt se ejecuta **una sola vez por feature**, no una por capa:
+
+- **Paso 0 = plan único:** una sola tabla comparativa para todas las capas involucradas, con dos columnas extra: `Capa` y `Test que lo cubre`. Más: migraciones previstas y archivos existentes que se tocan. Una confirmación del autor ("plan ok") cubre todas las capas.
+- **Paso 1 = generación autónoma capa por capa (1→2→3→4, solo las del plan):** por cada capa, primero los tests de los criterios de aceptación (§8) y casos borde (§9) que la tocan (deben fallar), después el código. Entre capas **no se pide confirmación**: el gate es automático — tests de la capa + suite previa + typecheck/lint/build en verde (máx. 2 intentos de corrección; al tercero, frenar: WORKFLOW 8.2).
+- **Paso 2 = decisiones técnicas por defecto acumuladas** de todas las capas en una sola lista, que el autor valida junto con la prueba manual (WORKFLOW 7.5).
+- **La pasada adversaria de código corre una vez sobre el diff completo de la feature** (`prompts/05-adversarial-code.prompt.md`, alcance FEATURE), no una por capa.
+- El manejo de gaps no cambia: gap de producto, conflicto con el setup o válvula de escape → PARAR y preguntar. La autonomía es entre capas, nunca sobre decisiones de producto.
+
+### MODO CAPA (manual, `/sdd-codegen <ID> <capa>`)
+
+El comportamiento original: una invocación por capa, tabla de la capa confirmada antes del código, pasada adversaria de código después de cada capa. Útil para retomar una capa puntual o para features donde querés control fino.
 
 ---
 
@@ -132,7 +146,7 @@ PASO 0 — ANTES DE GENERAR:
 1. Leé la spec completa. Si recibiste un CHANGE-SET (modificación), leelo también e identificá qué ítems de esta capa son ADDED / MODIFIED / REMOVED.
 2. Identificá todos los requerimientos funcionales (sección 4), reglas de negocio (sección 7), criterios de aceptación (sección 8) y casos borde (sección 9) que aplican a esta capa.
 3. Generá la tabla comparativa (Regla 2) con todos los ítems identificados. En una modificación, completá la columna "Estado en el cambio" para cada fila (Nuevo / Modificado / Sin cambios — no regenerar).
-4. Esperá mi confirmación: "tabla ok, generá el código". No generés código hasta que yo confirme la tabla.
+4. Esperá mi confirmación: "tabla ok, generá el código" (MODO CAPA) o "plan ok" (MODO FEATURE: la tabla cubre todas las capas del plan y esa única confirmación habilita a generarlas todas, con el gate automático entre capas). No generés código hasta que yo confirme.
 
 PASO 1 — GENERACIÓN DE CÓDIGO:
 
@@ -144,7 +158,7 @@ Después de mi confirmación de la tabla:
 
 PASO 2 — DECISIONES IMPLÍCITAS:
 
-Después del código, generá un bloque con este formato exacto:
+Después del código (MODO CAPA: al cerrar la capa; MODO FEATURE: una sola lista acumulada de todas las capas, al final), generá un bloque con este formato exacto:
 
 DECISIONES TÉCNICAS TOMADAS POR DEFECTO
 ========================================

@@ -1,6 +1,6 @@
 # Prompt — Verificación de Spec Pre-Generación (Fase 5 → Fase 6)
 
-> **Versión:** 20260610-v3 · historia en `/CHANGELOG.md`
+> **Versión:** 20261101-v4 · historia en `/CHANGELOG.md`
 > **Uso:** Después de que la spec está en estado Approved y antes de iniciar Fase 6 (generación de código por capas). Es el "semáforo de salida" del ciclo de especificación.
 > **Dónde se ejecuta:** Vía el comando `/sdd-verify` en Claude Code, o en conversación nueva en Claude.ai. Contexto limpio (WORKFLOW.md sección 11.1, modelo híbrido v10).
 
@@ -11,6 +11,8 @@
 Este prompt se ejecuta **una sola vez** por spec, después de Fase 5 (aprobación) y antes de Fase 6 (generación). No es una pasada adversaria (eso ya ocurrió en Fase 4). Es verificación de preparación operativa para codegen.
 
 Si el prompt devuelve bloqueantes, resolverlos y volver a ejecutar antes de iniciar generación. Si devuelve solo advertencias, decidir conscientemente si avanzar o resolver primero.
+
+**Revisión unificada (Modo Flow, WORKFLOW.md §6.0, v19):** dentro de `/sdd-feature` este checklist corre en el mismo subagente que la pasada adversaria (`03-adversarial-spec`), sobre la spec en estado Draft/Review, **omitiendo F1 y F3** (estado Approved y §14 validada los cierra el gate de aprobación G2). El resultado se reporta como semáforo pre-codegen junto con los hallazgos adversarios.
 
 **Tiene tres modos según el tier (WORKFLOW.md 8.3.2):** COMPLETO para specs nuevas y modificaciones T3, DELTA para modificaciones T2, EXPRESS para modificaciones T1. En modificaciones, adjuntar también el CHANGE-SET (con su tier en el header) y aplicar la carga selectiva de documentos foundacionales de 8.3.2.
 
@@ -96,13 +98,13 @@ PASA si: hay al menos una decisión con alternativa descartada y razonamiento.
 FALLA si: la sección está vacía, dice "N/A", o tiene solo placeholder.
 
 F5. Criterios de aceptación verificables (sección 8):
-¿La sección 8 tiene al menos 5 escenarios en formato Given/When/Then o equivalente verificable?
-PASA si: hay 5 o más escenarios verificables.
-FALLA si: hay menos de 5, o los criterios no son verificables (no tienen condición + acción + resultado esperado).
+¿Cada requerimiento funcional de la sección 4 tiene al menos un criterio de aceptación verificable (Given/When/Then o equivalente)? En features M y L, además, ¿hay al menos 5 escenarios?
+PASA si: cada RF está cubierto por al menos un CA verificable (y, en M/L, hay 5 o más).
+FALLA si: algún RF no tiene CA, los criterios no son verificables (no tienen condición + acción + resultado esperado), o una feature M/L tiene menos de 5.
 
 F6. Taxonomía de casos borde cubierta (sección 9):
 Verificá las 10 categorías de la taxonomía obligatoria (guide §9): concurrencia, límites numéricos, inconsistencia de estado, falla de integración externa, datos vacíos, datos malformados, conexión perdida, sesión expirada, permisos insuficientes, entidad inexistente.
-PASA si: cada categoría que aplica tiene al menos un caso documentado, y cada categoría que no aplica tiene "No aplica porque..." con justificación.
+PASA si: cada categoría que aplica tiene al menos un caso documentado, y cada categoría que no aplica tiene justificación — sea "No aplica porque..." por categoría o la línea consolidada de spec compacta ("No aplican: 1 Concurrencia (motivo), 4 … (motivo)").
 FALLA si: alguna categoría aplicable no está cubierta, o alguna exclusión no tiene justificación.
 
 F7. Consistencia con setup foundacional:

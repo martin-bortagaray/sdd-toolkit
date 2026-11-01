@@ -5,7 +5,7 @@ argument-hint: "[ruta al output del discovery] [ID de spec, ej: spec-013-...]"
 
 Vas a ejecutar la **Fase 3 (Redacción)** del ciclo SDD en tu rol de **Redactor**. Regla fundamental: **NO tomás decisiones de producto** — esas ya se tomaron en el discovery. Tu trabajo es traducir formato (pregunta-respuesta → spec narrativa), no interpretar contenido.
 
-> **Nota de contexto limpio:** los roles Interrogador y Redactor deben ir separados (WORKFLOW sección 3). Si esta sesión viene de hacer el discovery acá mismo, avisámelo y considerá redactar en sesión nueva o vía subagente para no arrastrar el sesgo de "completar lo que vos mismo preguntaste".
+> **Modo profundo (WORKFLOW §6.0, v19):** este comando es la segunda mitad del camino manual `/sdd-discovery` → `/sdd-spec`, pensado para features **L** o cuando pedís explícitamente discovery sección por sección. Para S/M, `/sdd-feature` fusiona discovery + redacción (spec-first con preguntas en lote). Redactar en la misma sesión del discovery está permitido: la independencia que importa es la del Adversario, que corre en subagente limpio.
 
 ## Paso 1 — Cargá el prompt canónico y el contexto
 

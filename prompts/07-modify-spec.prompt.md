@@ -1,6 +1,6 @@
 # Prompt — Modificación de Spec Existente (Fase 3 sobre feature ya implementada)
 
-> **Versión:** 20260610-v3 · historia en `/CHANGELOG.md`
+> **Versión:** 20261101-v4 · historia en `/CHANGELOG.md`
 > **Uso:** Cuando una feature ya implementada (o una spec as-built) necesita agregar o cambiar funcionalidad. Es el rol Redactor (WORKFLOW.md sección 3) aplicado a una spec que **ya existe**, no a una nueva. Cubre el flujo de WORKFLOW.md sección 8.3 (Modificar spec).
 > **Dónde se ejecuta:** Claude Code (preferido) o conversación nueva con contexto limpio.
 
@@ -22,7 +22,7 @@ Si dudás entre "modificación de esta spec" y "spec nueva": si el comportamient
 
 ## Pre-requisitos antes de usar este prompt
 
-1. **Discovery del delta hecho** (`01-discovery.prompt.md` / `/sdd-discovery`), acotado a lo que se agrega o cambia — no re-discovery de toda la feature.
+1. **Delta definido**: o bien un output de discovery del delta (`/sdd-discovery`, camino manual), o bien — **camino por defecto desde v19** — solo la descripción del cambio: el discovery del delta se hace inline y en lote dentro de este prompt (ver "DISCOVERY INLINE DEL DELTA").
 2. El output del discovery del delta **no tiene `[PENDIENTE]` sin resolver ni decisiones por defecto sin validar** (mismos pre-requisitos que `02-draft-spec`).
 3. Tenés identificada la spec exacta a modificar (su ID y archivo).
 
@@ -35,18 +35,20 @@ Necesito que actúes como Redactor para MODIFICAR una spec existente, no para cr
 
 CONTEXTO QUE TE PASO:
 1. La spec existente a modificar (estado Implemented o As-built), en su versión actual.
-2. El output del discovery del delta (qué se agrega o cambia).
+2. El output del discovery del delta, o solo la descripción del cambio (en ese caso aplicá DISCOVERY INLINE DEL DELTA).
 3. Setup foundacional del proyecto (PRODUCT, ARCHITECTURE, DOMAIN_MODEL, CONVENTIONS, GLOSSARY, PRINCIPLES).
 4. Specs dependientes de primer nivel declaradas en la sección 12 de la spec.
-5. La guide del toolkit (feature-spec.guide.md).
+5. La guide del toolkit (feature-spec.guide.md) — solo consulta puntual de la sección que tocás.
 
 REGLA FUNDAMENTAL: NO TOMES DECISIONES DE PRODUCTO. Las decisiones del delta ya están en el discovery. Tu trabajo es trasladarlas a la spec existente, editando con cirugía, no reescribir.
 
 PASO 0 — VERIFICACIONES:
 
-V1 — Sin pendientes en el discovery del delta: buscá "[PENDIENTE". Si hay alguno sin resolver, NO edites. Devolveme "MODIFICACIÓN BLOQUEADA" listando los pendientes (coherente con WORKFLOW.md 2.3 y 5).
+DISCOVERY INLINE DEL DELTA (si no te pasé un output de discovery): identificá las decisiones de producto que el cambio deja abiertas y presentámelas en lote (máx. 8, por impacto), cada una con 2-4 opciones, trade-off en una línea y tu recomendación (formato G1 de prompts/08-spec-first.prompt.md). Va en el MISMO mensaje que la lectura crítica (Paso 1) y la propuesta de tier (Paso 2): una sola espera. Detección de evasión vigente. Mis respuestas cumplen el rol de V1/V2.
 
-V2 — Decisiones por defecto del discovery validadas: cada una debe tener nota "Validado por autor: aceptada / reemplazada por: ...". Si falta alguna, NO edites. Devolveme "MODIFICACIÓN BLOQUEADA" listándolas (WORKFLOW.md Regla 2).
+V1 — Sin pendientes en el discovery del delta (si me pasaste uno): buscá "[PENDIENTE". Si hay alguno sin resolver, NO edites. Devolveme "MODIFICACIÓN BLOQUEADA" listando los pendientes (coherente con WORKFLOW.md 2.3 y 5).
+
+V2 — Decisiones por defecto del discovery validadas (si me pasaste uno): cada una debe tener nota "Validado por autor: aceptada / reemplazada por: ...". Si falta alguna, NO edites. Devolveme "MODIFICACIÓN BLOQUEADA" listándolas (WORKFLOW.md Regla 2).
 
 V3 — ¿Es realmente modificación de esta spec? Verificá que el delta:
    - No sea un bug (el sistema hace lo que la spec dice).
@@ -73,7 +75,7 @@ Antes de editar, clasificá el delta en un tier y proponémelo con justificació
 Reglas de clasificación:
 - Si dudás entre dos tiers, proponé el superior (espejo de la regla de bugs: si dudo entre A y B, es B).
 - La justificación tiene que citar los criterios objetivos ("no toca sección 6 porque...", "no hay superficie de seguridad porque..."). "Es un cambio chico" no es una justificación.
-- Esperá mi confirmación del tier antes de editar (Modo B: vos proponés, yo decido). El tier confirmado va al header del CHANGE-SET (Bloque 3) y a la entrada del changelog.
+- Esperá mi confirmación del tier antes de editar (Modo B: vos proponés, yo decido). Lectura crítica (Paso 1), tier (Paso 2) y preguntas del delta van en un solo mensaje; yo respondo todo junto. El tier confirmado va al header del CHANGE-SET (Bloque 3) y a la entrada del changelog.
 
 PASO 3 — EDICIÓN QUIRÚRGICA:
 

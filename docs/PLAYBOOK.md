@@ -1,6 +1,6 @@
 # SDD Playbook — Guía de bolsillo
 
-> **Toolkit:** sdd-toolkit · **Basado en:** WORKFLOW v15 · **Autor:** Martin Bortagaray
+> **Toolkit:** sdd-toolkit · **Basado en:** WORKFLOW v19 · **Autor:** Martin Bortagaray
 > **Propósito:** Guía paso a paso imprimible de cada flujo del proceso SDD con los comandos del plugin de Claude Code. Cada sección es autocontenida (pensada para imprimirse como ficha).
 
 > **Nota de invocación:** todos los comandos se invocan con el prefijo del plugin: `/sdd-toolkit:<comando>` (ej. `/sdd-toolkit:sdd-discovery`). Por brevedad, en este documento los escribo sin el prefijo. Tipeá `/sdd` en Claude Code para autocompletarlos.
@@ -9,17 +9,18 @@
 
 ## 0 · Referencia rápida
 
-### Los 11 comandos
+### Los 12 comandos
 
 | Comando | Fase | Qué hace |
 |---------|------|----------|
+| **`sdd-feature`** | **2→6 + commit** | **Modo Flow (por defecto): ciclo completo, solo frena en 4 gates.** Feature nueva o modificación. |
 | `sdd-discovery` | 2 | Te interroga para extraer decisiones. No decide por vos. |
 | `sdd-spec` | 3 | Redacta el draft de una spec **nueva**. |
 | `sdd-modify-spec` | 3 (sobre feature existente) | Edita una spec **existente** (Implemented/As-built). |
 | `sdd-adversarial-spec` | 4 | Ataca la spec buscando gaps (subagente, contexto limpio). |
 | `sdd-verify` | 5→6 | Semáforo VERDE/AMARILLO/ROJO antes de codear. |
-| `sdd-codegen` | 6 | Genera código, **una capa por vez**. |
-| `sdd-adversarial-code` | 6 | Ataca el código contra la spec (subagente). |
+| `sdd-codegen` | 6 | Genera código: toda la feature con plan único (por defecto) o una capa puntual. |
+| `sdd-adversarial-code` | 6 | Ataca el código contra la spec (subagente). Una pasada por feature, o por capa. |
 | `sdd-bugfix` | §9 | Trata un bug con trazabilidad (clasifica A/B/C). |
 | `sdd-defer` | §8.7 | Registra un pendiente diferido en `DEBT.md`. Captura barata, no frena la sesión. |
 | `sdd-debt-review` | §8.7 | Revisa `DEBT.md`: actualiza el estado de cada pendiente (implementado / pendiente / promovido / descartado). |
@@ -48,8 +49,8 @@ El código nunca contradice la spec; la spec nunca contradice el setup foundacio
    └─ Sí → BUG → sdd-bugfix   (Tipo A: spec ok / Tipo B: spec mal)
 
 ¿Hace lo correcto, pero quiero agregar/cambiar funcionalidad?
-   ├─ ¿Parte de una feature existente?    → sdd-modify-spec   ← caso dominante en gitelli
-   └─ ¿Capacidad nueva e independiente?    → sdd-spec          (spec nueva)
+   ├─ ¿Parte de una feature existente?    → sdd-feature <ID> "cambio"   ← caso dominante en gitelli
+   └─ ¿Capacidad nueva e independiente?    → sdd-feature "necesidad"     (spec nueva)
 
 ¿El cambio se repite en varias features o es arquitectónico?
    └─ Primero el setup foundacional (sdd/foundation/), después la spec
@@ -57,9 +58,38 @@ El código nunca contradice la spec; la spec nunca contradice el setup foundacio
 
 ---
 
-## Flujo A · Feature nueva (ciclo completo)
+## Flujo 0 · Modo Flow — `sdd-feature` (camino por defecto)
 
-> Capacidad funcional nueva e independiente. Recorre las 6 fases.
+> Una sola invocación recorre todo el ciclo y **solo me frena en 4 gates**. Sirve para feature nueva y para modificación (le paso el ID de la spec + el cambio). Si se corta, lo vuelvo a invocar con el ID y retoma desde donde quedó.
+
+`sdd-feature "necesidad en 1-2 líneas"`  ·  `sdd-feature <ID> "qué cambiar"`
+
+**G1 — Preguntas en lote** (Fases 2+3, spec-first)
+- [ ] La IA ya escribió el draft en `sdd/specs/<ID>.md`; lo que es decisión mía viene como `[DECIDIR-N]` con opciones y recomendación. En una modificación, acá también confirmo el tier.
+- [ ] Respondo `ok` (acepto las recomendadas) · `ok salvo 3:B, 5:<texto>` · `ayudame con N`. Nada de "es estándar".
+
+**G2 — Aprobación de spec** (Fases 4→5)
+- [ ] La revisión unificada (adversaria + verify, subagente) ya corrió y aplicó lo que no era decisión mía.
+- [ ] Leo la spec entera (Regla 3). La ficha me da: cambios de la revisión (aplicados / descartados), decisiones nuevas, §14 a validar, semáforo.
+- [ ] Las 3 decisiones clave, el trade-off y la parte débil las nombro yo (la ficha no me las da). Si mis respuestas cambian la spec, veo el diff.
+- [ ] Respondo **`leí, apruebo`** (un `ok` suelto no aprueba) → **Approved** + INDEX al día (lo hace la IA). En features **S**, acá también viene el plan (G3 fusionado).
+
+**G3 — Plan único** (Fase 6)
+- [ ] Una tabla para todas las capas: requerimiento → capa → archivos → test. `plan ok`.
+
+*(Sin gates: tests de CA primero → capas 1→4 con gate automático tests + typecheck → una revisión de código sobre el diff completo → bloqueantes corregidos, no bloqueantes a `DEBT.md`.)*
+
+**G4 — Prueba manual → commit**
+- [ ] Sigo el plan de prueba (pasos, datos, resultado esperado). Valido en lote las decisiones técnicas por defecto.
+- [ ] `ok` → commitea (`feat(<ID>): …`). `ok push` → además pushea. Si falla, lo digo y vuelve a código.
+
+**Me interrumpe fuera de los gates solo si:** hay una decisión de producto, el tier sube (válvula de escape), la spec choca con el foundation, los tests siguen rojos tras 2 intentos, o el semáforo da ROJO.
+
+---
+
+## Flujo A · Feature nueva (camino manual / modo profundo)
+
+> Para features **L**, o cuando quiero discovery sección por sección y control capa por capa. Recorre las 6 fases invocando cada comando.
 
 **Fase 1 — Definir necesidad**
 - [ ] Escribo el problema en 1-2 líneas + notas crudas (restricciones, dependencias). Sin formato.
@@ -109,6 +139,8 @@ Por cada capa:
 ## Flujo B · Modificar feature existente (spec Implemented/As-built)
 
 > Caso dominante en gitelli. Cambio de producto sobre una feature que ya existe. Re-entra al ciclo **acotado al delta**.
+>
+> **Camino por defecto:** `sdd-feature <ID> "qué cambiar"` — clasifica el tier, hace las preguntas del delta en lote junto con la propuesta de tier, y sigue el Flujo 0 con los pasos que el tier exige (T1 = carril rápido). Los pasos de abajo son el camino manual.
 
 **Paso 0 — Clasifico** (ver árbol de decisión en §0)
 - [ ] ¿Es bug? → Flujo C. ¿Capacidad nueva independiente? → Flujo A. ¿Se repite en varias features? → primero el foundation.
@@ -162,7 +194,9 @@ Por cada capa:
 - [ ] El test **pasa** y queda en la suite. Lo referencio en el `bugfix-NNN.md`.
 
 **Paso 5 — Cierre**
-- [ ] Estado **Cerrado** solo con: fix verificado + test en verde + spec actualizada si era Tipo B. Commit con `sdd-commit` (prefijo `fix(bugfix-NNN):`).
+- [ ] Estado **Cerrado** solo con: fix verificado + test en verde + **prueba manual** + spec actualizada si era Tipo B. Mi `ok` a la prueba manual autoriza el commit (`fix(bugfix-NNN):`), sin re-confirmar.
+
+> **Velocidad (v19):** `sdd-bugfix` presenta clasificación + root cause + test + fix propuesto **en un solo mensaje**; con mi `ok` avanza solo hasta la prueba manual.
 
 ---
 
@@ -242,7 +276,7 @@ claude plugin update sdd-toolkit@sdd-toolkit       # 4. recopia el plugin instal
 - Esquivo decisiones con "es estándar" / "lo definimos después".
 - No releo antes de cerrar. **Trabajar cansado/de noche aumenta el riesgo de aprobar mal.**
 
-**Antipatrones a no cometer:** vibe coding · spec retroactiva · saltar la adversaria "porque es chica" · modificar spec sin frenar la generación · generar todas las capas de una · aceptar código que "funciona" sin verificar que cumple spec · commitear un fix sin su `bugfix-NNN.md` · cerrar un bug sin test de regresión.
+**Antipatrones a no cometer:** vibe coding · spec retroactiva · saltar la adversaria "porque es chica" · modificar spec sin frenar la generación · generar capas sin gate entre ellas (tests + typecheck) · confirmaciones que no deciden nada · aceptar código que "funciona" sin verificar que cumple spec · commitear un fix sin su `bugfix-NNN.md` · cerrar un bug sin test de regresión.
 
 ---
 

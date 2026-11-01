@@ -3,13 +3,15 @@ description: "Fase 5→6 SDD — Verificación de spec pre-generación. Semáfor
 argument-hint: "[ID/ruta de la spec Approved]"
 ---
 
+> **En Modo Flow (`/sdd-feature`, WORKFLOW v19) este paso no se invoca aparte:** su checklist corre dentro de la revisión unificada de Fase B, en el mismo subagente que la pasada adversaria. Este comando queda para el camino manual o para re-verificar una spec puntual.
+
 Vas a ejecutar la **verificación pre-generación** del ciclo SDD: el semáforo de salida entre Fase 5 (aprobación) y Fase 6 (codegen). **No es una pasada adversaria** (eso ya ocurrió en Fase 4); verificás preparación operativa formal.
 
 ## Paso 1 — Cargá el prompt canónico, determiná el modo y el contexto
 
 1. Leé el prompt maestro: `${CLAUDE_PLUGIN_ROOT}/prompts/06-spec-verification.prompt.md`. Ejecutá su checklist exactamente.
 2. **Determiná el modo:** sin CHANGE-SET (spec nueva) → COMPLETO. Con CHANGE-SET (modificación), el modo sale del tier (ver `${CLAUDE_PLUGIN_ROOT}/protocols/tier-routing.md`).
-3. Leé la spec objetivo (**$ARGUMENTS**), las specs dependientes de la sección 12, y la guía `${CLAUDE_PLUGIN_ROOT}/templates/feature-spec.guide.md`. Setup foundacional: completo en modo COMPLETO; **carga selectiva según el CHANGE-SET** en DELTA/EXPRESS (matriz en `tier-routing.md`).
+3. Leé la spec objetivo (**$ARGUMENTS**) y las specs dependientes de la sección 12. La guía `${CLAUDE_PLUGIN_ROOT}/templates/feature-spec.guide.md` solo puntualmente (la taxonomía de §9 ya está en el prompt). Setup foundacional: completo en modo COMPLETO; **carga selectiva según el CHANGE-SET** en DELTA/EXPRESS (matriz en `tier-routing.md`).
 
 ## Paso 2 — Ejecutá el checklist según el modo
 

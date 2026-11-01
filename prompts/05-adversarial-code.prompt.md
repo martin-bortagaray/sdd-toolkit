@@ -1,7 +1,7 @@
 # Prompt — Pasada adversaria de código
 
-> **Versión:** 20260614-v6 · historia en `/CHANGELOG.md`
-> **Uso:** Después de generar una capa de código contra una spec aprobada, antes de pasar a la siguiente capa.
+> **Versión:** 20261101-v7 · historia en `/CHANGELOG.md`
+> **Uso:** Por defecto (MODO FEATURE, v19) **una vez por feature**, sobre el diff completo, después de que todas las capas quedaron en verde. En MODO CAPA (manual), después de cada capa.
 > **Dónde se ejecuta:** Vía el comando `/sdd-adversarial-code` en Claude Code (corre en subagente con contexto limpio), o en conversación nueva en Claude.ai. NUNCA en la conversación donde se generó el código (WORKFLOW.md sección 11.1, modelo híbrido v10).
 
 ---
@@ -14,10 +14,14 @@ En **builds iniciales y modificaciones T3**, este prompt se ejecuta completo, co
 - **T2 (lógica acotada): se ejecuta acotado al diff, con contexto selectivo.** El subagente recibe: el diff de la capa (no todo el código), las secciones de la spec que el CHANGE-SET toca + el CHANGE-SET, `CONVENTIONS.md` + `PRINCIPLES.md` siempre, y `DOMAIN_MODEL.md`/`ARCHITECTURE.md` solo según las capas tocadas (8.3.2). Los hallazgos se reportan solo sobre el código del delta y su interacción con el código existente que toca.
 - **Válvula de escape:** si la revisión revela que el cambio toca modelo/reglas/seguridad que el tier no admite, el hallazgo es bloqueante y el tier sube (WORKFLOW.md 8.3.2).
 
+## Alcance FEATURE (por defecto desde v19)
+
+La pasada corre **una vez sobre el diff completo de la feature**, no una vez por capa. Contexto = **unión** de las filas de la matriz de abajo para las capas que la feature tocó (cada documento se carga una sola vez). Si la feature toca backend y UI con un diff grande (>~800 líneas), el orquestador lanza **dos subagentes en paralelo** (capas 1-3 / capa 4), cada uno con su fila de la matriz. Los hallazgos citan archivo y capa. Omití observaciones de estilo o preferencia: solo desvíos de spec, seguridad, PRINCIPLES, bugs lógicos, casos de error y sobre-ingeniería.
+
 ## Cómo usar este prompt
 
-1. Abrí conversación nueva en Claude.ai (o herramienta equivalente).
-2. Cargá **solo el contexto que la capa bajo revisión toca** — no el foundation completo ni la spec completa. Esta pasada corre una vez por capa; recargar todo en cada capa multiplica el costo sin agregar señal. Matriz por capa:
+1. En Claude Code corre como subagente (`/sdd-adversarial-code`, o lanzado por `/sdd-feature`); en Claude.ai, conversación nueva.
+2. Cargá **solo el contexto que el alcance toca** — nunca el foundation completo ni la spec completa. **Alcance FEATURE:** unión de las filas de las capas tocadas. **Alcance CAPA (manual):** una fila. Matriz por capa:
 
    | Capa | Foundation a cargar | Secciones de spec |
    |---|---|---|

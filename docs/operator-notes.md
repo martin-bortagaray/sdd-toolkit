@@ -223,6 +223,8 @@
 
 ## Fase 6 - Codegen por capas
 
+> **Desde WORKFLOW v19 estas notas aplican al MODO CAPA (manual).** En el camino por defecto (`/sdd-feature`, MODO FEATURE) hay un único plan, las capas se generan seguidas con gate automático (tests + typecheck) y la pasada adversaria de código corre una vez sobre el diff completo — ver `protocols/codegen-protocol.md`.
+
 *(prompts/04-codegen-layer.prompt.md)*
 
 ## Después de cada capa

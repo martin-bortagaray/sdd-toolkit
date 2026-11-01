@@ -1,9 +1,9 @@
 ---
 description: "Fase 6 SDD — Pasada adversaria de código (rol Adversario). Corre en subagente con contexto limpio. Valida que el código cumple la spec."
-argument-hint: "[ID/ruta spec] [capa: 1|2|3|4]"
+argument-hint: "[ID/ruta spec] [capa opcional: 1|2|3|4 — sin capa = diff completo de la feature]"
 ---
 
-Vas a ejecutar la **pasada adversaria de código** sobre una capa recién generada. Como en Fase 4, el adversario debe correr con **contexto limpio** y separado de quien generó el código (que tiene sesgo a defender lo que escribió). En Claude Code: **subagente dedicado**.
+Vas a ejecutar la **pasada adversaria de código**. **Sin número de capa (por defecto, WORKFLOW v19):** una sola pasada sobre el **diff completo de la feature**, con contexto = unión de las filas de la matriz por capa para las capas tocadas; si la feature toca backend y UI con diff grande (>~800 líneas), lanzá **dos subagentes en paralelo en el mismo mensaje** (capas 1-3 / capa 4). **Con número de capa:** solo esa capa (modo manual). Como en Fase 4, el adversario debe correr con **contexto limpio** y separado de quien generó el código (que tiene sesgo a defender lo que escribió). En Claude Code: **subagente dedicado**.
 
 ## Límite importante (leelo antes de lanzar)
 
@@ -21,14 +21,14 @@ Si cualquier hallazgo revela que el cambio excede su tier (toca modelo/reglas/se
 
 ## Paso 1 — Lanzá el subagente adversario
 
-Identificá spec y capa desde **$ARGUMENTS**. Usá la tool **Agent** (subagent_type: `general-purpose`, `model: sonnet`) con un prompt que le ordene:
+Identificá spec y alcance (feature completa o capa) desde **$ARGUMENTS**. Usá la tool **Agent** (subagent_type: `general-purpose`, `model: sonnet`) con un prompt que le ordene:
 
-> **Modelo del subagente:** fijá `model: sonnet` en la llamada a `Agent` (aplica también al subagente acotado del Paso 0 T2). Esta pasada corre ×4 capas y es el costo dominante del ciclo; Sonnet la abarata y acelera sin resignar la revisión estructurada. NO cambia el modelo de tu sesión principal. Subilo a `opus` solo si medís que Sonnet se pierde hallazgos reales.
+> **Modelo del subagente:** fijá `model: sonnet` en la llamada a `Agent` (aplica también al subagente acotado del Paso 0 T2). Es uno de los costos dominantes del ciclo; Sonnet la abarata y acelera sin resignar la revisión estructurada. NO cambia el modelo de tu sesión principal. Subilo a `opus` solo si medís que Sonnet se pierde hallazgos reales.
 
 1. Leer el prompt canónico `${CLAUDE_PLUGIN_ROOT}/prompts/05-adversarial-code.prompt.md` y ejecutarlo (rol revisor adversario, las 8 categorías en orden de prioridad).
 2. Leer como contexto **acotado a la capa bajo revisión**, según la matriz "Carga selectiva de foundation → Pasada adversaria de código" de `${CLAUDE_PLUGIN_ROOT}/protocols/tier-routing.md`: el código generado de esta capa, solo los docs de foundation que la capa toca, solo las secciones de spec relevantes a la capa (no la spec completa ni todo `sdd/foundation/`), y las specs dependientes de §12 relevantes. `PRODUCT.md` no se carga en esta pasada. Esto aplica también a builds iniciales — recargar todo el foundation en cada una de las 4 capas multiplica el costo sin agregar señal. En modificaciones T2, además acotado al diff (Paso 0).
 3. Asumir la spec como contrato dado (no cuestionarla). Buscar desvíos, decisiones implícitas, violaciones de convenciones/principios, inconsistencias con el modelo, bugs lógicos, casos borde no cubiertos, sobre-ingeniería.
-4. No felicitar, no suavizar, no inventar hallazgos. Reportar solo las categorías con hallazgos + una línea final de cobertura (qué categorías quedaron sin hallazgos). Cerrar con la pregunta: ¿qué riesgo operativo concreto introduce este código si se mergea tal cual?
+4. No felicitar, no suavizar, no inventar hallazgos, **no reportar estilo ni preferencias**. Reportar solo las categorías con hallazgos + una línea final de cobertura (qué categorías quedaron sin hallazgos). Cerrar con la pregunta: ¿qué riesgo operativo concreto introduce este código si se mergea tal cual?
 
 El mensaje final del subagente es el reporte de hallazgos.
 

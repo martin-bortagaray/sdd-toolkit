@@ -3,6 +3,8 @@ description: "Fase 4 SDD — Pasada adversaria de spec (rol Adversario). Corre e
 argument-hint: "[ID/ruta de la spec] [pasada: 1|2]"
 ---
 
+> **En Modo Flow (`/sdd-feature`, WORKFLOW v19)** esta pasada corre automáticamente en la Fase B, **fusionada con el checklist de `/sdd-verify`** en un solo subagente, y los hallazgos sin decisión de producto se aplican sin esperarme. Este comando queda para el camino manual.
+
 Vas a ejecutar la **Fase 4 (Pasada adversaria de spec)** del ciclo SDD. El rol Adversario debe correr con **contexto limpio**, separado de quien redactó la spec (WORKFLOW sección 3). En Claude Code eso se logra con un **subagente dedicado**: vos NO hacés la pasada vos mismo en esta sesión.
 
 ## Paso 1 — Preparación

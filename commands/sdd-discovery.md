@@ -3,12 +3,14 @@ description: "Fase 2 SDD — Discovery de feature (rol Interrogador). Te hago pr
 argument-hint: "[necesidad en 1-2 líneas]"
 ---
 
+> **Modo profundo (WORKFLOW §6.0, v19):** discovery sección por sección, para features **L** o cuando lo pido explícitamente. Para S/M el camino por defecto es `/sdd-feature` (spec-first con preguntas en lote, sin documento intermedio de discovery).
+
 Vas a ejecutar la **Fase 2 (Discovery)** del ciclo SDD en tu rol de **Interrogador**. Operás bajo las 5 reglas no negociables del WORKFLOW (ver `CLAUDE.md` del proyecto): no tomás decisiones de producto, preguntás aunque parezca obvio.
 
 ## Paso 1 — Cargá el prompt canónico y el contexto
 
 1. Leé el prompt maestro de esta fase, que es la fuente de verdad de cómo interrogar: `${CLAUDE_PLUGIN_ROOT}/prompts/01-discovery.prompt.md`. Seguí sus reglas al pie de la letra (estructura por secciones del `feature-spec.guide.md`, calibración de profundidad, detección de evasión, detección de validación circular, detección de feature que debería partirse).
-2. Leé la guía de estructura de spec: `${CLAUDE_PLUGIN_ROOT}/templates/feature-spec.guide.md` (define las 13 secciones según las que organizás las preguntas).
+2. Las 13 secciones según las que organizás las preguntas están listadas en el prompt. Consultá `${CLAUDE_PLUGIN_ROOT}/templates/feature-spec.guide.md` solo puntualmente (grep de la sección) si dudás qué cubre una sección; no la cargues entera.
 3. Leé el setup foundacional del proyecto que exista en `sdd/foundation/`: `PRODUCT.md`, `ARCHITECTURE.md`, `DOMAIN_MODEL.md`, `CONVENTIONS.md`, `GLOSSARY.md`, `PRINCIPLES.md`. **No me preguntes nada que ya esté respondido ahí.**
 4. Si la necesidad consume specs ya existentes, leé esas specs de `sdd/specs/`.
 

@@ -16,7 +16,7 @@ Un conjunto de prompts, templates y documentos de gobierno que estructura el pro
 
 ```
 workflow/        → WORKFLOW.md, el documento que gobierna todo el proceso
-prompts/         → 10 prompts del proceso (Fase 0 + ciclo de feature + modificación)
+prompts/         → 11 prompts del proceso (Fase 0 + ciclo de feature + modificación + spec-first)
 templates/       → 12 templates para instanciar proyectos y specs
 protocols/       → Protocolos operativos (codegen)
 docs/            → Documentación del proceso (diagramas, guías)
@@ -58,14 +58,17 @@ Comandos disponibles:
 
 | Comando | Fase | Qué hace |
 |---------|------|----------|
-| `/sdd-discovery` | 2 | Discovery de feature (rol Interrogador) |
+| **`/sdd-feature`** | **2→6 + commit** | **Modo Flow (por defecto): ciclo completo de punta a punta, solo frena en 4 gates humanos.** Feature nueva o modificación. |
+| `/sdd-discovery` | 2 | Discovery sección por sección (modo profundo, features L) |
 | `/sdd-spec` | 3 | Redacción del draft de spec nueva (rol Redactor) |
 | `/sdd-modify-spec` | 3 (sobre feature existente) | Modificar una spec Implemented/As-built (agregar/cambiar funcionalidad) |
 | `/sdd-adversarial-spec` | 4 | Pasada adversaria de spec (subagente, contexto limpio) |
 | `/sdd-verify` | 5→6 | Verificación pre-generación (semáforo VERDE/AMARILLO/ROJO) |
-| `/sdd-codegen` | 6 | Generación de código por capas (rol Generador) |
+| `/sdd-codegen` | 6 | Generación de código: feature completa con plan único, o una capa |
 | `/sdd-adversarial-code` | 6 | Pasada adversaria de código (subagente, contexto limpio) |
 | `/sdd-bugfix` | §9 | Tratamiento de bug con trazabilidad (clasifica A/B/C) |
+| `/sdd-defer` | §8.7 | Registrar un pendiente diferido en `DEBT.md` |
+| `/sdd-debt-review` | §8.7 | Revisar y actualizar `DEBT.md` |
 | `/sdd-commit` | — | Commit inteligente que detecta convenciones SDD |
 
 El modelo de roles→herramientas es **híbrido** desde WORKFLOW v10 (ver sección 11.1): las fases de pensamiento pueden hacerse en cualquier herramienta; de Fase 4 en adelante el trabajo vive en Claude Code, con las pasadas adversarias corriendo en subagente con contexto limpio.
@@ -74,4 +77,4 @@ El modelo de roles→herramientas es **híbrido** desde WORKFLOW v10 (ver secci�
 
 ## Versión
 
-WORKFLOW v11 (junio 2026). El toolkit evoluciona con experiencia de uso real. Cada artefacto tiene su propio changelog.
+WORKFLOW v19 (noviembre 2026) · plugin 1.2.0. El toolkit evoluciona con experiencia de uso real. Historia centralizada en `CHANGELOG.md`.

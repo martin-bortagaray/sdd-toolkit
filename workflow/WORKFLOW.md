@@ -1,6 +1,6 @@
 # WORKFLOW — Mi Proceso de Desarrollo de Software con IA
 
-> **Versión:** 20260815-v18 · historia en `/CHANGELOG.md`
+> **Versión:** 20261101-v19 · historia en `/CHANGELOG.md`
 > **Autor:** Martin Bortagaray
 > **Estado:** Review (pendiente aprobación final)
 
@@ -48,7 +48,7 @@ Estas reglas aplican en todo el proceso. No se relajan por urgencia ni por cansa
 ### 2.3 Principios personales
 
 - **Si dudo dos veces en una decisión, la dejo abierta y consulto** al ingeniero agrónomo, a mi socio, o al experto de dominio que corresponda. No fuerzo una decisión apresurada. **Importante:** estas decisiones abiertas deben resolverse y escribirse en la spec ANTES del paso a estado Approved (ver Fase 5).
-- **Prefiero specs cortas y completas a specs largas con detalle innecesario.** Densidad sobre volumen.
+- **Prefiero specs cortas y completas a specs largas con detalle innecesario.** Densidad sobre volumen. Desde v19 es regla de formato ("spec compacta", guide regla global 4): lo que no aplica se omite, y el largo orientativo es S ≈ 1 página, M ≈ 2, L ≈ 4. Cada línea que no decide nada es tiempo de lectura en la aprobación (Regla 3).
 
 ### 2.4 Jerarquía de artefactos
 
@@ -97,7 +97,7 @@ Que el criterio de aceptación, aunque verificable y completo, **capture mal la 
 
 ## 3. Roles de la IA en mi proceso
 
-Diferencio cuatro roles. Conviene tenerlos separados en la cabeza y, cuando es posible, en conversaciones distintas dentro de un mismo proyecto.
+Diferencio cuatro roles. Conviene tenerlos separados en la cabeza; el Adversario, además, siempre en contexto separado (subagente).
 
 | Rol | Qué hace | Riesgo |
 |-----|----------|--------|
@@ -108,7 +108,7 @@ Diferencio cuatro roles. Conviene tenerlos separados en la cabeza y, cuando es p
 
 **Regla operativa:** uso la IA en todos los pasos de mi proceso. No hay tarea de la que la excluya por defecto. Pero pongo más disciplina en el rol Generador, que es donde se concentran los riesgos.
 
-**Organización de conversaciones:** uso varias conversaciones dentro del mismo proyecto de Claude.ai, una por rol activo. Esto evita contaminación de contexto entre tareas (especialmente entre redacción y pasada adversaria).
+**Organización de conversaciones (v19):** la separación de contexto que importa es la del **Adversario** respecto de quien redactó o generó — y esa la garantiza el subagente con contexto limpio (§11.1), sin que yo cambie de sesión. Interrogador y Redactor pueden ir en la misma sesión (spec-first, §6.0): el sesgo de "completar lo que yo mismo pregunté" lo audita la revisión adversaria. Cambiar de conversación a mano entre roles era fricción sin garantía adicional.
 
 ---
 
@@ -223,6 +223,31 @@ El design system se carga como contexto en el prompt 00c-design-prototype y en l
 
 Cada feature pasa por estas seis fases. **Cualquier cambio futuro a una feature implementada vuelve a Fase 1.**
 
+### 6.0 Modo Flow — cómo se ejecutan las fases (por defecto desde v19)
+
+Las seis fases son el modelo conceptual; **cómo se ejecutan** cambió en v19. Antes, cada fase era un comando que yo invocaba y cada paso intermedio esperaba mi confirmación: una feature nueva de 4 capas recorría ~11 comandos y ~30 interacciones (13 rondas de discovery, tabla + checklist + pasada adversaria × 4 capas, doble gate en el commit). La mayoría de esas esperas no decidían nada.
+
+El comando `/sdd-feature` orquesta el ciclo completo y **avanza solo**, frenando únicamente en **cuatro gates humanos** y en las interrupciones legítimas:
+
+| Gate | Fases | Qué decido |
+|------|-------|-----------|
+| **G1 — Preguntas en lote** | 2+3 (spec-first) | Las decisiones de producto abiertas, con opciones y recomendación. `ok` acepta las recomendadas. En modificaciones incluye la propuesta de tier; en T1 (carril rápido) una sola aprobación vale por G1+G2+G3. |
+| **G2 — Aprobación de spec** | 4→5 | Leo la spec entera (Regla 3), valido §14 en lote, apruebo con `leí, apruebo` (un `ok` suelto no aprueba). Si mis respuestas cambian la spec, veo el diff antes de aprobar. |
+| **G3 — Plan único** | 6 | Una tabla para todas las capas. En features **S** se fusiona con G2. |
+| **G4 — Prueba manual** | 6→commit | Pruebo y respondo `ok` (autoriza el commit) u `ok push`. |
+
+**Interrupciones legítimas** (fuera de los gates): gap que requiere decisión de producto (Regla 1), válvula de escape de tier, conflicto spec vs foundation, tests en rojo tras 2 intentos, semáforo ROJO.
+
+**Qué cambia respecto del camino manual:**
+- **Fases 2+3 fusionadas (spec-first):** la IA redacta la spec de entrada y cada decisión de producto faltante queda como `[DECIDIR-N]`, que se responde en lote (`prompts/08-spec-first.prompt.md`). Sin documento intermedio de discovery ni re-lectura. Para features **L** o a pedido, sigue el discovery sección por sección (`/sdd-discovery` → `/sdd-spec`, "modo profundo").
+- **Fase 4 + verificación pre-codegen en un solo subagente** (revisión unificada). Los hallazgos sin decisión de producto se aplican sin esperarme y quedan en §10.2; los que requieren decisión llegan en lote a G2. La pasada 2 (si corresponde por §13.2) corre automáticamente antes de G2.
+- **Fase 6 en MODO FEATURE:** plan único → capas generadas seguidas con **gate automático** entre capas (tests + typecheck/build) → **una** pasada adversaria de código sobre el diff completo (§7.4).
+- **Bookkeeping automático:** estado de la spec, versión, changelog e INDEX los actualiza el orquestador en cada transición.
+- **Reanudable:** el orquestador persiste lo que no vive en la spec ni en git (tier, plan confirmado, decisiones técnicas acumuladas, estado de la revisión de código) en un archivo efímero `sdd/specs/<ID>.flow.md`, y deduce la fase desde ese archivo + spec + rama. Una feature puede cortarse entre sesiones sin perder trabajo; el archivo se borra en el commit.
+- **Hallazgos aplicados sin esperarme quedan auditables:** todo arreglo de la revisión que agrega o define comportamiento va a §14 ("Pendiente de validación", Regla 2) y se valida en G2; los descartados quedan listados en una línea cada uno y puedo reabrirlos.
+
+**Lo que NO cambia:** las 5 reglas no negociables, el gate de prueba manual, los tiers y la válvula de escape, el máximo de 2 pasadas adversarias. Modo Flow cambia cuándo y cuántas veces me detengo, no qué se garantiza. Los comandos por fase siguen disponibles como camino manual.
+
 ### Fase 1 — Definir necesidad
 
 - Describo el problema o la necesidad en 1-2 líneas.
@@ -256,6 +281,8 @@ Cada feature pasa por estas seis fases. **Cualquier cambio futuro a una feature 
 - La spec pasa a estado **Review**.
 
 **Output:** spec en estado Review, lista para aprobación.
+
+> En Modo Flow (§6.0) esta pasada corre fusionada con el checklist de verificación pre-codegen (`06-spec-verification`, sin F1/F3) en un solo subagente, antes de G2.
 
 ### Fase 5 — Aprobación y congelado
 
@@ -332,15 +359,23 @@ En cada prompt de generación incluyo:
 **Contra código que no cumple spec:**
 > "Antes de generar código, generá una tabla comparativa de lo que pide la spec vs. lo que vas a implementar. Si detectás algo de la spec que no podés implementar, detenete y preguntá."
 
+Desde v19 (MODO FEATURE) es **una sola tabla para todas las capas** (con columnas `Capa` y `Test que lo cubre`), confirmada una vez. Los criterios de aceptación de §8 se escriben **primero como tests** que fallan: la spec se vuelve ejecutable y el gate entre capas es automático.
+
 **Contra decisiones implícitas:**
 > "Si tenés que tomar una decisión que no está en la spec, listala bajo 'DECISIONES TOMADAS POR DEFECTO' y esperá mi aprobación antes de escribir el código final."
+
+En MODO FEATURE (v19) las decisiones **técnicas** se acumulan durante la generación y se validan en lote en G4, antes del commit (§7.4); una decisión que no sea puramente técnica sigue siendo interrupción inmediata (Regla 1).
 
 **Contra sobre-ingeniería:**
 > "No agregues atributos, validaciones, restricciones, relaciones o capas de abstracción que no estén explícitamente en la spec o requeridos por las convenciones / principios del setup foundacional."
 
 ### 7.4 Verificación entre capas
 
-**No paso a la siguiente capa hasta cumplir todo este checklist:**
+**MODO FEATURE (por defecto desde v19):** entre capas el gate es **automático** — tests de la capa + suite previa + typecheck/lint/build en verde; máximo 2 intentos de corrección, al tercero se frena (§8.2). No hay confirmación humana entre capas. El checklist de abajo se verifica **una vez al cierre de la feature**: la pasada adversaria de código corre **una sola vez sobre el diff completo** (no ×4), con contexto = unión de la matriz por capa de `protocols/tier-routing.md`, y las decisiones técnicas por defecto acumuladas se validan junto con la prueba manual (G4). Con backend + UI y diff grande, la pasada se parte en dos subagentes en paralelo.
+
+**Red automática recomendada (hook):** en cada proyecto conviene un hook `Stop` de Claude Code que corra tests + typecheck y bloquee el cierre del turno si fallan. Convierte el gate entre capas en una garantía determinista en vez de una instrucción del prompt. Es configuración del proyecto (depende de su comando de tests), no del toolkit.
+
+**MODO CAPA (manual, `/sdd-codegen <ID> <capa>`):** no paso a la siguiente capa hasta cumplir todo este checklist:
 
 - [ ] Tabla comparativa Spec vs. Código revisada y consistente.
 - [ ] Naming y estructura coinciden con `CONVENTIONS.md`.
@@ -396,7 +431,9 @@ Los tests automáticos (intercalados por capa, sección 7.4) validan que **el c�
 2. **Pruebo el cambio yo mismo** siguiendo esos pasos.
 3. **Solo con mi confirmación explícita de que funciona, se commitea.** Si algo falla, no se commitea: vuelve a iteración de código (sección 8.2) o, si corresponde, se abre un bug.
 
-Este gate vive en el cierre de `/sdd-codegen` y se vuelve a ofrecer como red de seguridad en `/sdd-commit`. Aplica solo a commits que tocan código; los commits de solo documentación o artefactos del toolkit lo saltan.
+**Desde v19 mi `ok` a la prueba manual es también la autorización del commit:** no se vuelve a preguntar por el gate ni por el mensaje (`/sdd-commit` detecta que el gate ya se confirmó en la sesión). `ok push` además pushea la rama.
+
+Este gate vive en el cierre de `/sdd-feature` / `/sdd-codegen` / `/sdd-bugfix`; `/sdd-commit` lo ofrece solo si no se confirmó antes en la sesión. Aplica solo a commits que tocan código; los commits de solo documentación o artefactos del toolkit lo saltan.
 
 ### 7.6 Commits
 
@@ -492,11 +529,11 @@ El tier se deriva **mecánicamente del CHANGE-SET** (qué secciones de la spec t
 |------|----|----|----|
 | Discovery del delta | Opcional — el delta se enuncia en 1 línea (ver carril rápido) | Sí | Sí |
 | `/sdd-modify-spec` (cirugía + versión + CHANGE-SET) | Cirugía mínima — 1 línea de changelog; CHANGE-SET opcional | Sí | Sí |
-| `/sdd-adversarial-spec` — Pasada 1 | **No** (excepción de Regla 4) | Sí, acotada al delta | Sí, completa |
+| Revisión de spec (adversaria + verify, un subagente) — Pasada 1 | **No** (excepción de Regla 4) | Sí, acotada al delta | Sí, completa |
 | `/sdd-adversarial-spec` — Pasada 2 | No | Solo si P1 tuvo bloqueantes (13.2) | Solo si P1 tuvo bloqueantes (13.2) |
-| `/sdd-verify` | Modo express (delta) | Modo delta | Completo |
+| Checklist de verify (dentro de la revisión; inline en T1) | Modo express (delta) | Modo delta | Completo |
 | `/sdd-codegen` | Solo capas del CHANGE-SET | Solo capas del CHANGE-SET | Solo capas del CHANGE-SET |
-| Adversaria de código | **Checks inline** (tests + typecheck + diff contra `CONVENTIONS.md`, misma sesión) | Subagente acotado al diff, contexto selectivo | Subagente completo |
+| Adversaria de código (una por feature) | **Checks inline** (tests + typecheck + diff contra `CONVENTIONS.md`, misma sesión) | Subagente acotado al diff, contexto selectivo | Subagente sobre el diff completo |
 | Gate de prueba manual (7.5) | **Sí, siempre** | Sí | Sí |
 | Commit único (`/sdd-commit`) | Sí | Sí | Sí |
 
@@ -530,7 +567,7 @@ En modificaciones, los subagentes (adversarias) y el codegen cargan documentos f
 - **`GLOSSARY.md`:** si el delta introduce términos nuevos del dominio.
 - **`PRODUCT.md`:** solo T3.
 
-Los builds iniciales (sin CHANGE-SET) cargan todo para la pasada de spec y el codegen, como siempre (sección 7.2). **Excepción — pasada adversaria de código:** corre una vez por capa, y en cualquier build (inicial o modificación) carga solo el foundation y las secciones de spec que la capa bajo revisión toca, según la matriz por capa de `protocols/tier-routing.md`. Recargar los 6 documentos en cada una de las 4 capas multiplica el costo sin agregar señal; la independencia de contexto (separación del generador) se conserva igual.
+Los builds iniciales (sin CHANGE-SET) cargan todo para la pasada de spec y el codegen, como siempre (sección 7.2). **Excepción — pasada adversaria de código:** corre una vez por feature sobre el diff completo (por capa solo en MODO CAPA), y en cualquier build (inicial o modificación) carga solo el foundation y las secciones de spec que la capa bajo revisión toca, según la matriz por capa de `protocols/tier-routing.md` (en MODO FEATURE, la unión de las filas de las capas tocadas). Recargar los 6 documentos completos multiplica el costo sin agregar señal; la independencia de contexto (separación del generador) se conserva igual.
 
 #### Válvula de escape — el tier es una hipótesis, no un permiso
 
@@ -786,7 +823,9 @@ Modelo **híbrido** (desde v10). Las fases de pensamiento puro (sin código) pue
 
 | Rol | Fase | Herramienta |
 |-----|------|-------------|
-| Interrogador | Fase 2 (discovery) | Claude.ai o Claude Code (`/sdd-discovery`) |
+| Orquestador (Modo Flow, §6.0) | Fases 2→6 + commit | Claude Code (`/sdd-feature`) |
+| Interrogador + Redactor (spec-first) | Fases 2+3 | Claude Code (`/sdd-feature`, prompt 08) |
+| Interrogador (modo profundo) | Fase 2 (discovery) | Claude.ai o Claude Code (`/sdd-discovery`) |
 | Redactor | Fase 3 (draft de spec) | Claude.ai o Claude Code (`/sdd-spec`) |
 | Adversario (spec) | Fase 4 | Claude Code, en subagente con contexto limpio (`/sdd-adversarial-spec`) |
 | Verificador pre-codegen | Fase 5→6 | Claude Code (`/sdd-verify`) |
@@ -795,7 +834,7 @@ Modelo **híbrido** (desde v10). Las fases de pensamiento puro (sin código) pue
 
 **Contexto limpio sin cambiar de herramienta:** la regla de "conversación nueva" para las pasadas adversarias (sección 3) se cumple en Claude Code lanzando un **subagente dedicado** — arranca con contexto propio, aislado del rol que redactó la spec o generó el código. No requiere abrir otra ventana ni otra herramienta.
 
-**Modelo del subagente adversario (desde v18):** los subagentes de las dos pasadas adversarias (`/sdd-adversarial-spec` y `/sdd-adversarial-code`) corren en **Sonnet** por defecto, fijado en la propia llamada a la tool `Agent` de cada comando. La pasada adversaria es razonamiento estructurado (contradicciones, ambigüedades, decisiones no marcadas, desvíos de spec) donde Sonnet rinde a una fracción del costo y la latencia de Opus; la de código además corre ×4 capas, así que es el costo dominante del ciclo y donde más pesa el cambio. **No afecta el modelo de la sesión principal** — solo el del subagente. El default es una hipótesis de calidad-costo, no un dogma: si al medir una pasada real Sonnet se pierde hallazgos que Opus sí encuentra, se sube a `opus` en la línea correspondiente del comando (espíritu de Regla 5 — revisar la decisión cuando aparezca evidencia). Como el subagente arranca con contexto limpio de otro modelo distinto del generador, esto además agrega una capa de **independencia de modelo** sobre la independencia de contexto que ya daba la separación.
+**Modelo del subagente adversario (desde v18):** los subagentes de las dos pasadas adversarias (`/sdd-adversarial-spec` y `/sdd-adversarial-code`) corren en **Sonnet** por defecto, fijado en la propia llamada a la tool `Agent` de cada comando. La pasada adversaria es razonamiento estructurado (contradicciones, ambigüedades, decisiones no marcadas, desvíos de spec) donde Sonnet rinde a una fracción del costo y la latencia de Opus; la de código fue históricamente el costo dominante del ciclo (corría ×4 capas; desde v19 corre una vez por feature). **No afecta el modelo de la sesión principal** — solo el del subagente. El default es una hipótesis de calidad-costo, no un dogma: si al medir una pasada real Sonnet se pierde hallazgos que Opus sí encuentra, se sube a `opus` en la línea correspondiente del comando (espíritu de Regla 5 — revisar la decisión cuando aparezca evidencia). Como el subagente arranca con contexto limpio de otro modelo distinto del generador, esto además agrega una capa de **independencia de modelo** sobre la independencia de contexto que ya daba la separación.
 
 **Empaquetado:** el proceso está disponible como plugin de Claude Code (`sdd-toolkit`), instalable desde el repo del toolkit. Cada comando `/sdd-*` lee su prompt canónico de `prompts/` (fuente única de verdad) y carga el contexto del proyecto automáticamente.
 
@@ -821,7 +860,7 @@ En esta versión del workflow, la gestión de specs (estados, versiones, changel
 - Conocer el estado actual de cada spec.
 - Ver el grafo de dependencias entre specs (primer nivel directo).
 
-El INDEX se actualiza manualmente en cuatro momentos clave del ciclo de vida de cada spec: creación (Draft), aprobación (Approved), implementación (Implemented) y deprecación (Deprecated). La transición Draft → Review no requiere actualización del INDEX.
+El INDEX se actualiza en cuatro momentos clave (en Modo Flow lo hace el orquestador; en el camino manual, a mano) del ciclo de vida de cada spec: creación (Draft), aprobación (Approved), implementación (Implemented) y deprecación (Deprecated). La transición Draft → Review no requiere actualización del INDEX.
 
 **ROADMAP del proyecto:** cada proyecto tiene un archivo `ROADMAP.md` generado desde `templates/project-roadmap.template.md` durante Fase 0 (paso 2). Es el documento de visión estratégica que complementa al INDEX:
 
@@ -923,7 +962,8 @@ Cuando se incorpore gente al equipo, agregar branch protection en `main` en GitH
 - **Saltar la pasada adversaria** por "está chiquita la feature".
 - **Modificar spec en pleno desarrollo sin frenar generación.**
 - **Aceptar código que "funciona" sin verificar que cumple spec.**
-- **Generar todas las capas de una sola vez** en vez de capa por capa con verificación.
+- **Generar todas las capas sin verificación entre ellas.** Desde v19 las capas se generan seguidas en una sola ejecución, pero en orden y con gate automático (tests + typecheck/build) entre cada una; el antipatrón es saltar ese gate, no ahorrarse la confirmación humana.
+- **Confirmaciones que no deciden nada:** pedir "¿sigo?", re-confirmar un gate ya confirmado, o presentar hallazgos descartables uno por uno. Cada espera innecesaria cuesta más que lo que protege (§6.0).
 - **Mezclar capacidades funcionales** en una sola spec (violación de granularidad).
 - **Dejar decisiones implícitas** del LLM sin validar.
 - **Sobre-ingeniería silenciosa** que se acumula sin que lo note.

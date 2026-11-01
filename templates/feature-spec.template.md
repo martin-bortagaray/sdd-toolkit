@@ -1,5 +1,7 @@
 # Spec: [Nombre de la feature]
 
+<!-- Spec compacta (WORKFLOW v19): omití las sub-secciones que no aplican (una línea "No aplican: X — motivo" si hace falta constancia). Largo orientativo: S ≈ 1 página, M ≈ 2, L ≈ 4. -->
+
 ---
 
 ## 1. Metadata
@@ -49,11 +51,11 @@
 
 ### Performance
 
-[Tiempos de respuesta esperados, carga esperada, o "No aplica porque...".]
+[Tiempos de respuesta esperados, carga esperada. Omitir si no aplica.]
 
 ### Disponibilidad / offline
 
-[Requiere conexión / funciona offline / qué pasa si se pierde conexión, o "No aplica porque...".]
+[Requiere conexión / funciona offline / qué pasa si se pierde conexión. Omitir si no aplica.]
 
 ### Seguridad
 
@@ -61,11 +63,13 @@
 
 ### Internacionalización
 
-[Idiomas, formatos, unidades, o "No aplica porque...".]
+[Idiomas, formatos, unidades. Omitir si no aplica.]
 
 ### Otros (accesibilidad, privacidad, compatibilidad)
 
-[Contenido relevante, o "No aplica porque...".]
+[Contenido relevante. Omitir si no aplica.]
+
+[No aplican: sub-secciones omitidas — motivo, en UNA línea (opcional).]
 
 ---
 
@@ -90,6 +94,8 @@
 ## 9. Casos borde y manejo de errores
 
 [Lista numerada de casos borde según taxonomía obligatoria condicional. Ver guide sección 9 para las 10 categorías a considerar.]
+
+No aplican: [categorías no aplicables con su motivo, en UNA línea].
 
 ---
 
@@ -139,7 +145,7 @@
 
 - **Modo obligatorio:** si la feature tiene UI compleja (flujos multi-paso, interacciones no triviales, estados visuales relevantes para el negocio), esta sección debe documentar comportamiento de interfaz: flujos, estados visuales, transiciones, validaciones en cliente.
 
-- **Modo opcional:** para CRUDs simples u otras features sin UI compleja, puede contener pistas técnicas que orientan al LLM Generador sin ser requerimientos. Si queda vacía, eliminarla.]
+- **Modo opcional:** para CRUDs simples u otras features sin UI compleja, puede contener pistas técnicas que orientan al LLM Generador sin ser requerimientos. Si queda vacía, se omite.]
 
 ---
 

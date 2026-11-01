@@ -1,7 +1,7 @@
 # Guía de uso de artefactos del toolkit SDD
 
 > **Toolkit:** sdd-toolkit
-> **Versión:** 20260613-v6
+> **Versión:** 20261101-v7
 > **Propósito:** Referencia rápida de qué artefacto usar en cada momento del proceso y catálogo completo del toolkit.
 
 Este documento es complemento del WORKFLOW.md y de los diagramas de flujo. Tiene dos vistas:
@@ -27,7 +27,20 @@ Esta tabla recorre el proceso completo de inicio a fin, indicando para cada mome
 
 Al terminar Fase 0, crear `INDEX.md` del proyecto usando `templates/project-index.template.md`. El INDEX queda vacío hasta que arranque la primera spec.
 
-### Ciclo de feature (se repite por cada feature del roadmap)
+### Ciclo de feature en Modo Flow (por defecto desde WORKFLOW v19)
+
+Una sola invocación de `/sdd-feature` recorre el ciclo; el autor interviene en 4 gates.
+
+| Momento | Prompt que ejecuta el orquestador | Contexto que carga | Output / gate |
+|---------|-----------------------------------|--------------------|---------------|
+| **Fases 2+3 — Spec-first** | `08-spec-first.prompt.md` (modificación: `07-modify-spec`) | Setup foundacional + dependencias + template. Guide solo puntual. | Spec Draft en disco con `[DECIDIR-N]` → **G1: preguntas en lote**. |
+| **Fase 4 + verificación — Revisión unificada** | `03-adversarial-spec` + checklist de `06-spec-verification` (sin F1/F3), en un subagente Sonnet | Spec + foundation (selectiva en modificaciones) + dependencias. | Hallazgos aplicados o descartados en §10.2, semáforo → **G2: aprobación de spec**. |
+| **Fase 6 — Plan único** | `04-codegen-layer` MODO FEATURE (Paso 0) | Spec Approved + foundation + schema real. | Tabla de todas las capas → **G3: plan ok** (en S, fusionado con G2). |
+| **Fase 6 — Implementación** | `04-codegen-layer` MODO FEATURE | Lo anterior + código de capas previas. | Tests de CA primero, capas 1→4 con gate automático. Sin gates humanos. |
+| **Fase 6 — Revisión de código** | `05-adversarial-code` alcance FEATURE (subagente; 2 en paralelo si el diff es grande) | Diff completo + unión de la matriz por capa de `tier-routing.md`. | Bloqueantes corregidos, no bloqueantes a `DEBT.md`. |
+| **Cierre** | — | — | Plan de prueba manual → **G4: `ok` = commit**. |
+
+### Ciclo de feature — camino manual (modo profundo / control por capa)
 
 | Momento | Prompt que ejecuto | Templates / archivos que adjunto | Output |
 |---------|-------------------|----------------------------------|--------|
@@ -101,7 +114,7 @@ Esta tabla lista los artefactos del toolkit organizados por tipo. (El conteo tot
 | `prompts/00b-setup-foundation.prompt.md` | Prompt | Una sola vez por proyecto, después del Paso 1 de Fase 0. | Redacta los 6 archivos del setup foundacional + ROADMAP en un solo flujo, usando el output del discovery como input. |
 | `prompts/00c-design-prototype.prompt.md` | Prompt | Una sola vez por proyecto, después del Paso 2 de Fase 0. | Genera un brief estructurado para pegar en Claude Design y producir el prototipo navegable. |
 
-### Prompts del ciclo de feature (7 artefactos)
+### Prompts del ciclo de feature (8 artefactos)
 
 | Artefacto | Tipo | Cuándo se usa | Para qué sirve |
 |-----------|------|---------------|----------------|
@@ -109,8 +122,9 @@ Esta tabla lista los artefactos del toolkit organizados por tipo. (El conteo tot
 | `prompts/02-draft-spec.prompt.md` | Prompt | Una vez por feature, en Fase 3. | Redacta la spec completa usando el output del discovery + setup foundacional + dependencias. |
 | `prompts/07-modify-spec.prompt.md` | Prompt | Cuando una feature ya implementada (o spec as-built) necesita agregar/cambiar funcionalidad. | Edita quirúrgicamente una spec existente con el delta del discovery, sube versión y escribe el changelog. Variante de Fase 3 sobre specs Implemented/As-built (WORKFLOW §8.3). |
 | `prompts/03-adversarial-spec.prompt.md` | Prompt | Una o dos veces por feature, en Fase 4. | Cuestiona la spec en busca de ambigüedades, gaps, supuestos no declarados, casos borde olvidados. |
-| `prompts/04-codegen-layer.prompt.md` | Prompt | 4 veces por feature (una por capa), en Fase 6. | Genera el código de una capa específica (datos, negocio, API o UI) usando un protocolo de 3 pasos. |
-| `prompts/05-adversarial-code.prompt.md` | Prompt | 4 veces por feature (una por capa), en Fase 6. | Cuestiona el código generado contra la spec y contra principios de seguridad y diseño. |
+| `prompts/04-codegen-layer.prompt.md` | Prompt | Una vez por feature en MODO FEATURE (por defecto, v19), o una por capa en MODO CAPA. | Genera el código: plan único + capas en orden con gate automático (MODO FEATURE), o una capa específica (MODO CAPA). |
+| `prompts/05-adversarial-code.prompt.md` | Prompt | Una vez por feature sobre el diff completo (por defecto, v19), o una por capa en modo manual. | Cuestiona el código generado contra la spec y contra principios de seguridad y diseño. |
+| `prompts/08-spec-first.prompt.md` | Prompt | Una vez por feature nueva S/M, en Fase A de `/sdd-feature`. | Fusiona discovery + redacción: draft directo a disco con `[DECIDIR-N]` y preguntas en lote con recomendación. |
 | `prompts/06-spec-verification.prompt.md` | Prompt | Una vez por feature, en Fase 5 (entre aprobación y codegen). | Verifica preparación operativa de la spec antes de empezar codegen. Devuelve veredicto VERDE / AMARILLO / ROJO. |
 
 ### Templates de setup foundacional (6 artefactos)
@@ -164,17 +178,18 @@ Estos templates se usan principalmente durante Fase 0 paso 2. Definen la estruct
 |-----------|------|---------------|----------------|
 | `templates/design-system.template.md` | Documento transversal | Cargado en prompt 00c y en codegen de Capa 4 (UI). | Define el design system del autor: identidad visual, tipografía, componentes base, patrones de UX. Es transversal a todos los proyectos. Las decisiones del autor están consolidadas; no se "instancia" por proyecto. |
 
-### Protocolos (1 artefacto)
+### Protocolos (2 artefactos)
 
 | Artefacto | Tipo | Cuándo se usa | Para qué sirve |
 |-----------|------|---------------|----------------|
 | `protocols/codegen-protocol.md` | Protocolo operativo | Referencia constante durante Fase 6. | Checklist operativo de las 4 capas, manejo de problemas, pasos de deploy. Es el "checklist físico" que el autor consulta durante codegen. |
+| `protocols/tier-routing.md` | Protocolo operativo | Modificaciones y pasada adversaria de código. | Clasificación T1/T2/T3, pasos por tier, carril rápido T1 y matriz de carga selectiva de contexto. |
 
 ### Plugin de Claude Code (1 conjunto)
 
 | Artefacto | Tipo | Cuándo se usa | Para qué sirve |
 |-----------|------|---------------|----------------|
-| `.claude-plugin/` + `commands/` | Plugin de Claude Code | Instalado en Claude Code. Un comando `/sdd-*` por fase. | Ejecuta el proceso desde Claude Code: cada comando lee su prompt canónico de `prompts/` (fuente única de verdad) y carga el contexto del proyecto automáticamente. Las pasadas adversarias corren en subagente con contexto limpio. |
+| `.claude-plugin/` + `commands/` | Plugin de Claude Code | Instalado en Claude Code. `/sdd-feature` orquesta el ciclo completo (Modo Flow); un comando `/sdd-*` por fase como camino manual. | Ejecuta el proceso desde Claude Code: cada comando lee su prompt canónico de `prompts/` (fuente única de verdad) y carga el contexto del proyecto automáticamente. Las pasadas adversarias corren en subagente con contexto limpio. |
 
 ### Documentación del proceso (8 artefactos)
 
@@ -226,3 +241,4 @@ A diferencia de los otros templates, `design-system.template.md` NO se instancia
 | 20260607-v4 | 2026-06-07 | Agregado `docs/cheatsheet.html` y `docs/PLAYBOOK.md` al catálogo de documentación del proceso. |
 | 20260613-v6 | 2026-06-13 | Agregado al catálogo (Vista 2) el `templates/debt.template.md` y el comando `/sdd-defer`: registro de pendientes diferidos (`sdd/DEBT.md`). Formaliza el destino de ideas, deuda técnica y decisiones que se difieren durante una sesión (WORKFLOW 8.7, v15). |
 | 20260610-v5 | 2026-06-10 | Sub-vista "Modificación de feature existente" actualizada al modelo de **tiers** (WORKFLOW v14, 8.3.2): tier en el flujo de modificación, pasada adversaria/verify/adversaria de código ruteadas por tier, edición quirúrgica directa sobre el archivo (sin re-emitir la spec), chequeos D1–D3. Corregido el header de versión que había quedado en v3 con changelog en v4. |
+| 20261101-v7 | 2026-11-01 | WORKFLOW v19 (Modo Flow): nueva sub-vista "Ciclo de feature en Modo Flow" con los 4 gates de `/sdd-feature`; la anterior pasa a "camino manual". Catálogo: `08-spec-first` agregado, frecuencia de 04/05 actualizada (una vez por feature por defecto), `tier-routing.md` agregado a protocolos. |

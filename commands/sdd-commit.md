@@ -52,6 +52,8 @@ Analizá los archivos staged para elegir el prefijo más apropiado:
 
 ### Cuándo aplica el gate
 
+- **Ya confirmado en esta sesión:** si en esta misma sesión ya respondí `ok` a un plan de prueba manual de este cambio (cierre de `/sdd-feature`, `/sdd-codegen` o `/sdd-bugfix`), el gate está cumplido: **no lo vuelvas a pedir** y salteá también la confirmación del mensaje del Paso 5 (ese `ok` autorizó el commit). Avisá en una línea "gate ya confirmado en esta sesión".
+
 - **Aplica** cuando el commit incluye código: prefijos `feat(spec-NNN):`, `fix(bugfix-NNN):`, `feat(db):`, `feat(nombre-feature):`, o cualquier mezcla con código.
 - **NO aplica** (saltá el gate directo al Paso 5) cuando el commit es **solo documentación o artefactos del toolkit sin código**: `docs(sdd):`, `docs:`, `chore:`, o cambios que solo tocan `sdd/` / `.md`.
 - **Override manual:** si `$ARGUMENTS` contiene `sin-prueba` o `skip-test`, saltá el gate, pero avisame explícitamente que se commiteó **sin verificación manual** y por qué (lo dejo registrado conscientemente).

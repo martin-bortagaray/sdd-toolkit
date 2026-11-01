@@ -1,8 +1,8 @@
 # Prompt — Redacción de Spec (Fase 3)
 
-> **Versión:** 20260602-v4 · historia en `/CHANGELOG.md`
+> **Versión:** 20261101-v5 · historia en `/CHANGELOG.md`
 > **Uso:** Después de Fase 2 (Discovery) y antes de Fase 4 (Pasada adversaria). Es el prompt que ejecuta el rol Redactor de la IA (WORKFLOW.md sección 3).
-> **Dónde se ejecuta:** Vía el comando `/sdd-spec` en Claude Code, o en conversación nueva en Claude.ai. Contexto limpio, separado del discovery (WORKFLOW.md sección 11.1, modelo híbrido v10).
+> **Dónde se ejecuta:** Vía el comando `/sdd-spec` en Claude Code, o en conversación nueva en Claude.ai. Puede correr en la misma sesión del discovery (WORKFLOW.md sección 3, v19): la independencia que importa es la del Adversario. Modo profundo para features L; en S/M, `/sdd-feature` usa `08-spec-first`.
 
 ---
 
@@ -30,7 +30,7 @@ Es coherente con WORKFLOW.md secciones 2.3 y 5 (no aprobar con pendientes), y co
 
 1. Verificar pre-requisitos del paso anterior.
 
-2. Abrir conversación nueva en Claude.ai. **No usar la conversación del discovery.** Los roles Interrogador y Redactor deben ir en conversaciones separadas (WORKFLOW.md sección 3).
+2. Abrir conversación nueva en Claude.ai (en Claude Code, `/sdd-spec` carga todo; puede correr en la misma sesión del discovery — WORKFLOW.md sección 3, v19).
 
 3. **Adjuntar como archivos** (no pegar como texto plano) los artefactos del setup foundacional que existan en el proyecto:
    - `PRODUCT.md`
@@ -119,15 +119,7 @@ Si encontrás decisiones sin nota de validación, NO redactes la spec. Devolveme
 ...
 Validá cada decisión (aceptándola o reemplazándola) en el output del discovery antes de pedirme redactar. Esto evita que la spec se construya sobre decisiones aceptadas por inercia (WORKFLOW.md Regla 2 y zona de riesgo declarada en sección 10.2)."
 
-Verificación 3 — Conversación limpia:
-
-Antes de proceder, hacé al usuario una sola pregunta de confirmación afirmativa:
-
-"Antes de redactar, confirmame: ¿esta conversación es nueva, sin contexto de la sesión de discovery anterior, y adjuntaste todos los artefactos del setup foundacional, template, guide y output del discovery? (sí/no)"
-
-Esperá la respuesta del usuario. Si responde "no", parate y pediles que prepare la conversación correctamente. Si responde "sí", continuá al Paso 1.
-
-Si las tres verificaciones pasan, continuar al Paso 1.
+Si las dos verificaciones pasan, continuar al Paso 1. (No pidas confirmación de "conversación limpia": en Claude Code el comando carga el contexto por vos, y la independencia que importa es la del Adversario, que corre en subagente.)
 
 PASO 1 — REDACCIÓN DE LA SPEC:
 
@@ -146,7 +138,7 @@ Regla de adaptación al template:
 
 Reglas globales de redacción (de la guide):
 - Lenguaje preciso. NO uses "podría", "idealmente", "es deseable", "sería bueno". Usá "debe", "es", "tiene".
-- Densidad sobre volumen. Si una sección no aplica, escribí "No aplica porque..." con justificación. NO inflar contenido.
+- Densidad sobre volumen — spec compacta (guide, regla global 4): las sub-secciones que no aplican se omiten (una sola línea "No aplican: X, Y — motivo" si hace falta constancia); en §9 las categorías no aplicables van juntas en una línea con su justificación. Largo orientativo S ≈ 1 página, M ≈ 2, L ≈ 4. NO inflar contenido.
 - Consistencia con setup foundacional. Si detectás contradicción entre lo que pide el discovery y lo que dice el setup foundacional, NO redactes esa parte y avisame (ver "Manejo de gaps").
 
 Reglas específicas por sección:
@@ -159,8 +151,7 @@ Reglas específicas por sección:
 
 - Sección 13 (Notas de implementación):
   - Si la feature tiene UI compleja (flujos multi-paso, interacciones no triviales, estados visuales relevantes para el negocio), redactá la sección obligatoriamente con foco en comportamiento de interfaz.
-  - Si la feature es CRUD simple, integración backend, o sin UI compleja: escribí literalmente "No aplica — feature sin UI compleja. Sección candidata a eliminar en revisión final por el autor."
-  - NUNCA elimines la sección por tu cuenta. Esa decisión la toma el autor en Fase 5.
+  - Si la feature es CRUD simple, integración backend, o sin UI compleja, y no hay pistas técnicas útiles: omití la sección (spec compacta, v19).
 
 PASO 2 — SECCIÓN 14 (Decisiones tomadas por defecto por la IA):
 

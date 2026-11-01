@@ -1,14 +1,18 @@
 ---
-description: "Fase 6 SDD — Generación de código por capas (rol Generador). Una capa por invocación, con tabla comparativa antes del código."
-argument-hint: "[ID/ruta spec] [capa: 1|2|3|4]"
+description: "Fase 6 SDD — Generación de código (rol Generador). Por defecto toda la feature con un plan único y gates automáticos entre capas; con número de capa, una sola capa."
+argument-hint: "[ID/ruta spec] [capa opcional: 1|2|3|4]"
 ---
 
-Vas a ejecutar la **Fase 6 (Generación)** del ciclo SDD en tu rol de **Generador** — el rol de mayor riesgo. Se corre **una capa por invocación** (1 Modelo de datos → 2 Lógica → 3 API/Acceso → 4 UI), nunca todas juntas.
+Vas a ejecutar la **Fase 6 (Generación)** del ciclo SDD en tu rol de **Generador** — el rol de mayor riesgo. Las capas se generan siempre en orden (1 Modelo de datos → 2 Lógica → 3 API/Acceso → 4 UI) y con verificación entre capas.
+
+**Modo según $ARGUMENTS (WORKFLOW §7, v19):**
+- **Sin número de capa → MODO FEATURE (por defecto).** Un **plan único** para todas las capas (Paso 2), una sola confirmación mía, y después generás las capas del plan **seguidas, sin pedirme confirmación entre capas**: tests de §8/§9 primero, código después, y el **gate automático** entre capas (tests + suite previa + typecheck/lint/build en verde; máx. 2 intentos de corrección, al tercero frenás). Las decisiones técnicas por defecto se acumulan y las valido una vez al final. La verificación adversaria corre **una vez sobre el diff completo** (Paso 5). Es lo que usa `/sdd-feature`.
+- **Con número de capa → MODO CAPA (manual).** Una sola capa: tabla de esa capa → mi confirmación → código → verificación adversaria de esa capa. Para retomar una capa puntual o cuando quiero control fino.
 
 ## Paso 1 — Cargá el prompt canónico y el contexto
 
-1. Leé el prompt maestro: `${CLAUDE_PLUGIN_ROOT}/prompts/04-codegen-layer.prompt.md`. Aplicá sus 8 reglas de generación.
-2. Identificá spec y capa desde **$ARGUMENTS**. La spec debe estar **Approved** y haber pasado `/sdd-verify` con veredicto VERDE o AMARILLO aceptado. Si no, frená y avisame.
+1. Leé el prompt maestro: `${CLAUDE_PLUGIN_ROOT}/prompts/04-codegen-layer.prompt.md`. Aplicá sus reglas de generación y el modo que corresponda (MODO FEATURE / MODO CAPA).
+2. Identificá spec y capa desde **$ARGUMENTS**. La spec debe estar **Approved** y haber pasado el checklist de verificación pre-codegen (revisión unificada de `/sdd-feature` o `/sdd-verify`) con veredicto VERDE o AMARILLO aceptado. Si no, frená y avisame.
 3. Leé: la spec completa, `sdd/foundation/` (ARCHITECTURE, DOMAIN_MODEL, CONVENTIONS, PRINCIPLES, GLOSSARY) y specs dependientes de sección 12.
    - **Si esto es una modificación** (la spec viene de `/sdd-modify-spec`): cargá también el **CHANGE-SET** (delta `ADDED/MODIFIED/REMOVED` con **tier** en el header). Activa la Regla 9 del prompt: regenerás solo los ítems del delta y preservás el resto del código existente. Sin CHANGE-SET = build inicial = capa completa.
    - **Carga selectiva en modificaciones:** no cargues todo `sdd/foundation/`; seguí la matriz de `${CLAUDE_PLUGIN_ROOT}/protocols/tier-routing.md` según lo que toca el CHANGE-SET.
@@ -19,9 +23,9 @@ Vas a ejecutar la **Fase 6 (Generación)** del ciclo SDD en tu rol de **Generado
 
 ## Paso 2 — Tabla comparativa ANTES del código (Paso 0 del prompt)
 
-1. Identificá los requerimientos (sección 4), reglas de negocio (7), criterios de aceptación (8) y casos borde (9) que aplican a **esta capa**.
-2. Generá la tabla `Requerimiento en spec | Implementación en esta capa | Cubierto/Parcial/No aplica en esta capa`. En una **modificación**, agregá la columna `Estado en el cambio` (Nuevo / Modificado / Sin cambios — no regenerar) cruzando cada fila contra el CHANGE-SET. Las filas "Sin cambios" no se tocan.
-3. **Esperá mi confirmación explícita** ("tabla ok, generá") antes de escribir una sola línea de código.
+1. Identificá los requerimientos (sección 4), reglas de negocio (7), criterios de aceptación (8) y casos borde (9) que aplican a **esta capa** (MODO CAPA) o a **todas las capas del plan** (MODO FEATURE).
+2. Generá la tabla `Requerimiento en spec | Implementación | Cubierto/Parcial/No aplica`. En MODO FEATURE agregá las columnas `Capa` y `Test que lo cubre`, más migraciones previstas y archivos existentes que se tocan. En una **modificación**, agregá la columna `Estado en el cambio` (Nuevo / Modificado / Sin cambios — no regenerar) cruzando cada fila contra el CHANGE-SET. Las filas "Sin cambios" no se tocan.
+3. **Esperá mi confirmación explícita** ("tabla ok" / "plan ok") antes de escribir una sola línea de código. En MODO FEATURE esa única confirmación cubre todas las capas.
 
 ## Paso 3 — Generá (tras mi confirmación)
 
@@ -37,9 +41,11 @@ Si la spec dice X pero el setup dice algo incompatible, un requerimiento es ambi
 
 ## Paso 5 — Antes de cerrar la capa
 
-No tildes la capa hasta: revisar mis decisiones por defecto, ejecutar la **verificación adversaria** y procesar sus hallazgos, y que los tests pasen. En builds iniciales: `/sdd-adversarial-code` completo. En modificaciones, rutea por tier (`${CLAUDE_PLUGIN_ROOT}/protocols/tier-routing.md`: checks inline en T1, subagente acotado al diff en T2, completo en T3).
+**MODO CAPA:** no tildes la capa hasta revisar las decisiones por defecto, ejecutar la **verificación adversaria** de la capa y procesar sus hallazgos, y que los tests pasen. Después seguí con la capa siguiente.
 
-Después seguí con la capa siguiente.
+**MODO FEATURE:** con todas las capas en verde, ejecutá la verificación adversaria **una sola vez sobre el diff completo** (`/sdd-adversarial-code <ID>` sin capa). Bloqueantes → los corregís y re-corrés el gate automático; no bloqueantes → `DEBT.md`. Solo frenás si una corrección requiere decisión de producto.
+
+En ambos modos, en modificaciones rutea por tier (`${CLAUDE_PLUGIN_ROOT}/protocols/tier-routing.md`: checks inline en T1, subagente acotado al diff en T2, completo en T3).
 
 ## Paso 6 — Cierre de la feature: prueba manual ANTES del commit
 
@@ -47,4 +53,6 @@ El **commit es por feature completa y verificada**, no por capa suelta. Antes de
 
 1. **Armá un plan de prueba manual** a partir de los criterios de aceptación (sección 8) y casos borde (sección 9) de la spec — en una modificación, acotado a lo que tocó el CHANGE-SET. Pasos concretos, numerados, con datos/precondición y resultado esperado.
 2. **Esperá mi confirmación explícita** de que probé y funciona. Los tests automáticos validan que el código cumple la spec; la prueba manual valida que la experiencia real es la esperada. No son lo mismo.
-3. **Recién con mi OK**, commiteá con `/sdd-commit` (que vuelve a ofrecer el gate de prueba manual como red de seguridad). Si algo falla en la prueba, no commitees: volvemos a iteración de código.
+3. **Mi OK es la autorización del commit:** commiteá directo con la convención de `/sdd-commit` (`feat(<ID>): …`), sin volver a preguntarme por el gate ni por el mensaje. `ok push` → también pusheás. Si algo falla en la prueba, no commitees: volvemos a iteración de código.
+
+En el mismo mensaje del plan de prueba, listá las decisiones técnicas por defecto acumuladas: `ok` las valida todas.

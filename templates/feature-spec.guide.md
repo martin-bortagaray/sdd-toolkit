@@ -98,8 +98,10 @@ Si una feature nueva quiere usar esta, ¿está claro qué tipos de usuarios y qu
 - Si esta feature requiere algo específico (ej: 2FA para operaciones críticas, encriptación adicional, política de retención distinta), documentarlo explícitamente.
 
 **Qué NO va:**
-- "TBD" o "a definir". Si no aplica, escribir "No aplica porque..." con justificación.
+- "TBD" o "a definir".
 - Duplicar políticas globales que ya están en `PRINCIPLES.md`.
+
+**Compacto (v19):** las sub-secciones que no aplican se **omiten**. Se dejan al final en una sola línea: *"No aplican: Performance, Offline, i18n — feature interna de baja carga, solo online, solo español."* Seguridad siempre lleva su línea (aunque sea la literal de arriba).
 
 **Pregunta guía:**
 Si esta feature se rompe por una razón NO funcional, ¿está prevista la respuesta del sistema?
@@ -200,7 +202,7 @@ Casos borde que el sistema debe manejar correctamente. Cada caso documenta:
 
 **Taxonomía obligatoria condicional:**
 
-Para cada categoría siguiente, si la condición se cumple en esta feature, **debe haber al menos un caso documentado**. Si no aplica, **debe haber justificación explícita "No aplica porque..."**.
+Para cada categoría siguiente, si la condición se cumple en esta feature, **debe haber al menos un caso documentado**. Si no aplica, **debe haber justificación explícita**, pero las categorías no aplicables van **juntas en una sola línea** al final de la sección (v19): *"No aplican: 1 Concurrencia (entidad de un solo usuario), 4 Integración externa (sin integraciones), 7 Conexión perdida (operación atómica de un request)."* La justificación sigue siendo obligatoria; lo que se elimina es un párrafo por categoría vacía.
 
 | # | Categoría | Cuándo aplica |
 |---|-----------|---------------|
@@ -419,7 +421,12 @@ Estas reglas aplican a todas las secciones cuando la IA redacta una spec a parti
 
 3. **Lenguaje preciso.** Evitar "podría", "idealmente", "es deseable", "sería bueno". Usar "debe", "es", "tiene".
 
-4. **Densidad sobre volumen.** Una spec corta y completa es preferible a una larga con relleno. Si una sección no aplica, escribir "No aplica porque..." con justificación, no inflar contenido.
+4. **Densidad sobre volumen — spec compacta (v19).** Una spec corta y completa es preferible a una larga con relleno: cada línea que no decide nada es tiempo de lectura en la aprobación (Regla 3). Reglas concretas:
+   - Sub-secciones que no aplican se **omiten**; si hace falta dejar constancia, una sola línea "No aplican: X, Y — motivo".
+   - §13 se omite entera si la feature no tiene UI compleja ni pistas técnicas útiles.
+   - Un requerimiento = un comportamiento, en una o dos líneas.
+   - No repetir en §8 lo que ya dice §4 sin agregar verificabilidad; no repetir el foundation.
+   - Largo orientativo: **S ≈ 1 página, M ≈ 2, L ≈ 4.** Si una M pasa de 3 páginas, probablemente hay relleno o debería partirse.
 
 5. **Consistencia con setup foundacional.** Las entidades, términos, principios y decisiones técnicas deben ser consistentes con `DOMAIN_MODEL.md`, `GLOSSARY.md`, `CONVENTIONS.md`, `PRINCIPLES.md` y `ARCHITECTURE.md`. Si la spec necesita contradecir alguno, primero se actualiza el setup foundacional, no se contradice silenciosamente.
 
@@ -432,3 +439,4 @@ Estas reglas aplican a todas las secciones cuando la IA redacta una spec a parti
 | 20260520-v1 | 2026-05-20 | Versión inicial. |
 | 20260520-v2 | 2026-05-20 | Resultados de primera pasada adversaria: agregada sección 14 dedicada para decisiones por defecto de la IA (hallazgo 1.1); reestructurada sección 10 con sub-secciones 10.1 (decisiones del autor) y 10.2 (decisiones derivadas de pasadas adversarias) (hallazgo 2.1); reemplazado "sumá 50% más" por taxonomía obligatoria condicional de 10 categorías en sección 9 (hallazgo 3.1); modo obligatorio / opcional en sección 13 según complejidad de UI (hallazgo 2.2 zona gris). |
 | 20260523-v3 | 2026-05-23 | Quitada toda referencia a "Modo B" del documento, ya que es terminología interna del WORKFLOW que la IA no conoce en conversación nueva. Reemplazado por descripción directa de las situaciones. El término "Modo B" se mantiene solo en WORKFLOW.md. |
+| 20261101-v4 | 2026-11-01 | **Spec compacta** (WORKFLOW v19): sub-secciones no aplicables se omiten (una línea "No aplican: … — motivo" si hace falta constancia); en §9 las categorías no aplicables van juntas en una línea con su justificación; §13 se omite si no aporta; largo orientativo S≈1 / M≈2 / L≈4 páginas. Motivo: reducir el tiempo de lectura de la aprobación (Regla 3) sin perder la taxonomía obligatoria. |
